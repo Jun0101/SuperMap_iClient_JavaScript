@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import L from 'leaflet';
 import '../core/Base';
 import {
@@ -43,7 +46,7 @@ export var Logo = L.Control.extend({
      * @function L.supermap.control.logo.prototype.onAdd
      * @override
      * @description 添加一个 logo。
-     * @returns {div} 返回创建 logo 的 div。
+     * @returns {HTMLElement} 返回创建 logo 的 div。
      */
     onAdd: function () {
         var div = L.DomUtil.create('div', 'iclient-leaflet-logo');

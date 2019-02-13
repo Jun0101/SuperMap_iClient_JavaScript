@@ -1,5 +1,6 @@
 import {FeatureService} from '../../../src/mapboxgl/services/FeatureService';
 import {GetFeaturesBySQLParameters} from '../../../src/common/iServer/GetFeaturesBySQLParameters';
+import { FetchRequest } from '../../../src/common/util/FetchRequest';
 
 var url = GlobeParameter.dataServiceURL;
 
@@ -25,10 +26,18 @@ describe('mapboxgl_FeatureService_getFeaturesBySQL', () => {
             datasetNames: ["World:Countries"]
         });
         var service = new FeatureService(url);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(url + "/featureResults.json?returnContent=true&fromIndex=0&toIndex=19");
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj.datasetNames[0]).toBe("World:Countries");
+            expect(paramsObj.getFeatureMode).toBe("SQL");
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(JSON.stringify(getFeaturesResultJson)));
+        });
         service.getFeaturesBySQL(sqlParam, (result) => {
             serviceResult = result
-        });
-        setTimeout(() => {
+    
             try {
                 expect(service).not.toBeNull();
                 expect(serviceResult).not.toBeNull();
@@ -40,7 +49,7 @@ describe('mapboxgl_FeatureService_getFeaturesBySQL', () => {
                 expect(serviceResult.result.totalCount).toEqual(serviceResult.result.featureCount);
                 expect(serviceResult.result.features.type).toEqual("FeatureCollection");
                 var features = serviceResult.result.features.features[0];
-                expect(features.id).toEqual(247);
+                expect(features.id).toEqual(127);
                 expect(features.type).toEqual("Feature");
                 expect(features.properties).not.toBeNull();
                 expect(features.geometry.type).toEqual("MultiPolygon");
@@ -57,6 +66,6 @@ describe('mapboxgl_FeatureService_getFeaturesBySQL', () => {
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 5000);
+        });
     });
 });

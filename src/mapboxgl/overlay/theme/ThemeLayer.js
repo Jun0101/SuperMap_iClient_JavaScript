@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import mapboxgl from 'mapbox-gl';
 import '../../core/Base';
 import {ThemeFeature} from './ThemeFeature';
@@ -23,6 +26,8 @@ import {
  * @param {boolean} [options.loadWhileAnimating=true] - 是否实时重绘。
  * @param {boolean} [options.visibility=true] - 图层是否可见。
  * @param {number} [options.opacity=1] - 图层透明度。
+ * @fires mapboxgl.supermap.ThemeLayer#changelayer
+ * @fires mapboxgl.supermap.ThemeLayer#featuresremoved
  */
 export class Theme {
 
@@ -135,7 +140,7 @@ export class Theme {
     /**
      * @function mapboxgl.supermap.ThemeLayer.prototype.destroyFeatures
      * @description 销毁某个要素。
-     * @param {Object} features - 将被销毁的要素。
+     * @param {SuperMap.Feature.Vector} features - 将被销毁的要素。
      */
     destroyFeatures(features) {
         var all = (features == undefined);
@@ -185,6 +190,12 @@ export class Theme {
                 null, null, null, opacity);
 
             if (this.map !== null) {
+                 /**
+                 * @event mapboxgl.supermap.ThemeLayer#changelayer
+                 * @description 图层属性改变之后触发。
+                 * @property {Object} layer - 图层。
+                 * @property {string} property - 被改变的属性。
+                 */
                 mapboxgl.Evented.prototype.fire('changelayer', {layer: this, property: "opacity"});
             }
         }
@@ -192,10 +203,8 @@ export class Theme {
 
     /**
      * @function mapboxgl.supermap.ThemeLayer.prototype.addFeatures
-     * @param {mapboxgl.supermap.ThemeFeature|Object} features - 待转要素包括 mapboxgl.supermap.ThemeFeature 类型和 GeoJOSN 规范数据类型
+     * @param {mapboxgl.supermap.ThemeFeature|SuperMap.ServerFeature|GeoJSONObject} features - 待添加要素。
      * @description 抽象方法，可实例化子类必须实现此方法。向专题图图层中添加数据 ,
-     *              专题图仅接收 SuperMap.Feature.Vector 类型数据，
-     *              feature 将储存于 features 属性中，其存储形式为数组。
      */
     addFeatures(features) { // eslint-disable-line no-unused-vars
 
@@ -244,6 +253,12 @@ export class Theme {
             this.redrawThematicFeatures(this.map.getBounds());
         }
         var succeed = featuresFailRemoved.length == 0 ? true : false;
+        /**
+         * @event mapboxgl.supermap.ThemeLayer#featuresremoved
+         * @description 要素删除之后触发。
+         * @property {Array.<SuperMap.Feature.Vector>} features - 未被成功删除的要素。
+         * @property {boolean} succeed - 删除成功与否。
+         */
         mapboxgl.Evented.prototype.fire("featuresremoved", {features: featuresFailRemoved, succeed: succeed});
     }
 
@@ -367,6 +382,7 @@ export class Theme {
     /**
      * @function mapboxgl.supermap.ThemeLayer.prototype.addTFEvents
      * @description 将图层添加到地图上之前用户要求添加的事件监听添加到图层。
+     * @private
      */
     addTFEvents() {
         var tfEs = this.TFEvents;
@@ -398,7 +414,7 @@ export class Theme {
     /**
      * @function mapboxgl.supermap.ThemeLayer.prototype.toFeature
      * @description 转为 iClient 要素。
-     * @param {mapboxgl.supermap.ThemeFeature|Object} features - 待转要素包括 mapboxgl.supermap.ThemeFeature 类型和 GeoJOSN 规范数据类型。
+     * @param {mapboxgl.supermap.ThemeFeature|GeoJSONObject} features - 待转要素。
      * @returns {SuperMap.Feature.Vector} 转换后的 iClient 要素。
      */
     toiClientFeature(features) {
@@ -415,7 +431,7 @@ export class Theme {
                 // 若是 GeometryVector 直接返回
                 featuresTemp.push(features[i]);
             } else if (["FeatureCollection", "Feature", "Geometry"].indexOf(features[i].type) != -1) {
-                //GeoJOSN 规范数据类型
+                //GeoJSON 规范数据类型
                 let format = new GeoJSONFormat();
                 featuresTemp = featuresTemp.concat(format.read(features[i]));
             } else if (features[i].geometry && features[i].geometry.parts) {
@@ -433,7 +449,7 @@ export class Theme {
      * @function mapboxgl.supermap.ThemeLayer.prototype.toFeature
      * @deprecated
      * @description 转为 iClient 要素，该方法将被弃用，由 {@link mapboxgl.supermap.ThemeLayer#toiClientFeature} 代替。
-     * @param {mapboxgl.supermap.ThemeFeature|Object} features - 待转要素包括 mapboxgl.supermap.ThemeFeature 类型和 GeoJOSN 规范数据类型。
+     * @param {mapboxgl.supermap.ThemeFeature|GeoJSONObject} features - 待转要素。
      * @returns {SuperMap.Feature.Vector} 转换后的 iClient 要素。
      */
     toFeature(features) {

@@ -1,4 +1,7 @@
-﻿import {SuperMap} from '../SuperMap';
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
+import {SuperMap} from '../SuperMap';
 import {Util} from '../commontypes/Util';
 import {DataFormat} from '../REST';
 import {CommonServiceBase} from './CommonServiceBase';
@@ -77,17 +80,17 @@ export class SpatialAnalystBase extends CommonServiceBase {
         if (result.recordsets) {
             for (var i = 0, recordsets = result.recordsets, len = recordsets.length; i < len; i++) {
                 if (recordsets[i].features) {
-                    recordsets[i].features = JSON.parse(geoJSONFormat.write(recordsets[i].features));
+                    recordsets[i].features = geoJSONFormat.toGeoJSON(recordsets[i].features);
                 }
             }
         } else if (result.recordset && result.recordset.features) {
-            result.recordset.features = JSON.parse(geoJSONFormat.write(result.recordset.features));
+            result.recordset.features =geoJSONFormat.toGeoJSON(result.recordset.features);
         }
         if (result.resultGeometry) {
-            result.resultGeometry = JSON.parse(geoJSONFormat.write(result.resultGeometry));
+            result.resultGeometry = geoJSONFormat.toGeoJSON(result.resultGeometry);
         }
         if (result.regions) {
-            result.regions = JSON.parse(geoJSONFormat.write(result.regions));
+            result.regions = geoJSONFormat.toGeoJSON(result.regions);
         }
 
         return result;

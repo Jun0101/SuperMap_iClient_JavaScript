@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import {Util} from './Util';
 import {Curve} from './Curve';
 
@@ -321,11 +324,7 @@ export class Area {
                     }
 
                     // 捕获判断
-                    if (isOnBase === true && isOnHole === false) {
-                        return true;
-                    } else {
-                        return false;
-                    }
+                   return isOnBase === true && isOnHole === false;
                 } else {
                     return this.isInsidePolygon(area.pointList, icX, icY);
                 }

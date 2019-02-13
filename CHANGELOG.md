@@ -1,3 +1,186 @@
+# next release #
+
+
+# 9.1.1 (2018-12-27) #
+
+## 新特性
+
+### iClient for MapboxGL多坐标系支持
+
+- iClient for MapboxGL新增支持WGS84、China2000、Xian80、Beijing54等标准地理坐标系，覆盖MVT矢量瓦片、栅格瓦片、可视化图层、标绘等功能
+
+- 需单独引用iClient对Mapbox GL JS的增强库（基于2018年10月版本v0.51.0）
+ http://iclient.supermap.io/web/libs/mapbox-gl-js-enhance/mapbox-gl-enhance.js
+
+![whatsNewMultiCoordinate](https://github.com/SuperMap/iClient-JavaScript/blob/master/.github/911-1.png)
+ 
+### 新增多款功能微件
+
+-	iClient for Leaflet新增：文件打开微件、数据流微件、地址匹配与图层查询微件、客户端计算微件、分布式分析微件、数据服务查询微件
+
+![whatsNewWidgets](https://github.com/SuperMap/iClient-JavaScript/blob/master/.github/911-2.png)
+ 
+## API changes
+
+### for Leaflet
+
+- 微件
+  - 新增打开文件微件 `L.supermap.widgets.openFile` 及功能类 `L.supermap.widgets.openFileViewModel`
+  - 新增数据流微件 `L.supermap.widgets.dataFlow` 及功能类 `L.supermap.widgets.dataFlowViewModel`
+  - 新增图层查询微件 `L.supermap.widgets.search` 及功能类 `L.supermap.widgets.searchViewModel`
+  - 新增客户端计算微件 `L.supermap.widgets.clientComputation` 及功能类 `L.supermap.widgets.clientComputationViewModel`
+  - 新增分布式分析微件 `L.supermap.widgets.distributedAnalysis` 及功能类 `L.supermap.widgets.distributedAnalysisViewModel`
+  - 新增数据服务查询微件`L.supermap.widgets.dataServiceQuery` 及功能类 `L.supermap.widgets.dataServiceQueryViewModel`
+
+### for OpenLayers
+
+- 可视化 - 矢量瓦片
+
+  - `ol.supermap.MapboxStyles` 样式类新增 `setStyle` 接口，支持整体更新样式
+  - `ol.supermap.MapboxStyles` 样式类 `options.style` 支持传入获取 Mapbox Style JSON 对象的 URL 
+  - `ol.source.VectorTileSuperMapRest` 新增 `options.style`  `options.source` 参数，支持传入 Mapbox Style JSON 对象或 URL
+
+- 可视化 - 高效率点图层 
+
+  - 支持通过 `ol.Map` 的 `forEachFeatureAtPixel` `getFeaturesAtPixel` 方法获取要素
+
+### for MapboxGL
+
+- 支持WGS84、China2000、Xian80、Beijing54等标准地理坐标系，需单独引用iClient对MapboxGL的增强库：
+ http://iclient.supermap.io/web/libs/mapbox-gl-js-enhance/mapbox-gl-enhance.js
+
+## Fixed
+
+### for Leaflet
+
+- 修复 `L.supermap.mapVLayer` 动态图层移除后可能出现的空值问题
+- 修复 `SuperMap.KernelDensityJobParameter`的 `query` 参数解析错误的问题
+- 修复无法解析 iServer 中数据类型为 `LINEEPS` `REGIONEPS` 的要素的问题
+- 修复地图是平面无投影时，在手机上访问双指放大缩小可能的错乱问题
+
+### for OpenLayers
+
+- 修复 `ol.source.Graphic` 无法点击的问题
+- 修复 `SuperMap.KernelDensityJobParameter`的 `query` 参数解析错误的问题
+- 修复无法解析 iServer 中数据类型为 `LINEEPS` `REGIONEPS` 的要素的问题
+- 修复对 `ol.layer.Group` 处理不当的问题([#26](https://github.com/SuperMap/iClient-JavaScript/issues/26))
+
+### for MapboxGL
+
+- 修复 `SuperMap.KernelDensityJobParameter`的 `query` 参数解析错误的问题
+- 修复无法解析 iServer 中数据类型为 `LINEEPS` `REGIONEPS` 的要素的问题
+
+### Classic
+
+- 修复 `SuperMap.KernelDensityJobParameter`的 `query` 参数解析错误的问题
+- 修复无法解析 iServer 中数据类型为 `LINEEPS` `REGIONEPS` 的要素的问题
+
+## Examples
+
+### for Leaflet
+
+  - 新增 “微件” 分类及相关示例
+
+### for OpenLayers
+
+  - 新增 “可视化 - 矢量瓦片 - iServer 矢量瓦片服务” 示例
+
+### for MapboxGL
+
+  - 新增 “多坐标系” 分类及相关示例
+
+  - 新增 “可视化 - 聚合” 示例
+
+
+
+# 9.1.0 (2018-9-28) #
+
+## API changes
+
+### for Leaflet
+
+- 可视化 - 矢量瓦片
+  - `L.supermap.tiledVectorLayer` 新增 `options.processCharacters` 参数,支持本地设置服务端的CartoCSS样式时替换特殊字符
+ 
+- `SuperMap.QueryParameters` 及其子类新增 `options.returnFeatureWithFieldCaption` 参数,支持指定返回的查询结果要素字段标识为字段别名
+
+- 可视化 - 高效率点图层
+  - `L.supermap.graphic` 
+    - 新增 `options.id` 参数，以及 `getId` 和 `setId` 接口，支持设置与修改 `graphic` 要素`id`
+ 
+  - `L.supermap.graphicLayer` 
+    - 新增 `getGraphicBy` 接口支持通过要素属性值获取指定要素
+    - 新增 `getGraphicById` 接口支持通过要素 `id` 获取指定要素
+    - 新增 `getGraphicsByAttribute` 接口支持通过要素 `attribute`属性对象值获取指定要素数组
+    - `removeGraphics` 接口新增删除单个或多个要素的功能
+  - `L.supermap.ThemeLayer` 及其子类 
+    - `addFeatures` 方法默认只支持添加经纬度坐标要素，新增 `options.alwaysMapCRS` 参数，设置该参数为true , `addFeatures` 方法可添加底图坐标要素
+
+### for OpenLayers
+
+- `SuperMap.QueryParameters` 及其子类新增 `options.returnFeatureWithFieldCaption` 参数,支持指定返回的查询结果要素字段标识为字段别名
+
+- 可视化 - 高效率点图层
+  - `ol.Graphic`
+    - 新增 `options.id` 参数，以及 `getId` 和 `setId` 接口，支持设置与修改 `graphic` 要素`id`
+  
+  - `ol.source.Graphic`
+    - 新增 `getGraphicBy` 接口支持通过要素属性值获取指定要素
+    - 新增 `getGraphicById` 接口支持通过要素 `id` 获取指定要素
+    - 新增 `getGraphicsByAttribute` 接口支持通过要素 `attribute`属性对象值获取指定要素数组
+    - `removeGraphics` 接口新增删除单个或多个要素的功能
+    
+### for MapboxGL
+
+- `SuperMap.QueryParameters` 及其子类新增 `options.returnFeatureWithFieldCaption` 参数,支持指定返回的查询结果要素字段标识为字段别名
+
+- 可视化 - 高效率点图层
+  - `mapboxgl.supermap.Graphic` 
+    - 新增 `options.id` 参数，以及 `getId` 和 `setId` 接口，支持设置与修改 `graphic` 要素`id`
+  
+  - `mapboxgl.supermap.GraphThemeLayer` 
+    - 新增 `getGraphicBy` 接口支持通过要素属性值获取指定要素
+    - 新增 `getGraphicById` 接口支持通过要素 `id` 获取指定要素
+    - 新增 `getGraphicsByAttribute` 接口支持通过要素 `attribute`属性对象值获取指定要素数组
+    - `removeGraphics` 接口新增删除单个或多个要素的功能
+
+### Classic
+- `SuperMap.Layer.MapVLayer` 支持北京54 等其他坐标系（注：数据坐标系要求与地图保持一致）
+
+## Fixed
+
+### for Leaflet
+
+- 修复 `L.supermap.featureService` 更新要素时没有携带凭据的问题
+- 优化 `L.supermap.echartsLayer` 内存占用问题
+- 修复 `L.supermap.labelThemeLayer` 移除所有要素后，放大缩小还是会显示要素的问题
+- 修复 `L.supermap.graphicLayer` 从地图移除后再添加后，移动时要素偏移的问题，优化绘制性能
+- 修复 `L.supermap.webmap` 在地图没有设置中心点的时候无法出图的问题
+- 修复 Internet Explorer 11 浏览器上报错问题 
+
+
+### for OpenLayers
+
+- 修复 `ol.source.Graphic` 在浏览器窗口大小发生变化，要素偏移的问题
+- 修复 `ol.source.DataFlow` 更新要素位置时可能出现的闪烁问题
+- 修复 `ol.source.Label` 移除所有要素后，放大缩小还是会显示要素的问题
+- 修复 `ol.supermap.WebMap` 在地图没有设置中心点的时候无法出图的问题
+- 优化 `ol.source.Graphic` 三叶草样式仅有单个叶片时的选中逻辑
+- 修复 Internet Explorer 11 浏览器上报错问题 
+
+### for MapboxGL
+- 修复 `mapboxgl.supermap.LabelThemeLayer` 移除所有要素后，放大缩小还是会显示要素的问题
+
+## Examples
+
+### for MapboxGL
+
+- 可视化 - 矢量瓦片
+
+  - 新增“土地利用”示例
+
+
+
 # 9.1.0 beta (2018-8-2) #
 
 ## API changes
@@ -133,7 +316,7 @@
   - `L.supermap.ThemeLayer` 及其子类 
     - `addFeatures` 方法默认只支持添加经纬度坐标要素，新增 `options.alwaysMapCRS` 参数，设置该参数为true , `addFeatures` 方法可添加底图坐标要素
 
-    - `addFeatures` 方法支持 `L.supermap.ThemeFeature` 类型和 `GeoJOSN` 规范数据类型的 `feature` 数组
+    - `addFeatures` 方法支持 `L.supermap.ThemeFeature` 类型和 `GeoJSON` 规范数据类型的 `feature` 数组
 
     - 废弃`_createFeature` 接口,由 `toiClientFeature` 接口代替
 
@@ -218,7 +401,7 @@
 - 可视化 - 客户端专题图
 
   - `ol.supermap.Theme` 及其子类
-    - `addFeatures` 方法支持传入 `ol.supermap.ThemeFeature` 类型、`GeoJOSN` 规范数据类型，以及`ol.Feature`类型的 `feature` 数组
+    - `addFeatures` 方法支持传入 `ol.supermap.ThemeFeature` 类型、`GeoJSON` 规范数据类型，以及`ol.Feature`类型的 `feature` 数组
 
     - 废弃 `toFeature` 方法,由 `toiClientFeature` 方法代替
 
@@ -293,7 +476,7 @@
 - 可视化 - 客户端专题图
 
   - `mapboxgl.supermap.ThemeLayer` 及其子类
-    - `addFeatures` 方法，支持传入  `mapboxgl.supermap.ThemeFeature` 类型和 `GeoJOSN` 规范数据类型的 `feature` 数组
+    - `addFeatures` 方法，支持传入  `mapboxgl.supermap.ThemeFeature` 类型和 `GeoJSON` 规范数据类型的 `feature` 数组
 
     - 废弃 `toFeature` 方法，由 `toiClientFeature` 方法代替
 

@@ -545,18 +545,81 @@ deps = {
                     "des_en": "Logo control"
                 }]
             },
+        },
+
+        "Widget": {
+            "title": "微件",
+            "description": "微件模块",
+            "description_en": "Widget module",
+
             "OpenFile": {
                 "name": "打开文件微件",
                 "src": [
-                    "./src/leaflet/widgets/OpenFileView.js"
+                    "./src/leaflet/widgets/openfile/OpenFileView.js"
                 ],
                 "modules": [{
                     "name": "L.supermap.widgets.openFile",
                     "des": "打开文件微件",
                     "des_en": "Open file widgets"
                 }]
-            }
-        }
+            },
+            "ClientComputation ": {
+                "name": "客户端计算微件",
+                "src": [
+                    "./src/leaflet/widgets/clientcomputation/ClientComputationView.js"
+                ],
+                "modules": [{
+                    "name": "L.supermap.widgets.clientComputation",
+                    "des": "客户端计算微件",
+                    "des_en": "Client computation widget"
+                }]
+            },
+            "DistributedAnalysis": {
+                "name": "分布式分析微件",
+                "src": [
+                    "./src/leaflet/widgets/distributedanalysis/DistributedAnalysisView.js"
+                ],
+                "modules": [{
+                    "name": "L.supermap.widgets.distributedAnalysis",
+                    "des": "分布式分析微件",
+                    "des_en": "Distributed analysis widget"
+                }]
+            },
+            "Search": {
+                "name": "图层查询微件",
+                "src": [
+                    "./src/leaflet/widgets/search/SearchView.js"
+                ],
+                "modules": [{
+                    "name": "L.supermap.widgets.search",
+                    "des": "图层查询微件",
+                    "des_en": "Search"
+                }]
+            },
+            "DataFlow": {
+                "name": "数据流微件",
+                "src": [
+                    "./src/leaflet/widgets/dataflow/DataFlowView.js"
+                ],
+                "modules": [{
+                    "name": "L.supermap.widgets.dataFlow",
+                    "des": "数据流微件",
+                    "des_en": "Data flow"
+                }]
+            },
+            "DataServiceQuery": {
+                "name": "数据服务查询微件",
+                "src": [
+                    "./src/leaflet/widgets/dataservicequery/DataServiceQueryView.js"
+                ],
+                "modules": [{
+                    "name": "L.supermap.widgets.dataServiceQuery",
+                    "des": "数据服务查询微件",
+                    "des_en": "Data service query"
+                }]
+            },
+
+        },
 
     },
 
@@ -841,7 +904,7 @@ deps = {
                     "name": "ol.source.Graphic",
                     "des": "高效率点图层源",
                     "des_en": "High efficiency point source"
-                },{
+                }, {
                     "name": "ol.style.CloverShape ",
                     "des": "高效率点图层源三叶草风格",
                     "des_en": "Clover style of graphic source"
@@ -858,11 +921,11 @@ deps = {
                     "name": "ol.source.VectorTileSuperMapRest",
                     "des": "矢量瓦片图层源",
                     "des_en": "Vector tile source"
-                },{
+                }, {
                     "name": "ol.supermap.MapboxStyles",
                     "des": "Mapbox 矢量瓦片风格",
                     "des_en": "Mapbox vector tile style"
-                },{
+                }, {
                     "name": "ol.supermap.VectorTileStyles",
                     "des": "矢量瓦片风格",
                     "des_en": "Vector tile style"
@@ -953,6 +1016,20 @@ deps = {
     },
 
     "mapboxgl": {
+        "Mapping": {
+            "title": "地图",
+            "description": "基础地图模块",
+            "description_en": "Basic map module",
+            "iPortal": {
+                "name": "iPortal webmap",
+                "src": ["./src/mapboxgl/mapping/WebMap.js"],
+                "modules": [{
+                    "name": "mapboxgl.supermap.WebMap",
+                    "des": "iPortal、Online 地图",
+                    "des_en": "SuperMap iPortal and Online tile layer"
+                }]
+            }
+        },
         "Services": {
             "title": "服务",
             "description": "服务模块",

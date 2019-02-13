@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import mapboxgl from 'mapbox-gl';
 import '../core/Base';
 import {
@@ -25,6 +28,10 @@ import {
  * @param {Array.<string>} [options.colors=['blue','cyan','lime','yellow','red']] - 颜色线性渐变数组,颜色值必须为canvas所支。
  * @param {boolean} [options.useGeoUnit=false] - 使用地理单位，即默认热点半径默认使用像素单位。 当设置为 true 时，热点半径和图层地理坐标保持一致。
  * @extends {mapboxgl.Evented}
+ * @fires mapboxgl.supermap.HeatMapLayer#featuresadded
+ * @fires mapboxgl.supermap.HeatMapLayer#changelayer
+ * @fires mapboxgl.supermap.HeatMapLayer#featuresremoved
+ *
  */
 export class HeatMapLayer extends mapboxgl.Evented {
 
@@ -222,14 +229,13 @@ export class HeatMapLayer extends mapboxgl.Evented {
         CommonUtil.modifyDOMElement(this.rootCanvas, null, null, null,
             "absolute", null, null, this.opacity);
         this.canvasContext = this.rootCanvas.getContext('2d');
-
         this.mapContainer.appendChild(this.rootCanvas);
     }
 
     /**
      * @function mapboxgl.supermap.HeatMapLayer.prototype.addFeatures
      * @description 添加热点信息。
-     * @param {Object} features - 待添加的要素数组，支持 GeoJOSN 规范数据类型。
+     * @param {GeoJSONObject} features - 待添加的要素数组。
      *
      * @example
      * var geojson = {
@@ -254,6 +260,12 @@ export class HeatMapLayer extends mapboxgl.Evented {
      */
     addFeatures(features) {
         this.features = this.toiClientFeature(features);
+        /**
+         * @event mapboxgl.supermap.HeatMapLayer#featuresadded
+         * @description 要素添加完成之后触发。
+         * @property {GeoJSONObject} features - 被添加的要素。
+         * @property {boolean} succeed - 要素是否成功添加。
+         */
         this.fire(this.EVENT_TYPES[0], {features: features, succeed: true});
         //支持更新features，刷新底图
         this.refresh();
@@ -285,6 +297,12 @@ export class HeatMapLayer extends mapboxgl.Evented {
                 null, null, null, opacity);
 
             if (this.map !== null) {
+                /**
+                 * @event mapboxgl.supermap.HeatMapLayer#changelayer
+                 * @description 图层属性改变之后触发。
+                 * @property {Object} layer - 图层。
+                 * @property {string} property - 被改变的图层属性。
+                 */
                 this.fire('changelayer', {layer: this, property: "opacity"});
             }
         }
@@ -485,7 +503,7 @@ export class HeatMapLayer extends mapboxgl.Evented {
     /**
      * @function mapboxgl.supermap.HeatMapLayer.prototype.toiClientFeature
      * @description 转为 iClient 要素。
-     * @param {Object} features - 待添加的要素数组，支持 GeoJOSN 规范数据类型。
+     * @param {GeoJSONObject} features - 待添加的要素数组。
      */
     toiClientFeature(features) {
         if (!CommonUtil.isArray(features)) {
@@ -497,7 +515,7 @@ export class HeatMapLayer extends mapboxgl.Evented {
                 // 若是 GeometryVector 直接返回
                 featuresTemp.push(features[i]);
             } else if (["FeatureCollection", "Feature", "Geometry"].indexOf(features[i].type) != -1) {
-                //GeoJOSN 规范数据类型
+                //GeoJSON 规范数据类型
                 let format = new GeoJSONFormat();
                 featuresTemp = featuresTemp.concat(format.read(features[i]));
             } else if (features[i].geometry && features[i].geometry.parts) {
@@ -539,6 +557,12 @@ export class HeatMapLayer extends mapboxgl.Evented {
         }
         var succeed = heatPointsFailedRemoved.length == 0 ? true : false;
         //派发删除features成功的事件
+        /**
+         * @event mapboxgl.supermap.HeatMapLayer#featuresremoved
+         * @description 要素删除之后触发。
+         * @property {Array.<SuperMap.Feature.Vector>} features - 需要被删除的要素。
+         * @property {boolean} succeed - 要素删除成功与否。
+         */
         this.fire(this.EVENT_TYPES[1], {features: heatPointsFailedRemoved, succeed: succeed});
         this.refresh();
     }
@@ -598,6 +622,8 @@ export class HeatMapLayer extends mapboxgl.Evented {
         this.rootCanvas.style.height = canvas.style.height;
         this.rootCanvas.width = this.maxWidth = parseInt(canvas.width);
         this.rootCanvas.height = this.maxHeight = parseInt(canvas.height);
+        let devicePixelRatio = window.devicePixelRatio || 1;
+        devicePixelRatio !== 1 && this.canvasContext && this.canvasContext.scale(devicePixelRatio, devicePixelRatio);
         this.refresh();
     }
 

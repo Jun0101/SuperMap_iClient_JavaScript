@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import L from "leaflet";
 import {
     CommonUtil,
@@ -29,6 +32,8 @@ import Attributions from '../core/Attributions'
  * @param {string} [options.attribution='Map Data <span>© <a href='http://support.supermap.com.cn/product/iServer.aspx' title='SuperMap iServer' target='_blank'>SuperMap iServer</a></span>'] - 版权信息。
  *
  * @extends {L.Layer}
+ * @fires L.supermap.heatMapLayer#featuresremoved
+ * @fires L.supermap.heatMapLayer#changelayer
  */
 export var HeatMapLayer = L.Layer.extend({
     options: {
@@ -79,7 +84,7 @@ export var HeatMapLayer = L.Layer.extend({
     /**
      * @function L.supermap.heatMapLayer.prototype.onRemove
      * @description 删除某个地图。
-     * @param {L.map} map - 要删除的地图。
+     * @param {L.Map} map - 要删除的地图。
      * @private
      */
     onRemove: function (map) {
@@ -91,7 +96,7 @@ export var HeatMapLayer = L.Layer.extend({
     /**
      * @function L.supermap.heatMapLayer.prototype.onAdd
      * @description 添加专题图。
-     * @param {L.map} map - 要添加的地图。
+     * @param {L.Map} map - 要添加的地图。
      * @private
      */
     onAdd: function (map) {
@@ -121,7 +126,7 @@ export var HeatMapLayer = L.Layer.extend({
     /**
      * @function L.supermap.heatMapLayer.prototype.addFeatures
      * @description 添加热点信息。
-     * @param {(Object|HeatMapFeature)} features - 待添加的要素数组，支持 GeoJOSN 规范数据类型和 HeatMapFeature 格式。
+     * @param {(GeoJSONObject|L.supermap.heatMapFeature)} features - 待添加的要素数组。
      *
      * @example
      * var geojson = {
@@ -425,6 +430,12 @@ export var HeatMapLayer = L.Layer.extend({
         }
         var succeed = heatPointsFailedRemoved.length == 0 ? true : false;
         //派发删除features成功的事件
+        /**
+         * @event L.supermap.heatMapLayer#featuresremoved
+         * @description 删除features成功后触发。
+         * @property {Array.<SuperMap.Feature.Vector>} features  - 事件对象。
+         * @property {boolean} succeed  - 删除是否成功，false 为失败，true 为成功。
+         */
         this._map.fire("featuresremoved", {features: heatPointsFailedRemoved, succeed: succeed});
         this.refresh();
     },
@@ -466,6 +477,12 @@ export var HeatMapLayer = L.Layer.extend({
         var me = this;
         CommonUtil.modifyDOMElement(me.rootCanvas, null, null, null, null, null, null, me.options.opacity);
         if (me._map !== null) {
+            /**
+             * @event L.supermap.heatMapLayer#changelayer
+             * @description 图层透明度更新成功之后触发。
+             * @property {L.supermap.heatMapLayer} layer - 图层。
+             * @property {string} property - 改变的图层属性。
+             */
             me._map.fire("changelayer", {layer: me, property: "opacity"});
         }
     },
@@ -492,7 +509,7 @@ export var HeatMapLayer = L.Layer.extend({
     /**
      * @function L.supermap.heatMapLayer.prototype.toiClientFeature
      * @description 转为 iClient 要素。
-     * @param {(Object|HeatMapFeature)} features - 待添加的要素数组，支持 GeoJOSN 规范数据类型和 HeatMapFeature 格式。
+     * @param {(GeoJSONObject|L.supermap.heatMapFeature)} features - 待添加的要素数组。
      * @returns {SuperMap.Feature.Vector} 转换后的 iClient 要素。
      */
     toiClientFeature: function (features) {

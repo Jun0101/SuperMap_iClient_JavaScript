@@ -91,6 +91,7 @@ import './common/control/TimeControlBaseSpec.js';
 import './common/control/TimeFlowControlSpec.js';
 
 /**common -- format**/
+import './common/format/GeoJSONSpec.js';
 import './common/format/JSONSpec.js';
 import './common/format/WKTSpec.js';
 
@@ -101,22 +102,24 @@ import './common/style/CartoCSSSpec.js';
 import './common/security/KeyServiceParameterSpec.js';
 import './common/security/SecurityManagerSpec.js';
 
-/**common -- commonTypes**/
-import './common/commonTypes/BaseTypesSpec.js';
-import './common/commonTypes/BoundsSpec.js';
-import './common/commonTypes/DateSpec.js';
-import './common/commonTypes/LonLatSpec.js';
-import './common/commonTypes/PixelSpec.js';
-import './common/commonTypes/VectorSpec.js';
-import './common/commonTypes/geometry/CollectionSpec.js';
-import './common/commonTypes/geometry/GeoTextSpec.js';
-import './common/commonTypes/geometry/LineStringSpec.js';
-import './common/commonTypes/geometry/LinearRingSpec.js';
+/**common -- commontypes**/
+import './common/commontypes/BaseTypesSpec.js';
+import './common/commontypes/BoundsSpec.js';
+import './common/commontypes/DateSpec.js';
+import './common/commontypes/LonLatSpec.js';
+import './common/commontypes/PixelSpec.js';
+import './common/commontypes/VectorSpec.js';
+import './common/commontypes/UtilSpec.js';
+import './common/commontypes/geometry/CollectionSpec.js';
+import './common/commontypes/geometry/GeoTextSpec.js';
+import './common/commontypes/geometry/LineStringSpec.js';
+import './common/commontypes/geometry/LinearRingSpec.js';
 
 /**common -- overlay**/
 import './common/overlay/feature/ShapeFactorySpec.js';
 import './common/overlay/levelRenderer/AreaSpec.js';
 import './common/overlay/levelRenderer/ClipSpec.js';
+import './common/overlay/levelRenderer/AnimationSpec.js';
 import './common/overlay/levelRenderer/ColorSpec.js';
 import './common/overlay/levelRenderer/ComputeBoundingBoxSpec';
 import './common/overlay/levelRenderer/CurveSpec.js';
@@ -161,3 +164,16 @@ import './common/iPortal/iPortalServicesQueryParamSpec.js';
 
 /**common -- thirdparty**/
 import './common/thirdparty/elasticsearch/ElasticSearchSpec.js';
+
+/**common -- widget**/
+import './common/widgets/templates/IndexTabsPageContainerSpec.js';
+import './common/widgets/templates/NavTabsPageSpec.js';
+import './common/widgets/templates/CommonContainerSpec.js';
+import './common/widgets/chart/ChartModelSpec.js';
+import './common/widgets/chart/ChartViewModelSpec';
+import './common/widgets/chart/ChartViewSpec';
+
+import './common/util/FetchRequestSpec';
+
+
+

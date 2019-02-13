@@ -1,5 +1,13 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import ol from 'openlayers';
-import {Unit, Bounds, GeoJSON as GeoJSONFormat} from '@supermap/iclient-common';
+import {Unit, Bounds, GeoJSON as GeoJSONFormat, FilterParameter,
+    GetFeaturesBySQLParameters,
+    GetFeaturesBySQLService,
+    QueryBySQLParameters,
+    QueryOption
+} from '@supermap/iclient-common';
 
 ol.supermap = ol.supermap || {};
 
@@ -22,14 +30,14 @@ export class Util {
     static toGeoJSON(smObj) {
         if (smObj) {
             var format = new GeoJSONFormat();
-            return JSON.parse(format.write(smObj));
+            return format.toGeoJSON(smObj);
         }
     }
 
     /**
      * @function ol.supermap.Util.toSuperMapGeometry
-     * @description 将 geoJSON 对象转为 SuperMap 几何图形。
-     * @param {Object} geoJSON - geoJSON 对象。
+     * @description 将 GeoJSON 对象转为 SuperMap 几何图形。
+     * @param {GeoJSONObject} geoJSON - GeoJSON 对象。
      */
     static toSuperMapGeometry(geoJSON) {
         if (geoJSON && geoJSON.type) {
@@ -259,6 +267,119 @@ export class Util {
         return Boolean(canvas && canvas.getContext("webgl2"));
     }
 
+    /**
+     * @function ol.supermap.Util.isString
+     * @description 是否为字符串
+     * @param {string} str - 需要判断的内容
+     * @returns {boolean}
+     */
+    static isString(str) {
+        return (typeof str === 'string') && str.constructor === String;
+    }
+    
+    /**
+     * @function ol.supermap.Util.trim
+     * @description 字符串裁剪两边的空格
+     * @param {string} str - 需要裁剪的字符串
+     * @returns {boolean}
+     */
+    static trim(str) {
+        return str.replace(/(^\s*)|(\s*$)/g, "");
+    }
+    /**
+     * @function ol.supermap.Util.newGuid
+     * @description 随机生成id
+     * @param {string} attr - 几位数字的id
+     * @returns {string}
+     */
+    static newGuid(attr) {
+        let len = attr || 32;
+        let guid = "";
+        for (let i = 1; i < len; i++) {
+            let n = Math.floor(Math.random() * 16.0).toString(16);
+            guid += n;
+        }
+        return guid;
+    }
+    /**
+     * @function ol.supermap.Util.isNumber
+     * @description 检测数据是否为number
+     * @param {string} value - 值，未知数据类型
+     * @returns {boolean}
+     */
+    static isNumber(value) {
+        if (value === '') {
+            return false;
+        }
+        let mdata = Number(value);
+        if (mdata === 0) {
+            return true;
+        }
+        return !isNaN(mdata);
+    }
+    /**
+     * @function ol.supermap.Util.getFeatureBySQL
+     * @description 获取feature
+     * @param {string} url - 获取feature的请求地址
+     * @param {string} datasetNames - 数据集名称
+     * @param {function} processCompleted - 成功请求的回调函数
+     * @param {function} processFaild - 失败请求的回调函数
+     */
+    static getFeatureBySQL(url, datasetNames, processCompleted, processFaild) {
+        let getFeatureParam, getFeatureBySQLService, getFeatureBySQLParams;
+        getFeatureParam = new FilterParameter({
+            name: datasetNames.join().replace(":", "@"),
+            attributeFilter: 'SMID > 0'
+        });
+        getFeatureBySQLParams = new GetFeaturesBySQLParameters({
+            queryParameter: getFeatureParam,
+            datasetNames: datasetNames,
+            fromIndex: 0,
+            toIndex: 100000,
+            returnContent: true
+        });
+        let options = {
+            eventListeners: {
+                processCompleted: function (getFeaturesEventArgs) {
+                    processCompleted && processCompleted(getFeaturesEventArgs);
+                },
+                processFailed: function (e) {
+                    processFaild && processFaild(e);
+                }
+            }
+        };
+        getFeatureBySQLService = new GetFeaturesBySQLService(url, options);
+        getFeatureBySQLService.processAsync(getFeatureBySQLParams);
+    }
+
+    static queryFeatureBySQL(url, layerName, attributeFilter, fields, epsgCode, processCompleted, processFaild, startRecord, recordLength, onlyAttribute) {
+        var queryParam, queryBySQLParams, queryBySQLService;
+        queryParam = new FilterParameter({
+            name: layerName,
+            attributeFilter: attributeFilter
+        });
+        if (fields) {
+            queryParam.fields = fields;
+        }
+        var params = {
+            queryParams: [queryParam]
+        };
+        if (onlyAttribute) {
+            params.queryOption = QueryOption.ATTRIBUTE;
+        }
+        startRecord && (params.startRecord = startRecord);
+        recordLength && (params.expectCount = recordLength);
+        if (epsgCode) {
+            params.prjCoordSys = {
+                epsgCode: epsgCode
+            }
+        }
+        queryBySQLParams = new QueryBySQLParameters(params);
+        queryBySQLService = new ol.supermap.QueryService(url);
+        queryBySQLService.queryBySQL(queryBySQLParams, function (data) {
+            data.type === 'processCompleted' ? processCompleted(data) : processFaild(data)
+        });
+    }
 
 }
 

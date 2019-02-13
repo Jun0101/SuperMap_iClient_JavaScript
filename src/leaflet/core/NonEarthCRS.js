@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import L from "leaflet";
 
 L.Projection = {};
@@ -68,10 +71,10 @@ export var NonEarthCRS = L.Class.extend({
     scale: function (zoom) {
         if (!this.resolutions || this.resolutions.length === 0) {
             var width = Math.max(this.bounds.getSize().x, this.bounds.getSize().y);
-            var defaultScale = 1 / (width / 256);
+            var defaultScale = 1.0 / (width / 256);
             return defaultScale * Math.pow(2, zoom);
         }
-        return 1 / this.resolutions[zoom];
+        return 1.0 / this.resolutions[zoom];
     },
 
     /**
@@ -84,10 +87,10 @@ export var NonEarthCRS = L.Class.extend({
         if (!this.resolutions || this.resolutions.length === 0) {
             var width = Math.max(this.bounds.getSize().x, this.bounds.getSize().y);
             var defaultScale = 1 / (width / 256);
-            return scale / defaultScale;
+            return  Math.log(scale / defaultScale) / Math.LN2;
         }
         for (var i = 0; i < this.resolutions.length; i++) {
-            if (1 / this.resolutions == scale) {
+            if (1.0 / this.resolutions[i] == scale) {
                 return i
             }
         }

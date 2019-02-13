@@ -1,4 +1,9 @@
-import {baiduMapLayer} from "mapv";
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
+import {
+    baiduMapLayer
+} from "mapv";
 import mapboxgl from 'mapbox-gl';
 
 var BaseLayer = baiduMapLayer ? baiduMapLayer.__proto__ : Function;
@@ -43,6 +48,7 @@ export class MapvRenderer extends BaseLayer {
         this.map.on('moveend', this.moveEndEvent.bind(this));
         this.map.on('remove', this.removeEvent.bind(this));
         this.bindEvent();
+        this._expectShow = true;
     }
 
     /**
@@ -334,7 +340,9 @@ export class MapvRenderer extends BaseLayer {
         var canvas = this.getContext().canvas;
         canvas.style.transform = '';
         this._canvasUpdate();
-        this._show();
+        if (this._expectShow === true) {
+            this._show();
+        }
     }
 
     moveStartEvent() {
@@ -346,15 +354,16 @@ export class MapvRenderer extends BaseLayer {
         if (this.animation) {
             this.stopAniamation = true;
         }
-    }
-
-    moveEvent() {
         if (this.rotating || this.zooming) {
             return;
         }
+        this._expectShow = this.canvasLayer.canvas.style.display !== 'none';
         if (this.map.getPitch() !== 0) {
             this._hide();
         }
+    }
+
+    moveEvent() {
         this.canvasLayer.mapContainer.style.perspective = this.map.transform.cameraToCenterDistance + 'px';
         var tPitch = this.map.getPitch() - this.startPitch;
         var tBearing = -this.map.getBearing() + this.startBearing;
@@ -372,18 +381,17 @@ export class MapvRenderer extends BaseLayer {
 
     zoomEndEvent() {
         this.zooming = false;
-        this._show();
     }
 
 
     rotateStartEvent() {
         this.rotating = true;
-    }
-
-    rotateEvent() {
         if (this.map.getPitch() !== 0) {
             this._hide();
         }
+    }
+
+    rotateEvent() {
         this.canvasLayer.mapContainer.style.perspective = this.map.transform.cameraToCenterDistance + 'px';
         var tPitch = this.map.getPitch() - this.startPitch;
         var tBearing = -this.map.getBearing() + this.startBearing;
@@ -393,16 +401,10 @@ export class MapvRenderer extends BaseLayer {
 
     rotateEndEvent() {
         this.rotating = false;
-        this._show();
     }
-
-    dragEndEvent() {
-        this._hide();
-    }
-
     /**
      * @function MapvRenderer.prototype.clear
-     * @param {object} context - 当前环境。
+     * @param {Object} context - 当前环境。
      * @description 清除环境。
      */
     clear(context) {
@@ -424,6 +426,7 @@ export class MapvRenderer extends BaseLayer {
     _show() {
         this.canvasLayer.canvas.style.display = 'block';
     }
+
 
 
 }

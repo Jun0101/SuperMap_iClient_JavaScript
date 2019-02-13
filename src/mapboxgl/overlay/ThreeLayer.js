@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 /**
  * reference and modification
  * maptalks.three
@@ -24,12 +27,14 @@ const {
  * @classdesc Three 图层。
  * @param {string} id - 图层 ID。
  * @param {string} [renderer="gl"] - 图层渲染方式( canvas 或 WebGL )。取值："gl","canvas"。
- * @param {object} options - 初始化参数。
- * @param {object} options.threeOptions - threejs 渲染器初始化参数对象。参数内容详见:
+ * @param {Object} options - 初始化参数。
+ * @param {Object} options.threeOptions - threejs 渲染器初始化参数对象。参数内容详见:
  *          [WebGLRenderer]{@link https://threejs.org/docs/index.html#api/renderers/WebGLRenderer}
  *          [CanvasRenderer]{@link https://threejs.org/docs/index.html#examples/renderers/CanvasRenderer}
  *
  * @extends {mapboxgl.Evented}
+ * @fires mapboxgl.supermap.ThreeLayer#render
+ * @fires mapboxgl.supermap.ThreeLayer#renderscene
  * @example
  * var threeLayer = new mapboxgl.supermap.ThreeLayer('three');
  * //模型绘制
@@ -396,12 +401,9 @@ export class ThreeLayer extends mapboxgl.Evented {
     renderScene() {
         this.renderer.renderScene();
         /**
-         * renderScene 事件，场景渲染后触发。
          * @event mapboxgl.supermap.ThreeLayer#renderscene
-         * @type {Object}
-         * @property {string} type  - renderscene
-         * @property {Object} target  - layer
-         */
+         * @description renderScene 事件，场景渲染后触发。
+         */ 
         this.fire("renderscene");
         return this;
     }
@@ -412,11 +414,8 @@ export class ThreeLayer extends mapboxgl.Evented {
 
     _update() {
         /**
-         * render 事件，地图渲染时(地图状态改变时)触发。
          * @event mapboxgl.supermap.ThreeLayer#render
-         * @type {Object}
-         * @property {string} type  - render
-         * @property {Object} target  - layer
+         * @description render 事件，地图渲染时(地图状态改变时)触发。
          */
         this.renderScene();
         this.fire('render');

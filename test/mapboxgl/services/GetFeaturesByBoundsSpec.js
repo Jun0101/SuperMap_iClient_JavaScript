@@ -31,8 +31,12 @@ describe('mapboxgl_FeatureService_getFeaturesByBounds', () => {
         spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
             expect(method).toBe('POST');
             expect(testUrl).toBe(url + "/featureResults.json?returnContent=true&fromIndex=1&toIndex=3");
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj.datasetNames[0]).toBe("World:Capitals");
+            expect(paramsObj.getFeatureMode).toBe("BOUNDS");
+            expect(paramsObj.spatialQueryMode).toBe("CONTAIN");
             expect(options).not.toBeNull();
-            return Promise.resolve(new Response(getFeasByBounds));
+            return Promise.resolve(new Response(JSON.stringify(getFeaturesResultJson)));
         });
         service.getFeaturesByBounds(boundsParam, (testResult) => {
             serviceResult = testResult;
@@ -41,18 +45,16 @@ describe('mapboxgl_FeatureService_getFeaturesByBounds', () => {
             expect(serviceResult.object.format).toBe("GEOJSON");
             var result = serviceResult.result;
             expect(result.succeed).toBe(true);
-            expect(result.featureCount).toEqual(24);
-            expect(result.totalCount).toEqual(24);
+            expect(result.featureCount).toEqual(1);
+            expect(result.totalCount).toEqual(1);
             expect(result.features.type).toEqual("FeatureCollection");
             var features = result.features.features;
-            expect(features.length).toEqual(3);
-            expect(features[0].id).toEqual(19);
-            expect(features[1].id).toEqual(20);
-            expect(features[2].id).toEqual(21);
+            expect(features.length).toEqual(1);
+            expect(features[0].id).toEqual(127);
             for (var i = 0; i < features.length; i++) {
                 expect(features[i].type).toEqual("Feature");
                 expect(features[i].properties).not.toBeNull();
-                expect(features[i].geometry.type).toEqual("Point");
+                expect(features[i].geometry.type).toEqual("MultiPolygon");
                 expect(features[i].geometry.coordinates.length).toEqual(2);
             }
             boundsParam.destroy();

@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import L from "leaflet";
 import {Symbolizer} from './Symbolizer';
 import {CanvasRenderer} from './CanvasRenderer';
@@ -9,7 +12,7 @@ import {SVGRenderer} from './SVGRenderer';
  * @category Visualization VectorTile
  * @private
  * @extends {L.Path}
- * @param {L.feature} feature - 要素。
+ * @param {Object} feature - 要素。
  * @param {number} pxPerExtent - 文本符号大小。
  */
 export var TextSymbolizer = L.Path.extend({

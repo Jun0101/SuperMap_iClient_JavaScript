@@ -3,6 +3,7 @@ import {SpatialAnalystService} from '../../../src/openlayers/services/SpatialAna
 import {GenerateSpatialDataParameters} from '../../../src/common/iServer/GenerateSpatialDataParameters';
 import {DataReturnOption} from '../../../src/common/iServer/DataReturnOption';
 import {DataReturnMode} from '../../../src/common/REST';
+import { FetchRequest } from '../../../src/common/util/FetchRequest';
 
 var originalTimeout, serviceResults;
 var changchunServiceUrl = GlobeParameter.spatialAnalystURL_Changchun;
@@ -36,21 +37,26 @@ describe('openlayers_SpatialAnalystService_generateSpatialData', () => {
             })
         });
         var spatialAnalystService = new SpatialAnalystService(changchunServiceUrl);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(changchunServiceUrl + "/datasets/RouteDT_road@Changchun/linearreferencing/generatespatialdata.json?returnContent=true");
+            expect(params).not.toBeNull();
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj.routeTable).toBe("RouteDT_road@Changchun");
+            expect(paramsObj.measureEndField).toBe("LineMeasureTo");
+            expect(options).not.toBeNull();
+            var resultJSON = `{"succeed":true,"recordset":null,"message":null,"dataset":"GenerateSpatialData_openlayersTest@Changchun"}`;
+            return Promise.resolve(new Response(resultJSON));
+        });
         spatialAnalystService.generateSpatialData(generateSpatialDataParameters, (serviceResult) => {
             serviceResults = serviceResult;
-        });
-        setTimeout(() => {
             expect(serviceResults).not.toBeNull();
             expect(serviceResults.type).toBe('processCompleted');
+            expect(serviceResults.result.succeed).toBeTruthy();
             expect(serviceResults.result.dataset).not.toBeNull();
+            expect(serviceResults.result.dataset).toEqual(resultDataset + "@Changchun");
             done();
-        }, 8000);
+        });
     });
 
-    // 删除测试过程中产生的测试数据集
-    it('delete test resources', (done) => {
-        var testResult = GlobeParameter.datachangchunURL + resultDataset;
-        request.delete(testResult);
-        done();
-    });
 });

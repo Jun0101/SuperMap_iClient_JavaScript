@@ -1,7 +1,15 @@
-﻿import L from "leaflet";
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
+import L from "leaflet";
 import '../core/Base';
-import {ServiceBase} from './ServiceBase';
-import {MapService as CommonMapService, TilesetsService} from '@supermap/iclient-common';
+import {
+    ServiceBase
+} from './ServiceBase';
+import {
+    MapService as CommonMapService,
+    TilesetsService
+} from '@supermap/iclient-common';
 
 /**
  * @class  L.supermap.mapService
@@ -49,7 +57,8 @@ export var MapService = ServiceBase.extend({
                 scope: me,
                 processCompleted: callback,
                 processFailed: callback
-            }, projection: me.options.projection
+            },
+            projection: me.options.projection
         });
         getMapStatusService.processAsync();
     },

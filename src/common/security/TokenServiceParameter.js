@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import {SuperMap} from '../SuperMap';
 import {Util} from '../commontypes/Util';
 import {ClientType} from '../REST';
@@ -62,7 +65,7 @@ export class TokenServiceParameter {
     /**
      * @function SuperMap.TokenServiceParameter.prototype.toJSON
      * @description 将所有信息转成 JSON 字符串
-     * @return {string} 参数的 JSON 字符串
+     * @returns {string} 参数的 JSON 字符串
      */
     toJSON() {
         return {

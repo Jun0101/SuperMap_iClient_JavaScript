@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import {SuperMap} from '../../SuperMap';
 import {Geometry} from '../Geometry';
 import {Bounds} from '../Bounds';
@@ -50,6 +53,7 @@ export class GeoText extends Geometry {
         };
         this.element = document.createElement('span');
         this.CLASS_NAME = "SuperMap.Geometry.GeoText";
+        this.geometryType = "GeoText";
     }
 
     /**

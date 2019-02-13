@@ -1,18 +1,19 @@
 import ol from 'openlayers';
-import {NetworkAnalystService} from '../../../src/openlayers/services/NetworkAnalystService';
-import {BurstPipelineAnalystParameters} from '../../../src/common/iServer/BurstPipelineAnalystParameters';
-import {ComputeWeightMatrixParameters} from '../../../src/common/iServer/ComputeWeightMatrixParameters';
-import {TransportationAnalystResultSetting} from '../../../src/common/iServer/TransportationAnalystResultSetting';
-import {TransportationAnalystParameter} from '../../../src/common/iServer/TransportationAnalystParameter';
-import {FindClosestFacilitiesParameters} from '../../../src/common/iServer/FindClosestFacilitiesParameters';
-import {FindLocationParameters} from '../../../src/common/iServer/FindLocationParameters';
-import {FindPathParameters} from '../../../src/common/iServer/FindPathParameters';
-import {FindTSPPathsParameters} from '../../../src/common/iServer/FindTSPPathsParameters';
-import {FindMTSPPathsParameters} from '../../../src/common/iServer/FindMTSPPathsParameters';
-import {FindServiceAreasParameters} from '../../../src/common/iServer/FindServiceAreasParameters';
-import {UpdateEdgeWeightParameters} from '../../../src/common/iServer/UpdateEdgeWeightParameters';
-import {UpdateTurnNodeWeightParameters} from '../../../src/common/iServer/UpdateTurnNodeWeightParameters';
-import {FacilityAnalystStreamParameters} from '../../../src/common/iServer/FacilityAnalystStreamParameters';
+import { NetworkAnalystService } from '../../../src/openlayers/services/NetworkAnalystService';
+import { BurstPipelineAnalystParameters } from '../../../src/common/iServer/BurstPipelineAnalystParameters';
+import { ComputeWeightMatrixParameters } from '../../../src/common/iServer/ComputeWeightMatrixParameters';
+import { TransportationAnalystResultSetting } from '../../../src/common/iServer/TransportationAnalystResultSetting';
+import { TransportationAnalystParameter } from '../../../src/common/iServer/TransportationAnalystParameter';
+import { FindClosestFacilitiesParameters } from '../../../src/common/iServer/FindClosestFacilitiesParameters';
+import { FindLocationParameters } from '../../../src/common/iServer/FindLocationParameters';
+import { FindPathParameters } from '../../../src/common/iServer/FindPathParameters';
+import { FindTSPPathsParameters } from '../../../src/common/iServer/FindTSPPathsParameters';
+import { FindMTSPPathsParameters } from '../../../src/common/iServer/FindMTSPPathsParameters';
+import { FindServiceAreasParameters } from '../../../src/common/iServer/FindServiceAreasParameters';
+import { UpdateEdgeWeightParameters } from '../../../src/common/iServer/UpdateEdgeWeightParameters';
+import { UpdateTurnNodeWeightParameters } from '../../../src/common/iServer/UpdateTurnNodeWeightParameters';
+import { FacilityAnalystStreamParameters } from '../../../src/common/iServer/FacilityAnalystStreamParameters';
+import { FetchRequest } from '../../../src/common/util/FetchRequest';
 
 var url = GlobeParameter.networkAnalystURL;
 var options = {
@@ -43,10 +44,13 @@ describe('openlayers_NetworkAnalystService', () => {
             isUncertainDirectionValid: false
         });
         var service = new NetworkAnalystService(url, options);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl) => {
+            expect(method).toBe("GET");
+            expect(testUrl).toBe(url + "/burstAnalyse.json?");
+            return Promise.resolve(new Response(JSON.stringify(burstPipelineAnalyst)));
+        });
         service.burstPipelineAnalyst(burstPipelineAnalystParameters, (result) => {
             serviceResult = result;
-        });
-        setTimeout(() => {
             try {
                 expect(service).not.toBeNull();
                 expect(service.options.serverType).toBe('iServer');
@@ -54,15 +58,15 @@ describe('openlayers_NetworkAnalystService', () => {
                 expect(serviceResult.type).toEqual("processCompleted");
                 var result = serviceResult.result;
                 expect(result.succeed).toBe(true);
-                expect(result.criticalNodes[0]).toEqual(84);
-                expect(result.edges.length).toEqual(12);
+                expect(result.criticalNodes).not.toBeNull();
+                expect(result.edges.length).toEqual(2);
                 done();
             } catch (exception) {
                 console.log("'burstPipelineAnalyst'案例失败" + exception.name + ":" + exception.message);
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 5000);
+        });
     });
 
     //耗费矩阵分析服务
@@ -73,10 +77,13 @@ describe('openlayers_NetworkAnalystService', () => {
             nodes: [84, 85],
         });
         var service = new NetworkAnalystService(url, options);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl) => {
+            expect(method).toBe("GET");
+            expect(testUrl).toBe(url + "/weightmatrix.json?");
+            return Promise.resolve(new Response(`[[0,42],[42,0]]`));
+        });
         service.computeWeightMatrix(computeWeightMatrixParameters, (result) => {
             serviceResult = result;
-        });
-        setTimeout(() => {
             try {
                 expect(service).not.toBeNull();
                 expect(serviceResult).not.toBeNull();
@@ -92,7 +99,7 @@ describe('openlayers_NetworkAnalystService', () => {
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 5000)
+        });
     });
 
     //最近设施分析服务
@@ -124,10 +131,13 @@ describe('openlayers_NetworkAnalystService', () => {
             parameter: analystParameter
         });
         var service = new NetworkAnalystService(url, options);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl) => {
+            expect(method).toBe("GET");
+            expect(testUrl).toBe(url + "/closestfacility.json?");
+            return Promise.resolve(new Response(JSON.stringify(findClosetFacilitiesResultJson_False)));
+        });
         service.findClosestFacilities(findClosetFacilitiesParameter, (result) => {
             serviceResult = result;
-        });
-        setTimeout(() => {
             try {
                 expect(service).not.toBeNull();
                 expect(serviceResult).not.toBeNull();
@@ -188,38 +198,42 @@ describe('openlayers_NetworkAnalystService', () => {
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 5000);
+        });
 
     });
 
     // 上游/下游 关键设施查找资源服务
-    // common里被注释掉了
-    /*it('streamFacilityAnalyst_test', (done)=> {
-     var FacilityAnalystStreamParameters =new FacilityAnalystStreamParameters({
-     edgeID:84,
-     //nodeID:85,
-     isUncertainDirectionValid:true,
-     sourceNodeIDs:[],
-     // 分析类型，只能是 0 (上游关键设施查询) 或者是 1（下游关键设施查询）
-     type:1
-     });
-     var service = new NetworkAnalystService(url, options);
-     service.streamFacilityAnalyst(FacilityAnalystStreamParameters, (result)=> {
-     serviceResult=result;
-     });
-     setTimeout( ()=> {
-     try{
-     expect(service).not.toBeNull();
-     expect(serviceResult).not.toBeNull();
-     done();
-     } catch(e) {
-     console.log("'streamFacilityAnalyst_test'案例失败" + e.name + ":" + e.message);
-     expect(false).toBeTruthy();
-     done();
-     }
-     },45000)
+    it('streamFacilityAnalyst', (done) => {
+        var facilityAnalystStreamParameters = new FacilityAnalystStreamParameters({
+            edgeID: 84,
+            //nodeID:85,
+            isUncertainDirectionValid: true,
+            sourceNodeIDs: [],
+            // 分析类型，只能是 0 (上游关键设施查询) 或者是 1（下游关键设施查询）
+            queryType: 1
+        });
+        var service = new NetworkAnalystService(url, options);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl) => {
+            expect(method).toBe("GET");
+            expect(testUrl).toBe(url + "/downstreamcirticalfaclilities.json?");
+            return Promise.resolve(new Response(JSON.stringify(streamFacilityAnalystResultJson)));
+        });
+        service.streamFacilityAnalyst(facilityAnalystStreamParameters, (result) => {
+            serviceResult = result;
+            try {
+                expect(service).not.toBeNull();
+                expect(serviceResult).not.toBeNull();
+                expect(serviceResult.result).not.toBeNull();
+                expect(serviceResult.type).toEqual("processCompleted");
+                done();
+            } catch (e) {
+                console.log("'streamFacilityAnalyst_test'案例失败" + e.name + ":" + e.message);
+                expect(false).toBeTruthy();
+                done();
+            }
+        });
 
-     });*/
+    });
 
     //选址分区分析服务
     it('findLocation', (done) => {
@@ -246,10 +260,13 @@ describe('openlayers_NetworkAnalystService', () => {
             weightName: "length"
         });
         var service = new NetworkAnalystService(url, options);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl) => {
+            expect(method).toBe("GET");
+            expect(testUrl).toBe(url + "/location.json?");
+            return Promise.resolve(new Response(JSON.stringify(findLocationResultJson)));
+        });
         service.findLocation(findLocationParameters, (result) => {
             serviceResult = result;
-        });
-        setTimeout(() => {
             try {
                 expect(service).not.toBeNull();
                 expect(serviceResult).not.toBeNull();
@@ -277,7 +294,7 @@ describe('openlayers_NetworkAnalystService', () => {
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 5000)
+        });
     });
 
     //最佳路径分析服务
@@ -303,10 +320,13 @@ describe('openlayers_NetworkAnalystService', () => {
             parameter: analystParameter
         });
         var service = new NetworkAnalystService(url, options);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl) => {
+            expect(method).toBe("GET");
+            expect(testUrl).toBe(url + "/path.json?");
+            return Promise.resolve(new Response(JSON.stringify(findPathResultJson)))
+        });
         service.findPath(findPathParameters, (result) => {
             serviceResult = result;
-        });
-        setTimeout(() => {
             try {
                 expect(service).not.toBeNull();
                 expect(serviceResult).not.toBeNull();
@@ -360,7 +380,7 @@ describe('openlayers_NetworkAnalystService', () => {
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 5000)
+        });
     });
 
     //旅行商分析服务
@@ -389,10 +409,13 @@ describe('openlayers_NetworkAnalystService', () => {
             parameter: analystParameter
         });
         var service = new NetworkAnalystService(url, options);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl) => {
+            expect(method).toBe("GET");
+            expect(testUrl).toBe(url + "/tsppath.json?");
+            return Promise.resolve(new Response(JSON.stringify(findTSPPathsResultJson)))
+        });
         service.findTSPPaths(findTSPPathsParameters, (result) => {
             serviceResult = result;
-        });
-        setTimeout(() => {
             try {
                 expect(service).not.toBeNull();
                 expect(serviceResult).not.toBeNull();
@@ -432,7 +455,7 @@ describe('openlayers_NetworkAnalystService', () => {
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 5000)
+        });
 
     });
 
@@ -445,19 +468,21 @@ describe('openlayers_NetworkAnalystService', () => {
             hasLeastTotalCost: true,
         });
         var service = new NetworkAnalystService(url, options);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl) => {
+            expect(method).toBe("GET");
+            expect(testUrl).toBe(url + "/mtsppath.json?");
+            return Promise.resolve(new Response(JSON.stringify(findMTSPPathsResultJson)));
+        });
         service.findMTSPPaths(findMTSPPathsParameter, (result) => {
             serviceResult = result;
-        });
-        setTimeout(() => {
             try {
                 expect(service).not.toBeNull();
                 expect(serviceResult).not.toBeNull();
                 expect(serviceResult.type).toEqual("processCompleted");
-                expect(serviceResult.result.succeed).toBe(true);
-                expect(serviceResult.result.pathList[0].center.x).toEqual(6000);
-                expect(serviceResult.result.pathList[0].center.y).toEqual(-5500);
-                expect(serviceResult.result.pathList[0].nodesVisited[0].x).toEqual(5000);
-                expect(serviceResult.result.pathList[0].nodesVisited[0].y).toEqual(-5000);
+                expect(serviceResult.result.succeed).toBeTruthy();
+                expect(serviceResult.result.pathList.length).toEqual(2);
+                var path = serviceResult.result.pathList["0"];
+                expect(path.center).not.toBeNull();
                 expect(serviceResult.result.pathList[0].stopWeights).not.toBeNull();
                 expect(serviceResult.result.pathList[0].weight).not.toBeNull();
                 done();
@@ -466,7 +491,7 @@ describe('openlayers_NetworkAnalystService', () => {
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 5000)
+        });
     });
 
     //服务区分析服务
@@ -488,10 +513,13 @@ describe('openlayers_NetworkAnalystService', () => {
         });
         parameter.weights = [400 + Math.random() * 100];
         var service = new NetworkAnalystService(url, options);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl) => {
+            expect(method).toBe("GET");
+            expect(testUrl).toBe(url + "/servicearea.json?");
+            return Promise.resolve(new Response(JSON.stringify(findServiceAreasResultJson)));
+        });
         service.findServiceAreas(parameter, (result) => {
             serviceResult = result;
-        });
-        setTimeout(() => {
             try {
                 expect(service).not.toBeNull();
                 expect(serviceResult).not.toBeNull();
@@ -519,7 +547,7 @@ describe('openlayers_NetworkAnalystService', () => {
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 5000)
+        });
 
     });
 
@@ -533,10 +561,13 @@ describe('openlayers_NetworkAnalystService', () => {
             weightField: "time"
         });
         var service = new NetworkAnalystService(url, options);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl) => {
+            expect(method).toBe("PUT");
+            expect(testUrl).toBe(url + "/edgeweight/20/fromnode/26/tonode/109/weightfield/time.json?");
+            return Promise.resolve(new Response(`{"succeed":true}`));
+        });
         service.updateEdgeWeight(updateEdgeWeightParameters, (result) => {
             serviceResult = result;
-        });
-        setTimeout(() => {
             try {
                 expect(service).not.toBeNull();
                 expect(serviceResult).not.toBeNull();
@@ -548,7 +579,7 @@ describe('openlayers_NetworkAnalystService', () => {
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 5000)
+        });
     });
 
     //转向耗费权重更新服务
@@ -566,10 +597,13 @@ describe('openlayers_NetworkAnalystService', () => {
             weightField: "TurnCost"
         });
         var service = new NetworkAnalystService(url, options);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl) => {
+            expect(method).toBe("PUT");
+            expect(testUrl).toBe(url + "/turnnodeweight/106/fromedge/6508/toedge/6504/weightfield/TurnCost.json?");
+            return Promise.resolve(new Response(`{"succeed":true}`));
+        });
         service.updateTurnNodeWeight(parameters, (result) => {
             serviceResult = result;
-        });
-        setTimeout(() => {
             try {
                 expect(service).not.toBeNull();
                 expect(serviceResult).not.toBeNull();
@@ -581,6 +615,6 @@ describe('openlayers_NetworkAnalystService', () => {
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 5000)
+        });
     });
 });

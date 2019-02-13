@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import L from "leaflet";
 import {Symbolizer} from './Symbolizer';
 import {PolyBase} from './SymbolizerPolyBase';
@@ -8,7 +11,7 @@ import {PolyBase} from './SymbolizerPolyBase';
  * @category Visualization VectorTile
  * @private
  * @extends {L.Polygon}
- * @param {L.feature} feature - 面要素。
+ * @param {Object} feature - 面要素。
  * @param {number} pxPerExtent - 面积像素大小。
  */
 export var RegionSymbolizer = L.Polygon.extend({

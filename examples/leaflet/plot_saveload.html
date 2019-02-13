@@ -1,3 +1,6 @@
+<!--********************************************************************
+* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+*********************************************************************-->
 <!DOCTYPE html>
 <html>
 <head>
@@ -34,10 +37,11 @@
 </head>
 <body style=" margin: 0;overflow: hidden;background: #fff;width: 100%;height:100%;position: absolute;top: 0;">
 <div id="toolbar" class="panel panel-primary" style=" position: absolute;top: 15px;right: 20px;text-align: center;z-index: 9999;border-radius: 4px;">
-    <div class='panel-heading'>
-        <h5 class='panel-title text-center' data-i18n="resources.title_saveload" style="  font-size: 16px;color: #ffffff;"></h5></div>
-    <div class='panel-body content' style="overflow:hidden;">
-        <div class='panel'>
+    <div class='panel-heading' id="panelheading">
+        <h5 class='panel-title text-center' data-i18n="resources.title_saveload" style="  font-size: 16px;color: #ffffff;"></h5>
+    </div>
+    <div class='panel-body content' id="panelbodycontent" style="overflow:hidden;">
+        <div class='panel' >
             <div class='input-group' style="margin-top:15px;margin-left: 5px; margin-bottom: 10px;text-align: center">
                 <select class="search-query form-control" id="SLT" style="width: 150px"></select>
                 <input type="button" class="btn btn-default" data-i18n="[value]resources.btn_load" onclick="loadSimulationMap()"/>
@@ -78,7 +82,7 @@
 <script type="text/javascript" include="iclient9-plot-leaflet" src="../../dist/leaflet/include-leaflet.js"></script>
 <script type="text/javascript" include="PlotPanel,StylePanel" src="../js/plottingPanel/PlottingPanel.Include.js"></script>
 <script type="text/javascript">
-    var host = window.isLocal ? window.server : "http://support.supermap.com.cn:8090";
+    var host = window.isLocal ? window.server : "http://iclsvr.supermap.io";
     var url = host + "/iserver/services/map-china400/rest/maps/China_4326";
     var serverUrl = host + "/iserver/services/plot-jingyong/rest/plot/";
     var map;
@@ -101,20 +105,6 @@
     L.supermap.plotting.initStylePanel("stylePanel", serverUrl, editControl);
     var plotting = L.supermap.plotting.getControl(map, serverUrl);
     var sitDataManager = plotting.getSitDataManager();
-
-//    function getSMLInfoList(result){
-//        var select = document.getElementById("SLT");
-//        while (select.hasChildNodes()) {
-//            select.removeChild(select.firstChild);
-//        }
-//        for (var i = 0, len = result.length; i < len; i++) {
-//            var options = document.createElement("option");
-//            options.setAttribute("value", result[i].SMLFileName);
-//            options.innerHTML = result[i].SMLFileName;
-//            select.appendChild(options);
-//        }
-//        return false;
-//    }
 
     //获取态势图列表
     function getSMLInfos() {
@@ -158,7 +148,7 @@
         drawControl.handler.disable();
         sitDataManager.saveSmlFile(function(evt){
             if(evt.success){
-                getSMLInfoList();
+                getSMLInfos();
                 widgets.alert.showAlert("保存态势图成功！",true);
             } else {
                 widgets.alert.showAlert("保存态势图失败！",true);
@@ -203,7 +193,11 @@
     window.onload = function(){
         getSMLInfos();//初始化页面时获取态势图列表
     };
-
+    $(document).ready(function(){
+        $('#panelheading').click(function(){
+            $('#panelbodycontent').toggle();
+        });
+    });
 </script>
 </body>
 </html>

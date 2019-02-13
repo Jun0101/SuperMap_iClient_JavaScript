@@ -2,6 +2,7 @@ import {spatialAnalystService} from '../../../src/leaflet/services/SpatialAnalys
 import {GeoRelationAnalystParameters} from '../../../src/common/iServer/GeoRelationAnalystParameters';
 import {FilterParameter} from '../../../src/common/iServer/FilterParameter';
 import {SpatialRelationType} from '../../../src/common/REST';
+import { FetchRequest } from '../../../src/common/util/FetchRequest';
 
 var url = GlobeParameter.spatialAnalystURL_Changchun;
 
@@ -16,7 +17,6 @@ describe('leaflet_SpatialAnalystService_geoRelationAnalysis', () => {
     afterEach(() => {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
     });
-
     //空间关系分析
     it('geoRelationAnalysis', (done) => {
         var geoRelationAnalystParameters = new GeoRelationAnalystParameters({
@@ -34,14 +34,22 @@ describe('leaflet_SpatialAnalystService_geoRelationAnalysis', () => {
             returnGeoRelatedOnly: true
         });
         var service = spatialAnalystService(url);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(url + "/datasets/Park@Changchun/georelation.json?returnContent=true");
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj.spatialRelationType).toBe("INTERSECT");
+            // expect(params).toContain("'spatialRelationType':\"INTERSECT\"");
+            expect(options).not.toBeNull();
+            var geoRelationAnalystEscapedJson = `[{"result":[1],"count":1,"source":1},{"result":[1],"count":1,"source":2},{"result":[1],"count":1,"source":3},{"result":[1],"count":1,"source":4},{"result":[1],"count":1,"source":5}]`;
+            return Promise.resolve(new Response(geoRelationAnalystEscapedJson));
+        });
         service.geoRelationAnalysis(geoRelationAnalystParameters, (result) => {
             serviceResults = result;
-        });
-        setTimeout(() => {
             expect(service).not.toBeNull();
             expect(serviceResults).not.toBeNull();
             expect(serviceResults.type).toEqual("processCompleted");
-            expect(serviceResults.result.succeed).toEqual(true);
+            expect(serviceResults.result.succeed).toBeTruthy();
             expect(serviceResults.result.length).toEqual(5);
             for (var i = 0; i < serviceResults.result.length; i++) {
                 expect(serviceResults.result[i].count).toEqual(1);
@@ -49,6 +57,6 @@ describe('leaflet_SpatialAnalystService_geoRelationAnalysis', () => {
                 expect(serviceResults.result[i].result.length).toEqual(1);
             }
             done();
-        }, 5000)
+        });
     });
 });

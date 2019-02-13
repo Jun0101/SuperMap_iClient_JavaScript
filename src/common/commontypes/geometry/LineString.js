@@ -1,4 +1,7 @@
-﻿import {SuperMap} from '../../SuperMap';
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
+import {SuperMap} from '../../SuperMap';
 import {Point} from './Point';
 import {Curve} from './Curve';
 
@@ -21,6 +24,7 @@ export class LineString extends Curve {
     constructor(points) {
         super(points);
         this.CLASS_NAME = "SuperMap.Geometry.LineString";
+        this.geometryType = "LineString";
     }
 
     /**
@@ -262,7 +266,7 @@ export class LineString extends Curve {
     static createLineEPS(points) {
         var list = [],
             len = points.length;
-        if (points == null || len < 2) {
+        if (len < 2) {
             return points;
         }
         for (var i = 0; i < len;) {

@@ -1,4 +1,7 @@
-﻿import {SuperMap} from '../../SuperMap';
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
+import {SuperMap} from '../../SuperMap';
 import {Collection} from './Collection';
 
 /**
@@ -31,6 +34,7 @@ export class MultiPolygon extends Collection {
          */
         this.componentTypes = ["SuperMap.Geometry.Polygon"];
         this.CLASS_NAME = "SuperMap.Geometry.MultiPolygon";
+        this.geometryType = "MultiPolygon";
     }
 
 

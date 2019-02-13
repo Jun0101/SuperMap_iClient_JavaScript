@@ -1,12 +1,14 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.*/
 $(document).ready(function () {
-    window.initI18N(function(){
-    initPage();
-    bindEvents();
-    //懒加载
-    var timeout = setTimeout(function () {
-        $("img.chart-thumb").lazyload();
-    }, 1000);
-});
+    window.initI18N(function () {
+        initPage();
+        bindEvents();
+        //懒加载
+        var timeout = setTimeout(function () {
+            $("img.chart-thumb").lazyload();
+        }, 1000);
+
+    });
 });
 
 
@@ -53,7 +55,7 @@ function createGalleryItem(id, config) {
     if (title) {
         createGalleryItemTitle(id, title).appendTo(categoryLi);
     }
-   
+
     if (config.content) {
         createSubGalleryItem(config.content, id).appendTo(categoryLi);
     }
@@ -105,15 +107,20 @@ function createGalleryChart(example) {
         defaultThumb = "../img/thumb.png",
         title = utils.getLocalPairs(example, "name"),
         href = example.fileName ? example.fileName : "",
-        thumbnail = example.thumbnail ? thumbLocation + "/img/" + example.thumbnail : "";
+        thumbnail = example.thumbnail ? thumbLocation + "/img/" + example.thumbnail : "",
+        version = example.version;
 
     var chartDiv = $("<div class='col-xlg-2 col-lg-3 col-md-4 col-sm-6 col-xs-12'></div>");
     var chart = $("<div class='chart'></div>");
     var link = $("<a class='chart-link' target='_blank' href='" + target + "#" + href + "'></a>");
     var chartTitle = $("<h5 class='chart-title'>" + title + "</h5>");
+    var newTip = $('<svg xmlns="http://www.w3.org/2000/svg" class="new-example" style="width:8px !important;height:8px;right: 1px;top: 1px;position: absolute;"><circle cx="4" cy="4" r="4" fill="#C70022"></circle></svg>');
     var thumb = $("<img class='chart-thumb' src='" + defaultThumb + "' data-original='" + thumbnail + "' style='display: inline'>");
-
+   
     chartTitle.appendTo(link);
+    if (window.version === version) {
+        newTip.appendTo(link);
+    }
     thumb.appendTo(link);
     link.appendTo(chart);
     chart.appendTo(chartDiv);

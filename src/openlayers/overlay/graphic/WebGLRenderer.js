@@ -1,10 +1,9 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import ol from "openlayers";
-import {
-    CommonUtil
-} from "@supermap/iclient-common";
-import {
-    Util
-} from "../../core/Util";
+import {CommonUtil,Unit} from "@supermap/iclient-common";
+import {Util} from "../../core/Util";
 
 const emptyFunc = () => false;
 const CSS_TRANSFORM = (function () {
@@ -226,7 +225,7 @@ export class GraphicWebGLRenderer extends ol.Object {
                 if (!point) {
                     return [0, 0, 0];
                 }
-                let geometry = point && point.getGeometry();
+                let geometry = point.getGeometry();
                 let coordinates = geometry && geometry.getCoordinates();
                 coordinates = me._project(coordinates);
                 return coordinates && [coordinates[0], coordinates[1], 0];
@@ -346,8 +345,23 @@ export class GraphicWebGLRenderer extends ol.Object {
         return ol.proj.transform(coordinates, projection, 'EPSG:4326');
     }
     _pixelToMeter(pixel) {
-        const meterRes = this.map.getView().getResolution();
-        return pixel * meterRes;
+        let view = this.map.getView();
+        let projection = view.getProjection();
+
+        let unit = projection.getUnits() || 'degrees';
+        if (unit === 'degrees') {
+            unit = Unit.DEGREE;
+        }
+        if (unit === 'm') {
+            unit = Unit.METER;
+        }
+        const res = view.getResolution();
+        if (unit === Unit.DEGREE) {
+            let meterRes= res*(Math.PI * 6378137 / 180);
+            return pixel * meterRes;
+        }else{
+            return pixel * res;
+        }
     }
 
 }

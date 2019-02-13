@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import L from "leaflet";
 import "../core/Base";
 import Attributions from '../core/Attributions'
@@ -21,12 +24,12 @@ export var CloudTileLayer = L.TileLayer.extend({
 
     options: {
         /**
-         * @member {String} [L.supermap.cloudTileLayer.prototype.options='quanguo']
+         * @member {string} [L.supermap.cloudTileLayer.prototype.options='quanguo']
          * @description 地图名称。
          */
         mapName: "quanguo",
         /**
-         * @member {String} L.supermap.cloudTileLayer.prototype.type
+         * @member {string} L.supermap.cloudTileLayer.prototype.type
          * @description 地图投影。
          */
         type: "web",

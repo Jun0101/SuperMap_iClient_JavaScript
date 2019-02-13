@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import mapboxgl from 'mapbox-gl';
 import '../core/Base';
 import {Util} from '../core/Util';
@@ -14,7 +17,7 @@ import {StopQueryService, TransferPathService, TransferSolutionService} from '@s
  *  .queryStop(params,function(result){
  *      //doSomething
  * })
- * @param {String} url - 服务地址。
+ * @param {string} url - 服务地址。
  * @param {Object} option - 参数。
  * @param {string} [options.proxy] - 服务代理地址。
  * @param {boolean} [options.withCredentials=false] - 请求是否携带 cookie。

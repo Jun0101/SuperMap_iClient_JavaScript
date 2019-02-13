@@ -1,4 +1,7 @@
-﻿import {SuperMap} from '../SuperMap';
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
+import {SuperMap} from '../SuperMap';
 import {Util} from '../commontypes/Util';
 import {OverlayAnalystParameters} from './OverlayAnalystParameters';
 import {ServerGeometry} from './ServerGeometry';
@@ -11,8 +14,8 @@ import {ServerGeometry} from './ServerGeometry';
  * @param {Object} options - 参数。 
  * @param {Object} options.operateGeometry - 叠加分析的操作几何对象。 </br>
  *                                   点类型可以是：{@link SuperMap.Geometry.Point}|{@link L.Point}|{@link L.GeoJSON}|{@link ol.geom.Point}|{@link ol.format.GeoJSON}。</br>
- *                                   线类型可以是：{@link SuperMap.Geometry.LineString}|{@link SuperMap.Geometry.LinearRing}|{@link L.Polyline}|{@link L.GeoJSON}|{@link ol.geom.LineString}|GeoJSON。</br>
- *                                   面类型可以是：{@link SuperMap.Geometry.Polygon}|{@link L.Polygon}|{@link L.GeoJSON}|{@link ol.geom.Polygon}|GeoJSON。 
+ *                                   线类型可以是：{@link SuperMap.Geometry.LineString}|{@link SuperMap.Geometry.LinearRing}|{@link L.Polyline}|{@link L.GeoJSON}|{@link ol.geom.LineString}|{@link GeoJSONObject}。</br>
+ *                                   面类型可以是：{@link SuperMap.Geometry.Polygon}|{@link L.Polygon}|{@link L.GeoJSON}|{@link ol.geom.Polygon}|{@link GeoJSONObject}。 
  * @param {Object} options.sourceGeometry - 叠加分析的源几何对象。 
  * @param {Array.<Object>} [options.operateGeometries] - 批量叠加分析的操作几何对象数组。 
  * @param {Array.<Object>} [options.sourceGeometries] -批量叠加分析的源几何对象数组。 

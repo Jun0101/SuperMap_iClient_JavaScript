@@ -1,3 +1,4 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.*/
 /**
  * classic 示例配置文件：包含示例的分类、名称、缩略图、文件路径
  */
@@ -8,7 +9,7 @@ var identification = {
 var exampleConfig = {
     "map": {
         name: "地图",
-        name_en: "map",
+        name_en: "Map",
         content: {
             "SuperMapLayer": {
                 name: "SuperMap地图",
@@ -55,7 +56,7 @@ var exampleConfig = {
             },
             "thirdParty": {
                 name: "第三方地图",
-                name_en: "third party map",
+                name_en: "Third party map",
                 content: [{
                     name: "天地图",
                     name_en: "tianditu layer",
@@ -69,7 +70,7 @@ var exampleConfig = {
                     fileName: "map_3baidu"
 
                 }, {
-                    name: "google layer",
+                    name: "谷歌地图",
                     name_en: "google layer",
                     thumbnail: "map_3googlelayer.png",
                     fileName: "map_3googlelayer"
@@ -81,7 +82,7 @@ var exampleConfig = {
                     fileName: "map_3bing"
 
                 }, {
-                    name: "OSM",
+                    name: "OSM地图",
                     name_en: "OSM layer",
                     thumbnail: "map_3osm.png",
                     fileName: "map_3osm"
@@ -90,7 +91,7 @@ var exampleConfig = {
             },
             "operation": {
                 name: "地图操作",
-                name_en: "map operation",
+                name_en: "Map operation",
                 content: [{
                     name: "缩放与平移",
                     name_en: "translation",
@@ -127,11 +128,11 @@ var exampleConfig = {
     },
     "overlay": {
         name: "覆盖物",
-        name_en: "overlay",
+        name_en: "Overlay",
         content: {
             "vectorLayer": {
                 name: "矢量图层",
-                name_en: "vector_layer",
+                name_en: "Vector layer",
                 content: [{
                     name: "矢量图形数据",
                     name_en: "vector layer data",
@@ -186,7 +187,7 @@ var exampleConfig = {
             },
             "markerLayer": {
                 name: "标记图层",
-                name_en: "marker layer",
+                name_en: "Marker layer",
                 content: [{
                     name: "标记图层",
                     name_en: "marker layer",
@@ -198,17 +199,17 @@ var exampleConfig = {
                     thumbnail: "overlay_markerLayerEvent.png",
                     fileName: "overlay_markerLayerEvent"
                 }]
-            },
+            }
 
         }
     },
     "control": {
         name: "控件",
-        name_en: "control",
+        name_en: "Control",
         content: {
             "mapControl": {
                 name: "地图类控件",
-                name_en: "map control",
+                name_en: "Map control",
                 content: [{
                     name: "缩放控件",
                     name_en: "zoom control",
@@ -230,7 +231,7 @@ var exampleConfig = {
                     thumbnail: "controler_navigation.png",
                     fileName: "controler_navigation"
                 }, {
-                    name: "layerswitcher",
+                    name: "图层管理器",
                     name_en: "layer switch control",
                     thumbnail: "controler_layerswitcher.png",
                     fileName: "controler_layerswitcher"
@@ -268,7 +269,7 @@ var exampleConfig = {
             },
             "featureControl": {
                 name: "要素类控件",
-                name_en: "feature control",
+                name_en: "Feature control",
                 content: [{
                     name: "点线面绘制",
                     name_en: "draw control",
@@ -300,11 +301,11 @@ var exampleConfig = {
     },
     "popup": {
         name: "信息框",
-        name_en: "popup",
+        name_en: "Popup",
         content: {
             "infoBox": {
                 name: "信息框",
-                name_en: "popup",
+                name_en: "Popup",
                 content: [{
                     name: "简易信息框",
                     name_en: "simple popup",
@@ -337,11 +338,11 @@ var exampleConfig = {
     },
     "query": {
         name: "查询",
-        name_en: "query",
+        name_en: "Query",
         content: {
             "mapQuery": {
                 name: "地图查询",
-                name_en: "map query",
+                name_en: "Map query",
                 content: [{
                     name: "地图范围查询",
                     name_en: "bounds query",
@@ -371,7 +372,7 @@ var exampleConfig = {
             },
             "datasetQuery": {
                 name: "数据集查询",
-                name_en: "data query",
+                name_en: "Data query",
                 content: [{
                     name: "ID 查询",
                     name_en: "ID query",
@@ -419,11 +420,11 @@ var exampleConfig = {
     },
     "theme": {
         name: "专题图",
-        name_en: "thematic map",
+        name_en: "Thematic map",
         content: {
             "serviceTheme": {
                 name: "服务器专题图",
-                name_en: "server thematic map",
+                name_en: "Server thematic map",
                 content: [{
                     name: "点密度专题图",
                     name_en: "dot density",
@@ -468,7 +469,7 @@ var exampleConfig = {
             },
             "clientTheme": {
                 name: "客户端专题图",
-                name_en: "client thematic layer",
+                name_en: "Client thematic layer",
                 content: [{
                     name: "标签专题图层",
                     name_en: "label ",
@@ -541,11 +542,11 @@ var exampleConfig = {
 
     "analysis": {
         name: "分析",
-        name_en: "analysis",
+        name_en: "Analysis",
         content: {
             "spatialAnalyst": {
                 name: "空间分析",
-                name_en: "spatial analysis",
+                name_en: "Spatial analysis",
                 content: [{
                     name: "缓冲区分析一",
                     name_en: "buffer analysis (1)",
@@ -631,7 +632,7 @@ var exampleConfig = {
             },
             "networkAnalyst": {
                 name: "网络分析",
-                name_en: "network analysis",
+                name_en: "Network analysis",
                 content: [{
                     name: "最近设施分析",
                     name_en: "closest facilities",
@@ -672,7 +673,7 @@ var exampleConfig = {
             },
             "trafficTransferAnalyst": {
                 name: "交通换乘",
-                name_en: "traffic transfer analysis",
+                name_en: "Traffic transfer analysis",
                 content: [{
                     name: "公交换乘服务",
                     name_en: "traffic transfer",
@@ -682,7 +683,7 @@ var exampleConfig = {
             },
             "processingService": {
                 name: "分布式分析",
-                name_en: "distributed analysis services",
+                name_en: "Distributed analysis services",
                 content: [{
                     name: "密度分析",
                     name_en: "density",
@@ -732,7 +733,7 @@ var exampleConfig = {
             },
             "addressMatch": {
                 name: "地址匹配",
-                name_en: "address matching service",
+                name_en: "Address matching service",
                 content: [{
                     name: "地址匹配",
                     name_en: "address match",
@@ -745,11 +746,11 @@ var exampleConfig = {
     },
     "viz": {
         name: "可视化",
-        name_en: "visualization",
+        name_en: "Visualization",
         content: {
             "vizLayer": {
                 name: "可视化图层",
-                name_en: "visualization layer",
+                name_en: "Visualization layer",
                 content: [{
                     name: "热点图",
                     name_en: "heat map",
@@ -796,7 +797,7 @@ var exampleConfig = {
                     thumbnail: "vizLayer_gois.png",
                     fileName: "vizLayer_gois"
                 }, {
-                    name: "Elements Layer 扩展",
+                    name: "要素图层扩展",
                     name_en: "elements layer extension",
                     thumbnail: "vizLayer_elements.png",
                     fileName: "vizLayer_elements"
@@ -804,7 +805,7 @@ var exampleConfig = {
             },
             "animation": {
                 name: "时空数据",
-                name_en: "animation",
+                name_en: "Animation",
                 content: [{
                     name: "基础渲染",
                     name_en: "basic animation",
@@ -859,7 +860,7 @@ var exampleConfig = {
             },
             "vectorBlock": {
                 name: "矢量分块",
-                name_en: "carto CSS",
+                name_en: "Carto CSS",
                 content: [{
                     name: "矢量分块图",
                     name_en: "carto CSS vector tile layer",
@@ -946,7 +947,7 @@ var exampleConfig = {
         content: {
             "mapService": {
                 name: "地图服务",
-                name_en: "map service",
+                name_en: "Map service",
                 content: [{
                     name: "WMTS图层",
                     name_en: "WMTS layer",
@@ -966,7 +967,7 @@ var exampleConfig = {
             },
             "dataService": {
                 name: "数据服务",
-                name_en: "data service",
+                name_en: "Data service",
                 content: [{
                     name: "kml",
                     name_en: "kml",
@@ -978,7 +979,7 @@ var exampleConfig = {
                     thumbnail: "OGC_GeoJSON.png",
                     fileName: "OGC_GeoJSON"
                 }, {
-                    name: "WFS 查询",
+                    name: "WFS查询",
                     name_en: "WFS query",
                     thumbnail: "OGC_queryByWFS.png",
                     fileName: "OGC_queryByWFS"
@@ -988,11 +989,11 @@ var exampleConfig = {
     },
     "plot": {
         name: "动态标绘",
-        name_en: "plot",
+        name_en: "Plot",
         content: {
             "basic": {
                 name: "标绘",
-                name_en: "basic",
+                name_en: "Basic",
                 content: [{
                     name: "动态标绘",
                     name_en: "dynamic plot",
@@ -1053,7 +1054,7 @@ var exampleConfig = {
             },
             "trendMap": {
                 name: "态势图",
-                name_en: "trend plot",
+                name_en: "Trend plot",
                 content: [{
                     name: "保存和加载",
                     name_en: "save and load",
@@ -1073,7 +1074,7 @@ var exampleConfig = {
             },
             "other": {
                 name: "其他",
-                name_en: "others",
+                name_en: "Others",
                 content: [{
                     name: "几何查询",
                     name_en: "symbol geometry query",
@@ -1110,11 +1111,11 @@ var exampleConfig = {
     },
     "others": {
         name: "其它",
-        name_en: "others",
+        name_en: "Others",
         content: {
             "otherFeatures": {
                 name: "其它功能",
-                name_en: "other features",
+                name_en: "Other features",
                 content: [{
                     name: "地图打印",
                     name_en: "map print",
@@ -1174,7 +1175,7 @@ var exampleConfig = {
             },
             "othersShows": {
                 name: "其它展示",
-                name_en: "others shows",
+                name_en: "Others shows",
                 content: [{
                     name: "WebGL Globe数据展示",
                     name_en: "WebGL Globe",

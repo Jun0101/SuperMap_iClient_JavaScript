@@ -4,6 +4,7 @@ import './leaflet/control/ChangeTileVersionSpec.js';
 /*leaflet -- core*/
 import './leaflet/core/NonEarthCRSSpec.js';
 import './leaflet/core/TransformUtilSpec.js';
+import './leaflet/core/Proj4LeafletSpec.js';
 
 /*leaflet -- mapping*/
 import './leaflet/mapping/ImageMapLayerSpec.js';
@@ -12,11 +13,12 @@ import './leaflet/mapping/TileLayer.WMTSSpec.js';
 import './leaflet/mapping/WebMapSpec.js';
 
 /*leaflet -- overlay*/
-import './leaflet/overlay/DataFlowlayerSpec.js';
+
 import './leaflet/overlay/EchartsLayerSpec.js';
 /*deck相关测试未通过，待解决后打开注释*/
-//import './leaflet/overlay/GraphicLayerSpec.js';
-//import './leaflet/overlay/graphic/CloverStyleSpec';
+import './leaflet/overlay/graphic/GraphicSpec.js';
+import './leaflet/overlay/GraphicLayerSpec.js';
+import './leaflet/overlay/graphic/CloverStyleSpec';
 import './leaflet/overlay/GraphThemeLayerSpec.js';
 import './leaflet/overlay/HeatMapLayerSpec.js';
 import './leaflet/overlay/LabelThemeLayerSpec.js';
@@ -27,7 +29,8 @@ import './leaflet/overlay/TileVectorLayerSpec.js';
 import './leaflet/overlay/UniqueThemeLayerSpec.js';
 import './leaflet/overlay/vectortile/PointSymbolizerSpec.js';
 import './leaflet/overlay/vectortile/TextSymbolizerSpec.js';
-
+import './leaflet/overlay/TurfLayerSpec.js';
+import './leaflet/overlay/mapv/MapVRendererSpec.js';
 /**leaflet -- services**/
 import './leaflet/services/AddressMatchServiceSpec.js';
 import './leaflet/services/BufferAnalysisSpec.js';
@@ -64,3 +67,13 @@ import './leaflet/services/TerrainCurvatureCalculateSpec.js';
 import './leaflet/services/ThemeServiceSpec.js';
 import './leaflet/services/ThiessenAnalysisSpec.js';
 import './leaflet/services/TrafficTransferAnalystServiceSpec.js';
+
+/* widget */
+import './leaflet/widgets/openfile/OpenFileViewSpec.js';
+import './leaflet/widgets/dataservicequery/DataServiceQueryViewSpec.js';
+import './leaflet/widgets/distributedanalysis/DistributedAnalysisViewSpec.js';
+import './leaflet/widgets/clientcomputation/ClientComputationViewSpec.js';
+import './leaflet/widgets/search/SearchViewSpec.js';
+import './leaflet/widgets/dataflow/DataFlowViewSpec.js';
+import './leaflet/overlay/DataFlowlayerSpec.js';
+

@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import {SuperMap} from '../SuperMap';
 import {CommonServiceBase} from './CommonServiceBase';
 import {Util} from '../commontypes/Util';
@@ -10,8 +13,8 @@ import {SecurityManager} from '../security/SecurityManager';
  * @extends {SuperMap.CommonServiceBase}
  * @param {string} url - 数据流服务地址
  * @param {Object} options - 参数。
- * @function {function} options.style - 设置数据加载样式。
- * @function {function} options.onEachFeature - 设置每个数据加载popup等。
+ * @param {function} options.style - 设置数据加载样式。
+ * @param {function} options.onEachFeature - 设置每个数据加载popup等。
  * @param {Array.<Object>} options.geometry - 设置增添的几何要素对象数组。
  * @param {Object} options.excludeField - -排除字段。
  */
@@ -25,7 +28,7 @@ export class DataFlowService extends CommonServiceBase {
          * {Array.<string>}
          * 此类支持的事件类型
          */
-        options.EVENT_TYPES = ["broadcastSocketConnected", "broadcastSocketError", "broadcastFailed", "broadcastSuccessed", "subscribeSocketConnected", "subscribeSocketError", "messageSuccessed", "setFilterParamSuccessed"]
+        options.EVENT_TYPES = ["broadcastSocketConnected", "broadcastSocketError", "broadcastFailed", "broadcastSucceeded", "subscribeSocketConnected", "subscribeSocketError", "messageSucceeded", "setFilterParamSucceeded"]
         super(url, options);
 
         /**
@@ -51,9 +54,7 @@ export class DataFlowService extends CommonServiceBase {
         if (end !== '/') {
             me.url += "/";
         }
-        if (options) {
-            Util.extend(me, options);
-        }
+        Util.extend(me, options);
 
         this.CLASS_NAME = "SuperMap.DataFlowService";
     }
@@ -85,8 +86,8 @@ export class DataFlowService extends CommonServiceBase {
 
     /**
      * @function SuperMap.DataFlowService.prototype.broadcast
-     * @description 加载广播数据
-     * @param {Object} geoJSONFeature - JSON 格式的要素数据
+     * @description 加载广播数据。
+     * @param {GeoJSONObject} geoJSONFeature - JSON 格式的要素数据。
      */
     broadcast(geoJSONFeature) {
         if (!this.broadcastWebSocket||!this.broadcastWebSocket.isOpen) {
@@ -94,7 +95,7 @@ export class DataFlowService extends CommonServiceBase {
             return;
         }
         this.broadcastWebSocket.send(JSON.stringify(geoJSONFeature));
-        this.events.triggerEvent('broadcastSuccessed');
+        this.events.triggerEvent('broadcastSucceeded');
 
     }
 
@@ -199,17 +200,17 @@ export class DataFlowService extends CommonServiceBase {
 
 
     _onMessage(e) {
-        if (e.data && e.data.indexOf("filterParam") > 0) {
+        if (e.data && e.data.indexOf("filterParam") >= 0) {
             var filterParam = JSON.parse(e.data);
             e.filterParam = filterParam;
-            e.eventType = 'setFilterParamSuccessed';
-            this.events.triggerEvent('setFilterParamSuccessed', e);
+            e.eventType = 'setFilterParamSucceeded';
+            this.events.triggerEvent('setFilterParamSucceeded', e);
             return;
         }
         var feature = JSON.parse(e.data);
         e.featureResult = feature;
-        e.eventType = 'messageSuccessed';
-        this.events.triggerEvent('messageSuccessed', e);
+        e.eventType = 'messageSucceeded';
+        this.events.triggerEvent('messageSucceeded', e);
     }
 
 

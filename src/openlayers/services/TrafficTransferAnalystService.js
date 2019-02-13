@@ -1,4 +1,7 @@
-﻿import ol from 'openlayers';
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
+import ol from 'openlayers';
 import {Util} from '../core/Util';
 import {ServiceBase} from './ServiceBase';
 import {StopQueryService, TransferPathService, TransferSolutionService} from '@supermap/iclient-common';
@@ -13,7 +16,7 @@ import {StopQueryService, TransferPathService, TransferSolutionService} from '@s
  *      .queryStop(params,function(result){
  *           //doSomething
  *      })
- * @param {String} url - 服务地址。
+ * @param {string} url - 服务地址。
  * @param {Object} options - 参数。
  * @param {string} [options.proxy] - 服务代理地址。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务来源 iServer|iPortal|online。

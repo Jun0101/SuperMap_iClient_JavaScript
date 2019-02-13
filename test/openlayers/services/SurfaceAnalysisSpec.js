@@ -3,6 +3,7 @@ import {SpatialAnalystService} from '../../../src/openlayers/services/SpatialAna
 import {DatasetSurfaceAnalystParameters} from '../../../src/common/iServer/DatasetSurfaceAnalystParameters';
 import {SurfaceAnalystParametersSetting} from '../../../src/common/iServer/SurfaceAnalystParametersSetting';
 import {SmoothMethod} from '../../../src/common/REST';
+import { FetchRequest } from '../../../src/common/util/FetchRequest';
 
 var originalTimeout, serviceResults;
 var sampleServiceUrl = GlobeParameter.spatialAnalystURL;
@@ -39,14 +40,25 @@ describe('openlayers_SpatialAnalystService_surfaceAnalysis', () => {
         });
         //创建表面分析服务实例
         var surfaceAnalystService = new SpatialAnalystService(sampleServiceUrl);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(sampleServiceUrl + "/datasets/SamplesP@Interpolation/isoline.json?returnContent=true");
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj.extractParameter.datumValue).toEqual(0);
+            expect(paramsObj.extractParameter.smoothness).toEqual(3);
+            expect(paramsObj.extractParameter.resampleTolerance).toEqual(0);
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(surfaceAnalystEscapedJson));
+        });
         surfaceAnalystService.surfaceAnalysis(surfaceAnalystParameters, (surfaceAnalystServiceResult) => {
             serviceResults = surfaceAnalystServiceResult;
-        });
-        setTimeout(() => {
             expect(serviceResults).not.toBeNull();
             expect(serviceResults.type).toBe('processCompleted');
             expect(serviceResults.result.recordset).not.toBeNull();
             done();
+        });
+        setTimeout(() => {
+
         }, 8000);
     });
 });

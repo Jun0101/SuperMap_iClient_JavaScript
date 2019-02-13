@@ -1,6 +1,7 @@
 import request from 'request';
 import {SpatialAnalystService} from '../../../src/openlayers/services/SpatialAnalystService';
 import {DensityKernelAnalystParameters} from '../../../src/common/iServer/DensityKernelAnalystParameters';
+import { FetchRequest } from '../../../src/common/util/FetchRequest';
 
 var originalTimeout, serviceResults;
 var changchunServiceUrl = GlobeParameter.spatialAnalystURL_Changchun;
@@ -26,21 +27,32 @@ describe('openlayers_SpatialAnalystService_densityAnalysis', () => {
             deleteExistResultDataset: true
         });
         var spatialAnalystService = new SpatialAnalystService(changchunServiceUrl);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(changchunServiceUrl + "/datasets/Railway@Changchun/densityanalyst/kernel.json?returnContent=true");
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj.fieldName).toBe("SmLength");
+            expect(paramsObj.resultGridName).toBe("KernelDensity_openlayersTest");
+            expect(paramsObj.searchRadius).toEqual(50);
+            expect(options).not.toBeNull();
+            var resultJson=`{"succeed":true,"recordset":null,"message":null,"dataset":"KernelDensity_openlayersTest@Changchun"}`;
+            return Promise.resolve(new Response(resultJson));
+        });
         spatialAnalystService.densityAnalysis(densityAnalystParameters, (serviceResult) => {
             serviceResults = serviceResult;
-        });
-        setTimeout(() => {
+            try {
             expect(serviceResults).not.toBeNull();
             expect(serviceResults.type).toBe('processCompleted');
             expect(serviceResults.result.dataset).not.toBeNull();
-            done();
-        }, 8000);
+            expect(serviceResults.result.dataset).toEqual(resultDataset+"@Changchun");
+                done();
+            } catch (exception) {
+                console.log("'densityAnalysis'案例失败" + exception.name + ":" + exception.message);
+                spatialAnalystService.destroy();
+                expect(false).toBeTruthy();
+                done();
+            }
+        });
     });
 
-    // 删除测试过程中产生的测试数据集
-    it('delete test resources', (done) => {
-        var testResult = GlobeParameter.datachangchunURL + resultDataset;
-        request.delete(testResult);
-        done();
-    });
 });

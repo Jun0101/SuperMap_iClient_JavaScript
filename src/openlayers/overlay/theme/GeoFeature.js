@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import ol from 'openlayers';
 import {Bounds, CommonUtil, ShapeFactory, ThemeVector as Vector} from '@supermap/iclient-common';
 import {Theme} from './Theme';
@@ -62,7 +65,7 @@ export class GeoFeature extends Theme {
     /**
      * @function ol.source.GeoFeature.prototype.addFeatures
      * @description 添加要素。
-     * @param {Object} features - 要素对象。
+     * @param {SuperMap.ServerFeature|GeoJSONObject|ol.Feature} features - 要素对象。
      */
     addFeatures(features) {
         this.dispatchEvent({type: 'beforefeaturesadded', value: {features: features}});
@@ -80,7 +83,7 @@ export class GeoFeature extends Theme {
     /**
      * @function ol.source.GeoFeature.prototype.removeFeatures
      * @description 从专题图中删除 feature。这个函数删除所有传递进来的矢量要素。
-     * @param {Object} features - 要删除的要素对象。
+     * @param {SuperMap.Feature.Vector} features - 要删除的要素对象。
      */
     removeFeatures(features) { // eslint-disable-line no-unused-vars
         this.clearCache();
@@ -225,7 +228,7 @@ export class GeoFeature extends Theme {
     /**
      * @function ol.source.GeoFeature.prototype.getCacheCount
      * @description 获取当前缓存数量。
-     * @returns {Number} 返回当前缓存数量。
+     * @returns {number} 返回当前缓存数量。
      */
     getCacheCount() {
         return this.cacheFields.length;

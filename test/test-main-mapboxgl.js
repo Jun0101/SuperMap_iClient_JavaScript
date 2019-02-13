@@ -12,10 +12,16 @@ import './mapboxgl/overlay/RangeTheme3DLayerSpec.js';
 import './mapboxgl/overlay/ThreeLayerSpec.js';
 import './mapboxgl/overlay/UniqueThemeLayerSpec.js';
 import './mapboxgl/overlay/UniqueTheme3DLayerSpec.js';
+import './mapboxgl/overlay/DeckglLayerSpec.js';
+
+import './mapboxgl/overlay/graphic/GraphicSpec.js';
+import './mapboxgl/overlay/GraphicLayerSpec.js';
+import './mapboxgl/overlay/mapv/MapvRenderSpec.js';
 
 /*mapboxgl -- services*/
 import './mapboxgl/services/AddressMatchServiceSpec.js';
 import './mapboxgl/services/BufferAnalysisSpec.js';
+import './mapboxgl/services/DataFlowServiceSpec.js';
 import './mapboxgl/services/DensityAnalysisSpec.js';
 import './mapboxgl/services/EditFeaturesSpec.js';
 import './mapboxgl/services/FieldServiceSpec.js';
@@ -44,3 +50,6 @@ import './mapboxgl/services/TerrainCurvatureCalculateSpec.js';
 import './mapboxgl/services/ThemeServiceSpec.js';
 import './mapboxgl/services/ThiessenAnalysisSpec.js';
 import './mapboxgl/services/TrafficTransferAnalystServiceSpec.js';
+
+/*mapboxgl -- mapping*/
+import './mapboxgl/mapping/WebMapSpec.js';

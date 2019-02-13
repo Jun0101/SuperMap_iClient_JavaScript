@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import {Symbolizer} from './Symbolizer';
 import L from "leaflet";
 
@@ -7,7 +10,7 @@ import L from "leaflet";
  * @category Visualization VectorTile
  * @private
  * @extends {L.CircleMarker}
- * @param {L.feature} feature - 点要素。
+ * @param {Object} feature - 点要素。
  * @param {number} pxPerExtent - 点符号大小。
  */
 export var PointSymbolizer = L.CircleMarker.extend({

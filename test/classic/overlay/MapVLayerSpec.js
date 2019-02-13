@@ -59,7 +59,11 @@ describe('classic_MapVLayer', () => {
             },
             globalAlpha: 0.5,
             gradient: {0.25: "rgb(0,0,255)", 0.55: "rgb(0,255,0)", 0.85: "yellow", 1.0: "rgb(255,0,0)"},
-            draw: 'honeycomb'
+            draw: 'honeycomb',
+            method: {
+                click: {},
+                mousemove: {}
+            }
         };
         mapvLayer = new MapVLayer("mapv", {dataSet: dataSet, options: options});
         map.addLayer(mapvLayer);
@@ -150,28 +154,36 @@ describe('classic_MapVLayer', () => {
         expect(mapvLayer.maxHeight).toBeNull();
     });
 
-    //方法引用错误
-    xit('removeData', (done) => {
-        var filter = (data) => {
-            if (mapvLayer.dataSet._data.indexOf(data) === 2) {
-                return true
-            }
-            return false;
-        }
-        mapvLayer.removeData(filter);
+
+    it('removeData', (done) => {
+        var data = [{
+            geometry: {
+                type: 'Point',
+                coordinates: [109, 32]
+            },
+            count: 111
+        }];
+
+        mapvLayer.setData(new DataSet(data));
+        mapvLayer.removeData(() => {
+            return true
+        });
         setTimeout(() => {
-            expect(mapvLayer.dataSet._data.length).toEqual(999);
+            var data = mapvLayer.dataSet.get();
+            expect(data).not.toBeNull();
+            expect(data.length).toBe(0);
             done();
-        }, 5000);
+        }, 2000);
     });
 
-    xit('setMap', () => {
+
+    it('setMap', () => {
         mapvLayer.setMap(map);
         expect(mapvLayer).not.toBeNull();
         expect(mapvLayer.dataSet._data.length).toEqual(1000);
     });
 
-    xit('moveTo', () => {
+    it('moveTo', () => {
         var bounds = new Bounds(-180, -90, 180, 90);
         mapvLayer.moveTo(bounds, false, true);
         expect(mapvLayer).not.toBeNull();
@@ -182,7 +194,7 @@ describe('classic_MapVLayer', () => {
         expect(mapvLayer.maxExtent.top).toEqual(90);
     });
 
-    xit('transferToMapLatLng', () => {
+    it('transferToMapLatLng', () => {
         var latlng = new LonLat(104, 34.7);
         mapvLayer.transferToMapLatLng(latlng);
         expect(mapvLayer).not.toBeNull();

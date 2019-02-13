@@ -21,7 +21,7 @@ module.exports = function (config) {
                     ignore: ["**/libs/**"],
                     plugins: ['istanbul']
                 }],
-                require('browserify-css'),
+                [require('browserify-css'), {global: true}],
                 require('browserify-imgify')
             ]
         },
@@ -32,9 +32,10 @@ module.exports = function (config) {
             /***测试文件***/
             './tool/**.js',
             './resources/**.js',
+            './resources/img/**.png',
             /***classic的源码***/
             /*由于除了classic其他都不依赖于8c,所以classic 的引入放在最后，以免被common覆盖*/
-            {pattern: '../src/classic/libs/SuperMap_Basic-8.1.1-16331.js', include: false},
+            {pattern: '../src/classic/libs/SuperMap_Basic-8.1.1-16820.js', include: false},
             {pattern: '../src/classic/libs/Lang/*.js', include: false},
             {pattern: '../src/classic/theme/default/*.css', include: false},
             /**测试文件**/
@@ -43,28 +44,29 @@ module.exports = function (config) {
             /***common的源码***/
             '../src/common/**/*.js',
             /**测试文件**/
+           
             './test-main-common.js',
 
             /***leaflet的源码***/
+            {pattern: './libs/workers/TurfWorkerForTest.js', include: false},
             {pattern: '../node_modules/leaflet/dist/leaflet.css', include: false},
             {pattern: '../src/leaflet/**/**/*.css', include: false},
-            '../src/leaflet/**/!(GraphicLayer|WebGLRenderer|index).js',
+            '../src/leaflet/**/!(index).js',
             /**测试文件**/
             './test-main-leaflet.js',
 
             /***openlayers的源码***/
             {pattern: '../node_modules/openlayers/dist/ol-debug.css', include: false},
             {pattern: '../src/openlayers/**/**/*.css', include: false},
-            '../src/openlayers/**/!(Graphic|WebGLRenderer|index|MapboxStyles).js',
+            '../src/openlayers/**/!(index).js',
             /**测试文件**/
             './test-main-openlayers.js',
 
             /***mapboxgl***/
             {pattern: '../node_modules/mapbox-gl/dist/mapbox-gl.css', include: false},
-            '../src/mapboxgl/**/!(GraphicLayer|index).js',
+            '../src/mapboxgl/**/!(index).js',
             /**测试文件**/
             './test-main-mapboxgl.js'
-
         ],
 
         // list of files to exclude 测试时排除的文件
@@ -75,7 +77,7 @@ module.exports = function (config) {
         preprocessors: {
             '../node_modules/whatwg-fetch-importable/whatwgFetch.js': ['browserify'],
             '../node_modules/fetch-jsonp/build/fetch-jsonp.js': ['browserify'],
-            '../src/classic/libs/SuperMap_Basic-8.1.1-16331.js': ['browserify'],
+            '../src/classic/libs/SuperMap_Basic-8.1.1-16820.js': ['browserify'],
             '../src/classic/libs/Lang/*.js': ['browserify'],
             '../src/classic/**/!(index).js': ['browserify'],
             './classic/**/*Spec.js': ['browserify'],
@@ -86,17 +88,17 @@ module.exports = function (config) {
             './test-main-common.js': ['browserify'],
 
             '../node_modules/leaflet/dist/leaflet-src.js': ['browserify'],
-            '../src/leaflet/**/!(GraphicLayer|WebGLRenderer|index).js': ['browserify'],
+            '../src/leaflet/**/!(index).js': ['browserify'],
             './leaflet/**/*Spec.js': ['browserify'],
             './test-main-leaflet.js': ['browserify'],
 
             '../node_modules/openlayers/dist/ol-debug.js': ['browserify'],
-            '../src/openlayers/**/!(Graphic|WebGLRenderer|index).js': ['browserify'],
+            '../src/openlayers/**/!(index).js': ['browserify'],
             './openlayers/**/*Spec.js': ['browserify'],
             './test-main-openlayers.js': ['browserify'],
 
             '../node_modules/mapbox-gl/dist/mapbox-gl-dev.js': ['browserify'],
-            '../src/mapboxgl/**/!(GraphicLayer|index).js': ['browserify'],
+            '../src/mapboxgl/**/!(index).js': ['browserify'],
             './mapboxgl/**/*Spec.js': ['browserify'],
             './test-main-mapboxgl.js': ['browserify']
         },

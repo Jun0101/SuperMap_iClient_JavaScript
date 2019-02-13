@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import mapboxgl from 'mapbox-gl';
 import '../core/Base';
 import {Util} from '../core/Util';
@@ -170,7 +173,7 @@ export class QueryService extends ServiceBase {
                 params.geometry = new GeometryPoint(params.geometry.x, params.geometry.y);
             }
 
-            if (params && !(params.geometry instanceof Geometry)) {
+            if (!(params.geometry instanceof Geometry)) {
 
                 params.geometry = Util.toSuperMapGeometry(params.geometry);
             }

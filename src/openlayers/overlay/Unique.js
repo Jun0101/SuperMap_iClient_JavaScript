@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import ol from 'openlayers';
 import {ThemeVector, ShapeFactory, CommonUtil} from '@supermap/iclient-common';
 import {GeoFeature} from './theme/GeoFeature';
@@ -6,7 +9,7 @@ import {GeoFeature} from './theme/GeoFeature';
  * @class ol.source.Unique
  * @category  Visualization Theme
  * @classdesc 单值专题图图层源。
- * @param {String} name - 图层名称
+ * @param {string} name - 图层名称
  * @param {Object} opt_options - 参数。
  * @param {ol.Map} opt_options.map - 当前 Map 对象。
  * @param {string} [opt_options.id] - 专题图层 ID。默认使用 CommonUtil.createUniqueID("themeLayer_") 创建专题图层ID。

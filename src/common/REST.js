@@ -1,4 +1,7 @@
-﻿import {
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
+import {
     SuperMap
 } from './SuperMap';
 
@@ -51,6 +54,12 @@ var GeometryType = SuperMap.GeometryType = {
     POINT: "POINT",
     /** REGION */
     REGION: "REGION",
+    /** POINTEPS */
+    POINTEPS: "POINTEPS",
+    /** LINEEPS */
+    LINEEPS: "LINEEPS",
+    /** REGIONEPS */
+    REGIONEPS: "REGIONEPS",
     /** ELLIPSE */
     ELLIPSE: "ELLIPSE",
     /** CIRCLE */
@@ -1269,4 +1278,26 @@ var AggregationQueryBuilderType = SuperMap.AggregationQueryBuilderType = {
 }
 export {
     AggregationQueryBuilderType
+}
+
+/**
+ * @enum GetFeatureMode
+ * @memberOf SuperMap
+ * @description feature 查询方式。
+ * @type {string}
+ */
+var GetFeatureMode = SuperMap.GetFeatureMode = {
+    /** 通过范围查询来获取要素。 */
+    BOUNDS: "BOUNDS",
+    /** 通过几何对象的缓冲区来获取要素。 */
+    BUFFER: "BUFFER",
+    /** 通过 ID 来获取要素。 */
+    ID: "ID",
+    /** 通过空间查询模式来获取要素。 */
+    SPATIAL: "SPATIAL",
+    /** 通过 SQL 查询来获取要素。 */
+    SQL: 'SQL'
+}
+export {
+    GetFeatureMode
 }

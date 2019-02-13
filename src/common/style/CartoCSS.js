@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import {SuperMap} from '../SuperMap';
 import toPairs from 'lodash.topairs';
 
@@ -184,9 +187,9 @@ export class CartoCSS {
                 line: 0,
                 column: -1
             };
-            if (defautls) {
-                for (var prop in defautls) {
-                    if (err[prop] === 0) {err[prop] = defautls[prop];}
+            for (var prop in defautls) {
+                if (err[prop] === 0) {
+                    err[prop] = defautls[prop];
                 }
             }
 
@@ -873,7 +876,7 @@ export class CartoCSS {
     /**
      * @function SuperMap.CartoCSS.prototype.parse
      * @description 利用CartoCSS解析器里面的parse方法，将CartoCSS样式表字符串转化为CartoCSS规则集
-     * @return {Object} CartoCSS规则集
+     * @returns {Object} CartoCSS规则集
      */
     parse(str) {
         var parser = this.parser;
@@ -885,7 +888,7 @@ export class CartoCSS {
     /**
      * @function SuperMap.CartoCSS.prototype.toShaders
      * @description 将CartoCSS规则集转化为着色器
-     * @return {Array} CartoCSS着色器集
+     * @returns {Array} CartoCSS着色器集
      */
     toShaders() {
         if (this.ruleSet) {
@@ -1017,7 +1020,7 @@ export class CartoCSS {
     /**
      * @function SuperMap.CartoCSS.prototype.getShaders
      * @description 获取CartoCSS着色器
-     * @return {Array} 着色器集
+     * @returns {Array} 着色器集
      * @example
      *   //shaders的结构大概如下：
      *   var shaders=[
@@ -3936,7 +3939,9 @@ SuperMap.CartoCSS.Tree.Operation = class Operation {
 
         if (a instanceof SuperMap.CartoCSS.Tree.Dimension && b instanceof SuperMap.CartoCSS.Tree.Color) {
             if (this.op === '*' || this.op === '+') {
-                temp = b, b = a, a = temp;
+                temp = b; 
+                b = a; 
+                a = temp;
             } else {
                 env.error({
                     name: "OperationError",

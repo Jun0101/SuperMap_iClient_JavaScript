@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import ol from 'openlayers';
 import '../core/MapExtend';
 import {
@@ -13,9 +16,11 @@ import {
     CommonUtil
 } from '@supermap/iclient-common';
 import {
-    GraphicCanvasRenderer,
     GraphicWebGLRenderer
-} from './graphic/';
+} from './graphic/WebGLRenderer';
+import {
+    GraphicCanvasRenderer
+} from './graphic/CanvasRenderer';
 
 const defaultProps = {
     color: [0, 0, 0, 255],
@@ -65,7 +70,7 @@ export class Graphic extends ol.source.ImageCanvas {
             resolutions: options.resolutions,
             state: options.state
         });
-        this.graphics_ = [].concat(options.graphics);
+        this.graphics = [].concat(options.graphics);
         this.map = options.map;
         CommonUtil.extend(this, options);
         this.render = options.render || Renderer[0];
@@ -82,10 +87,7 @@ export class Graphic extends ol.source.ImageCanvas {
 
         if (options.onClick) {
             me.map.on('click', function (e) {
-                let coordinate = e.coordinate;
-                let resolution = e.frameState.viewState.resolution;
-                let pixel = e.pixel;
-                me._forEachFeatureAtCoordinate(coordinate, resolution, options.onClick, pixel);
+                me.map.forEachFeatureAtPixel(e.pixel, options.onClick,{},e);
             });
         }
 
@@ -147,7 +149,7 @@ export class Graphic extends ol.source.ImageCanvas {
          * @param {RequestCallback} callback -回调函数。
          * @param {ol.Pixel} evtPixel - 当前选中的屏幕像素坐标。
          */
-        function _forEachFeatureAtCoordinate(coordinate, resolution, callback, evtPixel) {
+        function _forEachFeatureAtCoordinate(coordinate, resolution, callback, evtPixel, e) {
             let graphics = me.getGraphicsInExtent();
             for (let i = graphics.length - 1; i >= 0; i--) {
                 let style = graphics[i].getStyle();
@@ -162,19 +164,55 @@ export class Graphic extends ol.source.ImageCanvas {
                 let image = new ol.style.Style({
                     image: style
                 }).getImage();
-                let extent = [];
-                extent[0] = center[0] - image.getAnchor()[0] * resolution;
-                extent[2] = center[0] + image.getAnchor()[0] * resolution;
-                extent[1] = center[1] - image.getAnchor()[1] * resolution;
-                extent[3] = center[1] + image.getAnchor()[1] * resolution;
-                if (ol.extent.containsCoordinate(extent, coordinate)) {
+
+                let contain = false;
+                //icl-1047  当只有一个叶片的时候，判断是否选中的逻辑处理的更准确一点
+                if (image instanceof CloverShape && image.getCount() === 1) {
+                    const ratation = image.getRotation() * 180 / Math.PI;
+                    const angle = Number.parseFloat(image.getAngle());
+                    const r = image.getRadius() * resolution;
+                    //if(image.getAngle() )
+                    let geo = null;
+                    if (angle > 355) {
+                        geo = new ol.geom.Circle(center, r);
+                    } else {
+                        const coors = [];
+                        coors.push(center);
+                        const perAngle = angle / 8;
+                        for (let index = 0; index < 8; index++) {
+                            const radian = (ratation + index * perAngle) / 180 * Math.PI;
+                            coors.push([center[0] + r * Math.cos(radian),
+                                center[1] - r * Math.sin(radian)
+                            ]);
+                        }
+                        coors.push(center);
+                        geo = new ol.geom.Polygon([
+                            coors
+                        ]);
+
+                    }
+                    if (geo.intersectsCoordinate(this.map.getCoordinateFromPixel(evtPixel))) {
+                        contain = true;
+                    }
+                } else {
+                    let extent = [];
+                    extent[0] = center[0] - image.getAnchor()[0] * resolution;
+                    extent[2] = center[0] + image.getAnchor()[0] * resolution;
+                    extent[1] = center[1] - image.getAnchor()[1] * resolution;
+                    extent[3] = center[1] + image.getAnchor()[1] * resolution;
+                    if (ol.extent.containsCoordinate(extent, coordinate)) {
+                        contain = true;
+                    }
+                }
+
+                if (contain === true) {
                     if (me.isHighLight) {
                         me._highLight(center, image, graphics[i], evtPixel);
                     }
                     if (callback) {
-                        callback(graphics[i]);
+                        callback(graphics[i], e);
                     }
-                    return;
+                    continue;
                 }
                 if (me.isHighLight) {
                     me._highLightClose();
@@ -191,10 +229,10 @@ export class Graphic extends ol.source.ImageCanvas {
      * @param {Array.<ol.Graphic>}  graphics - 点要素对象数组。
      */
     setGraphics(graphics) {
-        this.graphics_ = this.graphics_ || [];
-        this.graphics_.length = 0;
+        this.graphics = this.graphics || [];
+        this.graphics.length = 0;
         let sGraphics = !Util.isArray(graphics) ? [graphics] : [].concat(graphics);
-        this.graphics_ = [].concat(sGraphics);
+        this.graphics = [].concat(sGraphics);
         this.update();
     }
 
@@ -204,9 +242,92 @@ export class Graphic extends ol.source.ImageCanvas {
      * @param {Array.<ol.Graphic>}  graphics - 点要素对象数组。
      */
     addGraphics(graphics) {
-        this.graphics_ = this.graphics_ || [];
+        this.graphics = this.graphics || [];
         let sGraphics = !Util.isArray(graphics) ? [graphics] : [].concat(graphics);
-        this.graphics_ = this.graphics_.concat(sGraphics);
+        this.graphics = this.graphics.concat(sGraphics);
+        this.update();
+    }
+
+    /**
+     * @function ol.source.Graphic.prototype.getGraphicBy
+     * @description 在 Vector 的要素数组 graphics 里面遍历每一个 graphic，当 graphic[property]===value 时，返回此 graphic（并且只返回第一个）。
+     * @param {string} property - graphic 的某个属性名称。
+     * @param {string} value - property 所对应的值。
+     * @returns {ol.Graphic} 一个匹配的 graphic。
+     */
+    getGraphicBy(property, value) {
+        let graphic = null;
+        for (let index in this.graphics) {
+            if (this.graphics[index][property] === value) {
+                graphic = this.graphics[index];
+                break;
+            }
+        }
+        return graphic;
+    }
+
+    /**
+     * @function ol.source.Graphic.prototype.getGraphicById
+     * @description 通过给定一个 id，返回对应的矢量要素。
+     * @param {string} graphicId - 矢量要素的属性 id
+     * @returns {ol.Graphic} 一个匹配的 graphic。
+     */
+    getGraphicById(graphicId) {
+        return this.getGraphicBy("id", graphicId);
+    }
+
+    /**
+     * @function ol.source.Graphic.prototype.getGraphicsByAttribute
+     * @description 通过给定一个属性的 key 值和 value 值，返回所有匹配的要素数组。
+     * @param {string} attrName - graphic 的某个属性名称。
+     * @param {string} attrValue - property 所对应的值。
+     * @returns {Array.<ol.Graphic>} 一个匹配的 graphic 数组。
+     */
+    getGraphicsByAttribute(attrName, attrValue) {
+        var graphic,
+            foundgraphics = [];
+        for (let index in this.graphics) {
+            graphic = this.graphics[index];
+            if (graphic && graphic.attributes) {
+                if (graphic.attributes[attrName] === attrValue) {
+                    foundgraphics.push(graphic);
+                }
+            }
+        }
+        return foundgraphics;
+    }
+
+    /**
+     * @function ol.source.Graphic.prototype.removeGraphics
+     * @description 删除要素数组，默认将删除所有要素。
+     * @param {Array.<ol.Graphic>} [graphics] - 删除的 graphics 数组。
+     */
+    removeGraphics(graphics = null) {
+        //当 graphics 为 null 、为空数组，或 === this.graphics，则清除所有要素
+        if (!graphics || graphics.length === 0 || graphics === this.graphics) {
+            this.graphics.length = 0;
+            this.update();
+            return;
+        }
+
+        if (!(CommonUtil.isArray(graphics))) {
+            graphics = [graphics];
+        }
+
+        for (let i = graphics.length - 1; i >= 0; i--) {
+            let graphic = graphics[i];
+
+            //如果我们传入的grapchic在graphics数组中没有的话，则不进行删除，
+            //并将其放入未删除的数组中。
+            let findex = CommonUtil.indexOf(this.graphics, graphic);
+
+            if (findex === -1) {
+                continue;
+            }
+            this.graphics.splice(findex, 1);
+        }
+
+        //删除完成后重新设置 setGraphics，以更新
         this.update();
     }
 
@@ -219,21 +340,13 @@ export class Graphic extends ol.source.ImageCanvas {
     }
 
     /**
-     * @function ol.source.Graphic.prototype.removeGraphics
-     * @description 清除所有要素。
-     */
-    removeGraphics() {
-        this.graphics_.length = 0;
-        this.update();
-    }
-
-    /**
      * @function ol.source.Graphic.prototype.update
      * @description 更新图层。
      */
     update() {
-        this.renderer.update(this.graphics_, this._getDefaultStyle());
+        this.renderer.update(this.graphics, this._getDefaultStyle());
     }
+
     _getDefaultStyle() {
         const target = {};
         if (this.color) {
@@ -253,9 +366,11 @@ export class Graphic extends ol.source.ImageCanvas {
         return new ol.style.Circle(target);
 
     }
+
     toRGBA(colorArray) {
-        return `rgba(${colorArray[0]},${colorArray[1]},${colorArray[2]},${(colorArray[3]||255)/255})`;
+        return `rgba(${colorArray[0]},${colorArray[1]},${colorArray[2]},${(colorArray[3] || 255) / 255})`;
     }
+
     /**
      * @function ol.source.Graphic.prototype.setStyle
      * @description 设置图层要素整体样式（接口仅在 webgl 渲染时有用）。
@@ -386,7 +501,8 @@ export class Graphic extends ol.source.ImageCanvas {
                 radius: image.getRadius(),
                 angle: image.getAngle(),
                 eAngle: sAngle + image.getAngle(),
-                sAngle: sAngle
+                sAngle: sAngle,
+                rotation: image.getRotation()
             };
             if (this.highLightStyle && this.highLightStyle instanceof HitCloverShape) {
                 opts.stroke = this.highLightStyle.getStroke();
@@ -417,13 +533,13 @@ export class Graphic extends ol.source.ImageCanvas {
     getGraphicsInExtent(extent) {
         var graphics = [];
         if (!extent) {
-            this.graphics_.map(function (graphic) {
+            this.graphics.map(function (graphic) {
                 graphics.push(graphic);
                 return graphic;
             });
             return graphics;
         }
-        this.graphics_.map(function (graphic) {
+        this.graphics.map(function (graphic) {
             if (ol.extent.containsExtent(extent, graphic.getGeometry().getExtent())) {
                 graphics.push(graphic);
             }

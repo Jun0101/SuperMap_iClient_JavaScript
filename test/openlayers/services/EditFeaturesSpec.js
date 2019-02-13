@@ -2,6 +2,7 @@ import ol from 'openlayers';
 import {FeatureService} from '../../../src/openlayers/services/FeatureService';
 import {EditFeaturesParameters} from '../../../src/common/iServer/EditFeaturesParameters';
 import {GetFeaturesByIDsParameters} from '../../../src/common/iServer/GetFeaturesByIDsParameters';
+import { FetchRequest } from '../../../src/common/util/FetchRequest';
 
 var featureServiceURL = GlobeParameter.dataServiceURL;
 var editServiceURL = GlobeParameter.editServiceURL_leaflet;
@@ -35,10 +36,17 @@ describe('openlayers_FeatureService_editFeatures', () => {
             returnContent: true
         });
         var featureService = new FeatureService(featureServiceURL, options);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(featureServiceURL + "/datasources/World/datasets/Capitals/features.json?returnContent=true");
+            expect(params).not.toBeNull();
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj[0].fieldNames[1]).toBe("CAPITAL");
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(`[238]`));
+        });
         featureService.editFeatures(addFeatureParams, (result) => {
             serviceResult = result;
-        });
-        setTimeout(() => {
             try {
                 expect(featureService).not.toBeNull();
                 expect(serviceResult).not.toBeNull();
@@ -58,7 +66,7 @@ describe('openlayers_FeatureService_editFeatures', () => {
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 5000);
+        });
     });
 
     //地物编辑服务 批量添加地物   isUseBatch为true
@@ -76,10 +84,17 @@ describe('openlayers_FeatureService_editFeatures', () => {
             isUseBatch: true
         });
         var featureService = new FeatureService(featureServiceURL, options);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(featureServiceURL + "/datasources/World/datasets/Capitals/features.json?isUseBatch=true");
+            expect(params).not.toBeNull();
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj[0].fieldNames[1]).toBe("CAPITAL");
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(`{"postResultType":"CreateChild","succeed":true}`));
+        });
         featureService.editFeatures(addFeatureParams, (result) => {
             serviceResult = result;
-        });
-        setTimeout(() => {
             try {
                 expect(featureService).not.toBeNull();
                 expect(serviceResult).not.toBeNull();
@@ -103,7 +118,7 @@ describe('openlayers_FeatureService_editFeatures', () => {
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 5000);
+        });
     });
 
     //地物编辑服务 删除地物
@@ -115,10 +130,14 @@ describe('openlayers_FeatureService_editFeatures', () => {
             editType: "delete"
         });
         var featureService = new FeatureService(featureServiceURL, options);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, options) => {
+            expect(method).toBe("DELETE");
+            expect(testUrl).toBe(featureServiceURL + "/datasources/World/datasets/Capitals/features.json?ids=[238,239,240]");
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(`{"succeed":true}`));
+        });
         featureService.editFeatures(deleteFeatureParams, (result) => {
             serviceResult = result;
-        });
-        setTimeout(() => {
             try {
                 expect(featureService).not.toBeNull();
                 expect(serviceResult).not.toBeNull();
@@ -127,14 +146,14 @@ describe('openlayers_FeatureService_editFeatures', () => {
                 expect(serviceResult.object.options.data).toContain(id1);
                 expect(serviceResult.object.options.data).toContain(id2);
                 expect(serviceResult.type).toBe("processCompleted");
-                expect(serviceResult.result.succeed).toBe(true);
+                expect(serviceResult.result.succeed).toBeTruthy();
                 done();
             } catch (e) {
                 console.log("'editFeatures_deleteFeature_test'案例失败" + e.name + ":" + e.message);
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 5000);
+        });
     });
 
     //地物编辑服务 删除地物失败事件
@@ -147,10 +166,14 @@ describe('openlayers_FeatureService_editFeatures', () => {
             editType: "delete"
         });
         var featureService = new FeatureService(featureServiceURL, options);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, options) => {
+            expect(method).toBe("DELETE");
+            expect(testUrl).toBe(featureServiceURL + "/datasources/World/datasets/Capitals/features.json?ids=[241]");
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(`{"succeed":false,"error":{"code":400,"errorMsg":"the specified features does not exist"}}`));
+        });
         featureService.editFeatures(deleteFeatureParams, (result) => {
             serviceResult = result;
-        });
-        setTimeout(() => {
             try {
                 expect(featureService).not.toBeNull();
                 expect(serviceResult).not.toBeNull();
@@ -163,7 +186,7 @@ describe('openlayers_FeatureService_editFeatures', () => {
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 5000);
+        });
     });
 
     //更新地物
@@ -176,10 +199,17 @@ describe('openlayers_FeatureService_editFeatures', () => {
             IDs: [1]
         });
         var getFeaturesByIDsService = new FeatureService(editServiceURL);
-        getFeaturesByIDsService.getFeaturesByIDs(getFeaturesByIDsParams, (result) => {
-            getFeatureResult = result
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(editServiceURL + "/featureResults.json?returnContent=true&fromIndex=0&toIndex=19");
+            expect(params).not.toBeNull();
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj.datasetNames[0]).toBe("Jingjin:Landuse_R");
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(JSON.stringify(getFeatureResultJson)));
         });
-        setTimeout(() => {
+        getFeaturesByIDsService.getFeaturesByIDs(getFeaturesByIDsParams, (result) => {
+            getFeatureResult = result;
             if (getFeatureResult != null) {
                 expect(getFeaturesByIDsService).not.toBeNull();
                 expect(getFeatureResult.type).toBe("processCompleted");
@@ -192,7 +222,7 @@ describe('openlayers_FeatureService_editFeatures', () => {
                 console.log("未获取到数据");
                 done();
             }
-        }, 4000)
+        });
     });
 
     // 将上面获取的要素update
@@ -209,10 +239,17 @@ describe('openlayers_FeatureService_editFeatures', () => {
                 features: data,
                 editType: "update"
             });
-            updateFeaturesService.editFeatures(updateFeaturesParams, (result) => {
-                updateFeatureResult = result
+            spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+                expect(method).toBe("PUT");
+                expect(testUrl).toBe(editServiceURL + "/datasources/Jingjin/datasets/Landuse_R/features.json?");
+                expect(params).not.toBeNull();
+                var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+                expect(paramsObj[0].fieldNames[0]).toBe("SMID");
+                expect(options).not.toBeNull();
+                return Promise.resolve(new Response(`{"succeed":true}`));
             });
-            setTimeout(() => {
+            updateFeaturesService.editFeatures(updateFeaturesParams, (result) => {
+                updateFeatureResult = result;
                 try {
                     expect(updateFeaturesService).not.toBeNull();
                     expect(updateFeatureResult).not.toBeNull();
@@ -224,7 +261,7 @@ describe('openlayers_FeatureService_editFeatures', () => {
                     console.log("'successEvent:updateFeature'案例失败" + exception.name + ":" + exception.message);
                     done();
                 }
-            }, 5000);
+            });
         }
         else {
             console.log("'updateFeature'未获取到数据");

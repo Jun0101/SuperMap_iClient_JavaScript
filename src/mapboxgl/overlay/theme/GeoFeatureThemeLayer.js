@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import mapboxgl from 'mapbox-gl';
 import '../../core/Base';
 import {CommonUtil as Util, ThemeVector as Vector, ShapeFactory} from '@supermap/iclient-common';
@@ -22,6 +25,7 @@ import {Theme} from './ThemeLayer';
  *                                        的样式脱离专题图层的控制。可以通过此方式实现对特殊数据（feature） 对应专题要素赋予独立 style。
  * @param {number} [opt_options.opacity=1] - 图层透明度。
  * @extends {mapboxgl.supermap.ThemeLayer}
+ * @fires mapboxgl.supermap.GeoFeatureThemeLayer#beforefeaturesadded
  */
 
 export class GeoFeature extends Theme {
@@ -84,10 +88,15 @@ export class GeoFeature extends Theme {
 
     /**
      * @function mapboxgl.supermap.GeoFeatureThemeLayer.prototype.addFeatures
-     * @description 添加要素
-     * @param {mapboxgl.supermap.ThemeFeature|SuperMap.ServerFeature} features - 要素对象
+     * @description 添加要素。
+     * @param {mapboxgl.supermap.ThemeFeature|SuperMap.ServerFeature} features - 要素对象。
      */
     addFeatures(features) {
+        /**
+         * @event mapboxgl.supermap.GeoFeatureThemeLayer#beforefeaturesadded
+         * @description 要素添加之前触发。
+         * @property {mapboxgl.supermap.ThemeFeature|SuperMap.ServerFeature} features - 被添加的要素。
+         */
         mapboxgl.Evented.prototype.fire('beforefeaturesadded', {features: features});
         //转换 features 形式
         this.features = this.toiClientFeature(features);
@@ -104,7 +113,7 @@ export class GeoFeature extends Theme {
     /**
      * @function mapboxgl.supermap.GeoFeatureThemeLayer.prototype.removeFeatures
      * @description 从专题图中删除 feature。这个函数删除所有传递进来的矢量要素。
-     * @param {Object} features - 要删除的要素对象。
+     * @param {SuperMap.Feature.Vector} features - 要删除的要素对象。
      */
     removeFeatures(features) { // eslint-disable-line no-unused-vars
         this.clearCache();

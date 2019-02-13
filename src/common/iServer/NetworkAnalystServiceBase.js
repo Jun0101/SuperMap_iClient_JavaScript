@@ -1,4 +1,7 @@
-﻿import {SuperMap} from '../SuperMap';
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
+import {SuperMap} from '../SuperMap';
 import {Util} from '../commontypes/Util';
 import {DataFormat} from '../REST';
 import {CommonServiceBase} from './CommonServiceBase';
@@ -56,7 +59,7 @@ export class NetworkAnalystServiceBase extends CommonServiceBase {
      * @function SuperMap.NetworkAnalystServiceBase.prototype.toGeoJSONResult
      * @description 将含有 geometry 的数据转换为 GeoJSON 格式。只处理结果中的路由，由子类实现。
      * @param {Object} result - 服务器返回的结果对象。
-     * @returns {Object} GeoJSON 对象。
+     * @returns {GeoJSONObject} GeoJSON 对象。
      */
     toGeoJSONResult(result) { // eslint-disable-line no-unused-vars
         return null;

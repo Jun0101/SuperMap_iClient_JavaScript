@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import mapboxgl from 'mapbox-gl';
 import '../../core/Base';
 import {Util} from "../../core/Util";
@@ -29,6 +32,24 @@ export class Graphic {
         this.lngLat = Util.isArray(lngLat) ? {lng: lngLat[0], lat: lngLat[1]} : lngLat;
         this.style = Util.extend({}, style);
         this.attributes = attributes;
+    }
+    /**
+     * @function mapboxgl.supermap.Graphic.prototype.getId
+     * @description 获取当前 ID。
+     * @returns {string} id
+     */
+    getId() {
+        return this.id;
+    }
+
+    /**
+     * @function mapboxgl.supermap.Graphic.prototype.setId
+     * @description 设置当前要素 ID。
+     * @param {string} id - 要素 ID。
+     */
+
+    setId(id) {
+        this.id = id;
     }
 
     /**

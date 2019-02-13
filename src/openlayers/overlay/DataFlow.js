@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import ol from 'openlayers';
 import {
     DataFlowService
@@ -28,32 +31,32 @@ export class DataFlow extends ol.source.Vector {
         var me = this;
         me.dataService.on('subscribeSocketConnected', function (e) {
             me.dispatchEvent({
-                type: "subscribeSuccessed",
+                type: "subscribeSucceeded",
                 value: e
             })
         });
-        me.dataService.on('messageSuccessed', function (msg) {
+        me.dataService.on('messageSucceeded', function (msg) {
             me._onMessageSuccessed(msg);
         });
-        me.dataService.on('setFilterParamSuccessed', function (msg) {
+        me.dataService.on('setFilterParamSucceeded', function (msg) {
             me.dispatchEvent({
-                type: "setFilterParamSuccessed",
+                type: "setFilterParamSucceeded",
                 value: msg
             })
         });
         this.featureCache = {};
     }
 
-    /**
-     * @function ol.source.DataFlow.prototype.setPrjCoordSys
-     * @description 设置坐标参考系。
-     * @param {Object} prjCoordSys - 参考系。
-     */
-    setPrjCoordSys(prjCoordSys) {
-        this.dataService.setPrjCoordSys(prjCoordSys);
-        this.prjCoordSys = prjCoordSys;
-        return this;
-    }
+    // /**
+    //  * @function ol.source.DataFlow.prototype.setPrjCoordSys
+    //  * @description 设置坐标参考系。
+    //  * @param {Object} prjCoordSys - 参考系。
+    //  */
+    // setPrjCoordSys(prjCoordSys) {
+    //     this.dataService.setPrjCoordSys(prjCoordSys);
+    //     this.prjCoordSys = prjCoordSys;
+    //     return this;
+    // }
 
     /**
      * @function ol.source.DataFlow.prototype.setExcludeField

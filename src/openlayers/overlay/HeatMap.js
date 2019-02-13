@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import ol from 'openlayers';
 import {Util} from '../core/Util';
 import {
@@ -14,7 +17,7 @@ import {
  * @class ol.source.HeatMap
  * @classdesc 热力图层类。
  * @category Visualization HeatMap
- * @param {string} name - 图层名称
+ * @param {string} name - 图层名称s
  * @param {Object} options - 构造参数。
  * @param {ol.Map} options.map - openlayers 的 map 对象。
  * @param {string} [options.id] - 专题图层 ID，默认使用 CommonUtil.createUniqueID("HeatMapSource_") 创建专题图层 ID。
@@ -96,7 +99,7 @@ export class HeatMap extends ol.source.ImageCanvas {
     /**
      * @function ol.source.HeatMap.prototype.addFeatures
      * @description 添加热点信息。
-     * @param {(Object|Array.<ol.Feature>|ol.Feature)} features - 待添加的要素数组，支持 GeoJOSN 规范数据类型和 {@link ol.Feature} 格式
+     * @param {(GeoJSONObject|Array.<ol.Feature>)} features - 待添加的要素数组。
      * @example
      * var geojson = {
      *      "type": "FeatureCollection",
@@ -408,7 +411,7 @@ export class HeatMap extends ol.source.ImageCanvas {
     /**
      * @function ol.source.HeatMap.prototype.toiClientFeature
      * @description 转为 iClient 要素。
-     * @param {Object|Array.<ol.Feature>} features - 待添加的要素数组,支持 GeoJOSN 规范数据类型和 {@link ol.Feature} 格式。
+     * @param {GeoJSONObject|Array.<ol.Feature>} features - 待添加的要素数组。
      * @returns {SuperMap.Feature.Vector} 转换后的 iClient 要素
      */
     toiClientFeature(features) {

@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import {Shape} from './Shape';
 import {SUtil} from './SUtil';
 
@@ -411,7 +414,7 @@ export class SmicText extends Shape {
             var textFont = style.textFont;
             var textFontStr = textFont.toLowerCase()
             if (textFontStr.indexOf("italic") > -1) {
-                if (widthBeforeChangeByMaxWidth && isWidthChangeByMaxWidth === true) {
+                if (isWidthChangeByMaxWidth === true) {
                     width += (lineHeight / 3) * (width / widthBeforeChangeByMaxWidth);
                 } else {
                     width += lineHeight / 3;
@@ -443,7 +446,7 @@ export class SmicText extends Shape {
         }
         var __OP = this.refOriginalPosition;
 
-        if ((!redo || redo === false) && style.__textBackground) {
+        if ((!redo) && style.__textBackground) {
             return style.__textBackground;
         }
 

@@ -1,4 +1,7 @@
-﻿import {SuperMap} from '../SuperMap';
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
+import {SuperMap} from '../SuperMap';
 import {Util} from '../commontypes/Util';
 import {GeoJSON} from '../format/GeoJSON';
 import {NetworkAnalystServiceBase} from './NetworkAnalystServiceBase';
@@ -123,17 +126,17 @@ export class FindClosestFacilitiesService extends NetworkAnalystServiceBase {
         var geoJSONFormat = new GeoJSON();
         result.facilityPathList.map(function (path) {
             if (path.route) {
-                path.route = JSON.parse(geoJSONFormat.write(path.route));
+                path.route = geoJSONFormat.toGeoJSON(path.route);
             }
             if (path.pathGuideItems) {
-                path.pathGuideItems = JSON.parse(geoJSONFormat.write(path.pathGuideItems));
+                path.pathGuideItems = geoJSONFormat.toGeoJSON(path.pathGuideItems);
 
             }
             if (path.edgeFeatures) {
-                path.edgeFeatures = JSON.parse(geoJSONFormat.write(path.edgeFeatures));
+                path.edgeFeatures = geoJSONFormat.toGeoJSON(path.edgeFeatures);
             }
             if (path.nodeFeatures) {
-                path.nodeFeatures = JSON.parse(geoJSONFormat.write(path.nodeFeatures));
+                path.nodeFeatures = geoJSONFormat.toGeoJSON(path.nodeFeatures);
             }
             return path;
         });

@@ -1,4 +1,7 @@
-﻿import {SuperMap} from '../SuperMap';
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
+import {SuperMap} from '../SuperMap';
 import {Util} from '../commontypes/Util';
 import {DataFormat} from '../REST';
 import {CommonServiceBase} from './CommonServiceBase';
@@ -64,11 +67,9 @@ export class GetFeaturesServiceBase extends CommonServiceBase {
          */
         this.format = DataFormat.GEOJSON;
 
-        if (options) {
-            Util.extend(this, options);
-        }
+        Util.extend(this, options);
         var me = this, end;
-        if (options && options.format) {
+        if (options.format) {
             me.format = options.format.toUpperCase();
         }
 
@@ -147,7 +148,7 @@ export class GetFeaturesServiceBase extends CommonServiceBase {
         result = Util.transformResult(result);
         if (me.format === DataFormat.GEOJSON && result.features) {
             var geoJSONFormat = new GeoJSON();
-            result.features = JSON.parse(geoJSONFormat.write(result.features));
+            result.features = geoJSONFormat.toGeoJSON(result.features);
         }
         me.events.triggerEvent("processCompleted", {result: result});
     }

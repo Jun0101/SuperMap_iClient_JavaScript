@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import mapboxgl from 'mapbox-gl';
 import '../core/Base';
 
@@ -10,6 +13,7 @@ import '../core/Base';
  * @param {string} [options.proxy] - 服务代理地址。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务来源 iServer|iPortal|online。
  * @param {boolean} [options.withCredentials=false] - 请求是否携带 cookie。
+ * @fires mapboxgl.supermap.ServiceBase#initialized
  */
 export class ServiceBase extends mapboxgl.Evented {
 
@@ -17,6 +21,11 @@ export class ServiceBase extends mapboxgl.Evented {
         super();
         this.options = options || {};
         this.url = url;
+        /**
+         * @event mapboxgl.supermap.ServiceBase#initialized
+         * @description 构造函数构造成功之后触发。
+         * @property {Object} this - this 对象。
+         */
         this.fire('initialized', this);
     }
 }

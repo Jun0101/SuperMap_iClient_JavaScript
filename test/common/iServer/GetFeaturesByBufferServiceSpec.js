@@ -1,24 +1,18 @@
-﻿﻿import {GetFeaturesByBufferService} from '../../../src/common/iServer/GetFeaturesByBufferService';
+﻿import {GetFeaturesByBufferService} from '../../../src/common/iServer/GetFeaturesByBufferService';
 import {GetFeaturesByBufferParameters} from '../../../src/common/iServer/GetFeaturesByBufferParameters';
 import {Point} from '../../../src/common/commontypes/geometry/Point';
+import { FetchRequest } from '../../../src/common/util/FetchRequest';
 
 var dataServiceURL = GlobeParameter.dataServiceURL;
 var serviceFailedEventArgsSystem = null;
 var getFeaturesEventArgsSystem = null;
-var initGetFeaturesByBufferService = () => {
-    return new GetFeaturesByBufferService(dataServiceURL, options);
-};
-var getFeaturesByBufferFailed = (serviceFailedEventArgs) => {
-    serviceFailedEventArgsSystem = serviceFailedEventArgs;
-};
-var getFeaturesByBufferCompleted = (getFeaturesEventArgs) => {
-    getFeaturesEventArgsSystem = getFeaturesEventArgs;
-};
-var options = {
-    eventListeners: {
-        processCompleted: getFeaturesByBufferCompleted,
-        processFailed: getFeaturesByBufferFailed
-    }
+var initGetFeaturesByBufferService = (getFeaturesByBufferCompleted,getFeaturesByBufferFailed) => {
+    return new GetFeaturesByBufferService(dataServiceURL, {
+        eventListeners: {
+            processCompleted: getFeaturesByBufferCompleted,
+            processFailed: getFeaturesByBufferFailed
+        }
+    });
 };
 
 describe('GetFeaturesByBufferService', () => {
@@ -41,9 +35,10 @@ describe('GetFeaturesByBufferService', () => {
             geometry: geometry,
             returnContent: false
         });
-        var getFeaturesByBufferService = initGetFeaturesByBufferService();
-        getFeaturesByBufferService.processAsync(getFeaturesByBufferParameters);
-        setTimeout(() => {
+        var getFeaturesByBufferFailed = (serviceFailedEventArgs) => {
+            serviceFailedEventArgsSystem = serviceFailedEventArgs;
+        };
+        var getFeaturesByBufferCompleted = (getFeaturesEventArgsSystem) => {
             try {
                 var getFeaturesResult = getFeaturesEventArgsSystem.result;
                 expect(getFeaturesByBufferService).not.toBeNull();
@@ -66,7 +61,19 @@ describe('GetFeaturesByBufferService', () => {
                 getFeaturesByBufferParameters.destroy();
                 done();
             }
-        }, 2000);
+        };
+ 
+        var getFeaturesByBufferService = initGetFeaturesByBufferService(getFeaturesByBufferCompleted,getFeaturesByBufferFailed);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(dataServiceURL + "/featureResults.json?");
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj.datasetNames[0]).toBe("World:Capitals");
+            expect(paramsObj.attributeFilter).toBe("SMID%26gt;0");
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(`{"postResultType":"CreateChild","newResourceID":"f701028a2b7144b19b582f55c1902b18_e87f7f6517184df480c54e43dbe283df","succeed":true,"newResourceLocation":"http://localhost:8090/iserver/services/data-world/rest/data/featureResults/f701028a2b7144b19b582f55c1902b18_e87f7f6517184df480c54e43dbe283df.json"}`));
+        });
+        getFeaturesByBufferService.processAsync(getFeaturesByBufferParameters);
     });
 
     //直接返回查询结果
@@ -81,9 +88,10 @@ describe('GetFeaturesByBufferService', () => {
             toIndex: 19,
             returnContent: true
         });
-        var getFeaturesByBufferService = initGetFeaturesByBufferService();
-        getFeaturesByBufferService.processAsync(getFeaturesByBufferParameters);
-        setTimeout(() => {
+        var getFeaturesByBufferFailed = (serviceFailedEventArgs) => {
+            serviceFailedEventArgsSystem = serviceFailedEventArgs;
+        };
+        var getFeaturesByBufferCompleted = (getFeaturesEventArgsSystem) => {
             try {
                 var getFeaturesResult = getFeaturesEventArgsSystem.result.features;
                 expect(getFeaturesByBufferService).not.toBeNull();
@@ -110,7 +118,19 @@ describe('GetFeaturesByBufferService', () => {
                 getFeaturesByBufferParameters.destroy();
                 done();
             }
-        }, 2000);
+        };
+ 
+        var getFeaturesByBufferService = initGetFeaturesByBufferService(getFeaturesByBufferCompleted,getFeaturesByBufferFailed);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(dataServiceURL + "/featureResults.json?returnContent=true&fromIndex=0&toIndex=19");
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj.datasetNames[0]).toBe("World:Capitals");
+            expect(paramsObj.attributeFilter).toBe("SMID%26gt;0");
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(JSON.stringify(getFeaturesResultJson)));
+        });
+        getFeaturesByBufferService.processAsync(getFeaturesByBufferParameters);
     });
 
     //测试没有传入参数时的情况
@@ -125,9 +145,7 @@ describe('GetFeaturesByBufferService', () => {
             toIndex: 19,
             returnContent: true
         });
-        var getFeaturesByBufferService = initGetFeaturesByBufferService();
-        getFeaturesByBufferService.processAsync(getFeaturesByBufferParameters);
-        setTimeout(() => {
+        var getFeaturesByBufferFailed = (serviceFailedEventArgsSystem) => {
             try {
                 expect(getFeaturesByBufferService).not.toBeNull();
                 expect(serviceFailedEventArgsSystem).not.toBeNull();
@@ -144,7 +162,22 @@ describe('GetFeaturesByBufferService', () => {
                 getFeaturesByBufferParameters.destroy();
                 done();
             }
-        }, 2000);
+        };
+        var getFeaturesByBufferCompleted = (getFeaturesEventArgs) => {
+            getFeaturesEventArgsSystem = getFeaturesEventArgs;
+        };
+
+        var getFeaturesByBufferService = initGetFeaturesByBufferService(getFeaturesByBufferCompleted,getFeaturesByBufferFailed);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(dataServiceURL + "/featureResults.json?returnContent=true&fromIndex=0&toIndex=19");
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj.datasetNames[0]).toBe("World:Capitals");
+            expect(paramsObj.attributeFilter).toBe("SMID%26gt;0");
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(`{"succeed":false,"error":{"code":400,"errorMsg":"getFeatureByBuffer方法中传入的参数为空"}}`));
+        });
+        getFeaturesByBufferService.processAsync(getFeaturesByBufferParameters);
     });
 
     //测试目标图层不存在
@@ -159,15 +192,13 @@ describe('GetFeaturesByBufferService', () => {
             toIndex: 19,
             returnContent: true
         });
-        var getFeaturesByBufferService = initGetFeaturesByBufferService();
-        getFeaturesByBufferService.processAsync(getFeaturesByBufferParameters);
-        setTimeout(() => {
+        var getFeaturesByBufferFailed = (serviceFailedEventArgsSystem) => {
             try {
                 expect(getFeaturesByBufferService).not.toBeNull();
                 expect(serviceFailedEventArgsSystem).not.toBeNull();
                 expect(serviceFailedEventArgsSystem.error).not.toBeNull();
                 expect(serviceFailedEventArgsSystem.error.errorMsg).not.toBeNull();
-                // expect(serviceFailedEventArgsSystem.error.errorMsg).toEqual("getFeatureByBuffer方法中传入的参数为空");
+                expect(serviceFailedEventArgsSystem.error.errorMsg).toEqual("getFeature方法中数据集名Capitalss不存在");
                 expect(serviceFailedEventArgsSystem.error.code).toEqual(400);
                 getFeaturesByBufferService.destroy();
                 getFeaturesByBufferParameters.destroy();
@@ -179,6 +210,21 @@ describe('GetFeaturesByBufferService', () => {
                 getFeaturesByBufferParameters.destroy();
                 done();
             }
-        }, 2000);
+        };
+        var getFeaturesByBufferCompleted = (getFeaturesEventArgs) => {
+            getFeaturesEventArgsSystem = getFeaturesEventArgs;
+        };
+
+        var getFeaturesByBufferService = initGetFeaturesByBufferService(getFeaturesByBufferCompleted,getFeaturesByBufferFailed);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(dataServiceURL + "/featureResults.json?returnContent=true&fromIndex=0&toIndex=19");
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj.datasetNames[0]).toBe("World:Capitalss");
+            expect(paramsObj.attributeFilter).toBe("SMID%26gt;0");
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(`{"succeed":false,"error":{"code":400,"errorMsg":"getFeature方法中数据集名Capitalss不存在"}}`));
+        });
+        getFeaturesByBufferService.processAsync(getFeaturesByBufferParameters);
     });
 });

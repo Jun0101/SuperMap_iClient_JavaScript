@@ -1,9 +1,24 @@
-﻿import {SuperMap} from '../SuperMap';
-import {Util} from '../commontypes/Util';
-import {CommonServiceBase} from './CommonServiceBase';
-import {QueryParameters} from './QueryParameters';
-import {GeoJSON} from '../format/GeoJSON';
-import {DataFormat} from '../REST';
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
+import {
+    SuperMap
+} from '../SuperMap';
+import {
+    Util
+} from '../commontypes/Util';
+import {
+    CommonServiceBase
+} from './CommonServiceBase';
+import {
+    QueryParameters
+} from './QueryParameters';
+import {
+    GeoJSON
+} from '../format/GeoJSON';
+import {
+    DataFormat
+} from '../REST';
 
 /**
  * @class SuperMap.QueryService
@@ -34,7 +49,7 @@ export class QueryService extends CommonServiceBase {
      */
     constructor(url, options) {
         super(url, options);
-        
+
         /**
          * @member {boolean} SuperMap.QueryService.prototype.returnContent
          * @description 是否立即返回新创建资源的表述还是返回新资源的URI。
@@ -47,12 +62,15 @@ export class QueryService extends CommonServiceBase {
          */
         this.format = DataFormat.GEOJSON;
 
+        this.returnFeatureWithFieldCaption = false;
+
         if (options) {
             Util.extend(this, options);
         }
 
         this.CLASS_NAME = "SuperMap.QueryService";
-        var me = this, end;
+        var me = this,
+            end;
         if (!me.url) {
             return;
         }
@@ -95,6 +113,7 @@ export class QueryService extends CommonServiceBase {
             returnCustomResult = null,
             jsonParameters = null;
         me.returnContent = params.returnContent;
+
         jsonParameters = me.getJsonParameters(params);
         if (me.returnContent) {
             me.url += "returnContent=" + me.returnContent;
@@ -105,6 +124,7 @@ export class QueryService extends CommonServiceBase {
                 me.url += "returnCustomResult=" + returnCustomResult;
             }
         }
+        me.returnFeatureWithFieldCaption = params.returnFeatureWithFieldCaption;
         me.request({
             method: "POST",
             data: jsonParameters,
@@ -122,16 +142,26 @@ export class QueryService extends CommonServiceBase {
     serviceProcessCompleted(result) {
         var me = this;
         result = Util.transformResult(result);
-        if (result && result.recordsets && me.format === DataFormat.GEOJSON) {
-            var geoJSONFormat = new GeoJSON();
+        var geoJSONFormat = new GeoJSON();
+        if (result && result.recordsets) {
             for (var i = 0, recordsets = result.recordsets, len = recordsets.length; i < len; i++) {
                 if (recordsets[i].features) {
-                    recordsets[i].features = JSON.parse(geoJSONFormat.write(recordsets[i].features));
+                    if (me.returnFeatureWithFieldCaption === true) {
+                        recordsets[i].features.map((feature) => {
+                            feature.fieldNames = recordsets[i].fieldCaptions;
+                            return feature;
+                        })
+                    }
+                    if (me.format === DataFormat.GEOJSON) {
+                        recordsets[i].features = geoJSONFormat.toGeoJSON(recordsets[i].features);
+                    }
                 }
             }
-
         }
-        me.events.triggerEvent("processCompleted", {result: result});
+
+        me.events.triggerEvent("processCompleted", {
+            result: result
+        });
     }
 
     /**

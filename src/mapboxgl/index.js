@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 export {
     SuperMap,
     DataFormat,
@@ -56,6 +59,7 @@ export {
     OutputType,
     AggregationQueryBuilderType,
     AggregationType,
+    GetFeatureMode,
     //control
     TimeFlowControl,
     //iManager
@@ -87,6 +91,8 @@ export {
     ElasticSearch,
     //util
     FetchRequest,
+    ColorsPickerUtil,
+    ArrayStatistic,
     //iServer
     AreaSolarRadiationParameters,
     AggregationParameter,
@@ -161,6 +167,7 @@ export {
     MathExpressionAnalysisParameters,
     MeasureParameters,
     OutputSetting,
+    MappingParameters,
     OverlapDisplayedOptions,
     OverlayAnalystParameters,
     OverlayGeoJobParameter,
@@ -231,10 +238,30 @@ export {
     UpdateEdgeWeightParameters,
     UpdateTurnNodeWeightParameters,
     Vector,
-    VectorClipJobsParameter
-} from '@supermap/iclient-common';
+    VectorClipJobsParameter,
+    //widgets
+    FileTypes,
+    FileConfig,
+    FileModel,
+    MessageBox,
+    CommonContainer,
+    DropDownBox,
+    Select,
+    AttributesPopContainer,
+    PopContainer,
+    IndexTabsPageContainer,
+    CityTabsPage,
+    NavTabsPage,
+    PaginationContainer,
+    widgetsUtil,
+    FileReaderUtil,
+    ChartView,
+    ChartViewModel
+}
+from '@supermap/iclient-common';
 
 export * from './control';
 export * from './core';
 export * from './overlay';
 export * from './services';
+export * from './mapping';

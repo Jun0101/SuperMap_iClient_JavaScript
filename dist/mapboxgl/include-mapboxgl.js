@@ -49,9 +49,13 @@
     function load() {
         var includes = (targetScript.getAttribute('include') || "").split(",");
         var excludes = (targetScript.getAttribute('exclude') || "").split(",");
-        if (!inArray(excludes, 'mapbox-gl')) {
-            inputCSS("https://cdn.bootcss.com/mapbox-gl/0.45.0/mapbox-gl.css");
-            inputScript("https://cdn.bootcss.com/mapbox-gl/0.45.0/mapbox-gl.js");
+        if (!inArray(includes, 'mapbox-gl-enhance') && !inArray(excludes, 'mapbox-gl')) {
+            inputCSS("http://iclient.supermap.io/web/libs/mapbox-gl-js/0.48.0/mapbox-gl.css");
+            inputScript("http://iclient.supermap.io/web/libs/mapbox-gl-js/0.48.0/mapbox-gl.js");
+        }
+        if (inArray(includes, 'mapbox-gl-enhance')) {
+            inputCSS("http://iclient.supermap.io/web/libs/mapbox-gl-js/0.48.0/mapbox-gl.css");
+            inputScript("http://iclient.supermap.io/web/libs/mapbox-gl-js-enhance/mapbox-gl-enhance.js");
         }
         if (inArray(includes, 'draw')) {
             inputCSS("http://iclient.supermap.io/web/libs/mapbox-gl-js/plugins/mapbox-gl-draw/1.0.9/mapbox-gl-draw.css");
@@ -65,21 +69,38 @@
             inputScript("http://mapv.baidu.com/build/mapv.min.js");
         }
         if (inArray(includes, 'echarts')) {
-            inputScript("https://cdn.bootcss.com/echarts/4.1.0/echarts.min.js");
+            inputScript("https://cdnjs.cloudflare.com/ajax/libs/echarts/4.1.0/echarts.min.js");
             inputScript("http://iclient.supermap.io/libs/echartsLayer/EchartsLayer.js");
         }
         if (inArray(includes, 'three')) {
-            inputScript("https://cdn.bootcss.com/three.js/92/three.min.js");
+            inputScript("https://cdnjs.cloudflare.com/ajax/libs/three.js/92/three.min.js");
         }
         if (inArray(includes, 'deck')) {
-            inputScript("http://iclient.supermap.io/web/libs/deck.gl/5.1.3/deck.gl.js");
+            inputScript("http://iclient.supermap.io/web/libs/deck.gl/5.1.3/deck.gl.min.js");
         }
+
+        if (inArray(includes, 'jsonsql')) {
+            inputScript("http://iclient.supermap.io/web/libs/jsonsql/jsonsql.js");
+        }
+        if (inArray(includes, 'geostats')) {
+            inputScript("http://iclient.supermap.io/web/libs/geostats/geostats.js");
+        }
+        if (inArray(includes, 'canvg')) {
+            inputScript("http://iclient.supermap.io/web/libs/canvg/canvg.min.js");
+        }
+        if (inArray(includes, 'convert')) {
+            inputScript("http://iclient.supermap.io/web/libs/xml-js/1.6.8/xml-js.min.js");
+        }
+        
         if (!inArray(excludes, 'iclient9-mapboxgl')) {
             if (supportES6()) {
                 inputScript("../../dist/mapboxgl/iclient9-mapboxgl-es6.min.js");
             } else {
                 inputScript("../../dist/mapboxgl/iclient9-mapboxgl.min.js");
             }
+        }
+        if (!inArray(excludes, 'iclient9-mapboxgl-css')) {
+            inputCSS("../../dist/mapboxgl/iclient9-mapboxgl.min.css");
         }
         if (inArray(includes, 'LoaderSupport')) {
             inputScript("http://iclient.supermap.io/libs/three/plugins/loaders/LoaderCommons.js");
@@ -99,7 +120,7 @@
             inputScript("http://iclient.supermap.io/libs/three/plugins/loaders/GLTFLoader.js");
         }
         if (inArray(includes, 'proj4')) {
-            inputScript("https://cdn.bootcss.com/proj4js/2.4.4/proj4.js");
+            inputScript("https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.4.4/proj4.js");
         }
         if (inArray(includes, 'echarts-gl')) {
             inputScript("http://iclient.supermap.io/web/libs/echarts-gl/1.1.1/echarts-gl.min.js");

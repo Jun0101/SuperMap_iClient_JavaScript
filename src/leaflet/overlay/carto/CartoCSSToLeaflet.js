@@ -1,8 +1,22 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import L from "leaflet";
 import '../../core/Base';
-import {SuperMap, CommonUtil as Util, CartoCSS, StringExt} from "@supermap/iclient-common";
-import {DefaultStyle} from './CartoDefaultStyle';
-import {CartoStyleMap, ServerStyleMap, CompOpMap} from './CartoStyleMap';
+import {
+    SuperMap,
+    CommonUtil as Util,
+    CartoCSS,
+    StringExt
+} from "@supermap/iclient-common";
+import {
+    DefaultStyle
+} from './CartoDefaultStyle';
+import {
+    CartoStyleMap,
+    ServerStyleMap,
+    CompOpMap
+} from './CartoStyleMap';
 
 /**
  * @class L.supermap.CartoCSSToLeaflet
@@ -64,11 +78,23 @@ export class CartoCSSToLeaflet {
         }
         var me = this;
         style = style.replace(/[@]/gi, "___");
-        style = style.replace(/\\#/gi, "___");
-        for (var attr in me.layersInfo) {
+        style = style.replace(/\\#/gi, "\#");
+
+        var cachedLayer = {};
+        me.layersInfo && Object.keys(me.layersInfo).sort().forEach(function (attr) {
             var newAttr = attr.replace(/[@#\s]/gi, "___");
-            style = style.replace(attr.replace(/[#]/gi, "\\#"), newAttr);
-        }
+            var to = attr;
+            var keys = Object.keys(cachedLayer);
+            for (let index = keys.length; index > -1; index--) {
+                if (attr.indexOf(keys[index]) > -1) {
+                    to = attr.replace(keys[index], cachedLayer[keys[index]]);
+                    break;
+                }
+            }
+            to = to.replace(/[#]/gi, "\#");
+            cachedLayer[attr] = newAttr;
+            style = style.replace(new RegExp(to, "g"), newAttr);
+        })
         style = style.replace(/[#]/gi, "\n#");
         //将zoom转化为scale，以免引起混淆
         style = style.replace(/\[zoom/gi, "[scale");
@@ -229,7 +255,7 @@ export class CartoCSSToLeaflet {
      * @param {number} zoom - 缩放级别。
      * @param {number} scale - 比例尺。
      * @param {Array.<Object>} shader - 渲染器对象数组。
-     * @param {L.feature} feature - 要素。
+     * @param {Object} feature - 要素。
      * @param {string} [fromServer] - 服务源。
      */
     getValidStyleFromCarto(zoom, scale, shader, feature, fromServer) {
@@ -253,7 +279,9 @@ export class CartoCSSToLeaflet {
             var value = _shader.getValue(attributes, zoom, true);
             if ((value !== null) && prop) {
                 if (prop === "fontSize") {
-                    value = fromServer ? value *= 0.8 : value;
+                    if (fromServer) {
+                        value *= 0.8
+                    }
                     fontSize = value + "px";
                     style.fontSize = fontSize;
                 } else if (prop === "fontName") {
@@ -262,7 +290,7 @@ export class CartoCSSToLeaflet {
                 } else {
                     if (prop === "globalCompositeOperation") {
                         value = CompOpMap[value];
-                        if (!value || value === "") {
+                        if (!value) {
                             continue;
                         }
                     } else if (fromServer && prop === 'iconUrl') {
@@ -314,7 +342,7 @@ export class CartoCSSToLeaflet {
             //设置文本的尺寸（对应fontHeight属性）和行高，行高iserver不支持，默认5像素
             //固定大小的时候单位是毫米
             if (shader.fontHeight) {
-                var text_h = shader.fontHeight * SuperMap.DOTS_PER_INCH * SuperMap.INCHES_PER_UNIT["mm"] * 0.85;    //毫米转像素,服务端的字体貌似要稍微小一点
+                var text_h = shader.fontHeight * SuperMap.DOTS_PER_INCH * SuperMap.INCHES_PER_UNIT["mm"] * 0.85; //毫米转像素,服务端的字体貌似要稍微小一点
                 style.fontSize = text_h + "px";
                 style.textHeight = text_h;
             }
@@ -334,16 +362,16 @@ export class CartoCSSToLeaflet {
             }
             style.weight = shader.outline ? shader.outlineWidth : 0;
             if (shader.backColor) {
-                style.color = "rgba(" + shader.backColor.red + ","
-                    + shader.backColor.green + ","
-                    + shader.backColor.blue
-                    + ",1)";
+                style.color = "rgba(" + shader.backColor.red + "," +
+                    shader.backColor.green + "," +
+                    shader.backColor.blue +
+                    ",1)";
             }
             if (shader.foreColor) {
-                style.fillColor = "rgba(" + shader.foreColor.red + ","
-                    + shader.foreColor.green + ","
-                    + shader.foreColor.blue
-                    + ",1)";
+                style.fillColor = "rgba(" + shader.foreColor.red + "," +
+                    shader.foreColor.green + "," +
+                    shader.foreColor.blue +
+                    ",1)";
             }
             style.rotation = shader.rotation || 0;
             return style;
@@ -359,62 +387,62 @@ export class CartoCSSToLeaflet {
             var leafletStyle = obj.leafletStyle;
             switch (obj.type) {
                 case "number":
-                {
-                    let value = shader[attr];
-                    if (obj.unit) {
-                        value = value * SuperMap.DOTS_PER_INCH * SuperMap.INCHES_PER_UNIT[obj.unit] * 2.5;
+                    {
+                        let value = shader[attr];
+                        if (obj.unit) {
+                            value = value * SuperMap.DOTS_PER_INCH * SuperMap.INCHES_PER_UNIT[obj.unit] * 2.5;
+                        }
+                        style[leafletStyle] = value;
+                        break;
                     }
-                    style[leafletStyle] = value;
-                    break;
-                }
 
                 case "color":
-                {
-                    var color = shader[attr];
-                    let value, alpha = 1;
-                    if (leafletStyle === "fillColor") {
-                        if (fillSymbolID === 0 || fillSymbolID === 1) {
-                            //当fillSymbolID为0时，用颜色填充，为1是无填充，即为透明填充，alpha通道为0
-                            alpha = 1 - fillSymbolID;
+                    {
+                        var color = shader[attr];
+                        let value, alpha = 1;
+                        if (leafletStyle === "fillColor") {
+                            if (fillSymbolID === 0 || fillSymbolID === 1) {
+                                //当fillSymbolID为0时，用颜色填充，为1是无填充，即为透明填充，alpha通道为0
+                                alpha = 1 - fillSymbolID;
+                                value = "rgba(" + color.red + "," + color.green + "," + color.blue + "," + alpha + ")";
+                            }
+                        } else if (leafletStyle === "color") {
+                            if (lineSymbolID === 0 || lineSymbolID === 5) {
+                                //对于lineSymbolID为0时，线为实线，为lineSymbolID为5时，为无线模式，即线为透明，即alpha通道为0
+                                alpha = lineSymbolID === 0 ? 1 : 0;
+                            } else {
+                                //以下几种linePattern分别模拟了桌面的SymbolID为1~4几种符号的linePattern
+                                var linePattern = [1, 0];
+                                switch (lineSymbolID) {
+                                    case 1:
+                                        linePattern = [9.7, 3.7];
+                                        break;
+                                    case 2:
+                                        linePattern = [3.7, 3.7];
+                                        break;
+                                    case 3:
+                                        linePattern = [9.7, 3.7, 2.3, 3.7];
+                                        break;
+                                    case 4:
+                                        linePattern = [9.7, 3.7, 2.3, 3.7, 2.3, 3.7];
+                                        break;
+                                    default:
+                                        break
+                                }
+                                style.lineDasharray = linePattern;
+                            }
                             value = "rgba(" + color.red + "," + color.green + "," + color.blue + "," + alpha + ")";
                         }
-                    } else if (leafletStyle === "color") {
-                        if (lineSymbolID === 0 || lineSymbolID === 5) {
-                            //对于lineSymbolID为0时，线为实线，为lineSymbolID为5时，为无线模式，即线为透明，即alpha通道为0
-                            alpha = lineSymbolID === 0 ? 1 : 0;
-                        } else {
-                            //以下几种linePattern分别模拟了桌面的SymbolID为1~4几种符号的linePattern
-                            var linePattern = [1, 0];
-                            switch (lineSymbolID) {
-                                case 1:
-                                    linePattern = [9.7, 3.7];
-                                    break;
-                                case 2:
-                                    linePattern = [3.7, 3.7];
-                                    break;
-                                case 3:
-                                    linePattern = [9.7, 3.7, 2.3, 3.7];
-                                    break;
-                                case 4:
-                                    linePattern = [9.7, 3.7, 2.3, 3.7, 2.3, 3.7];
-                                    break;
-                                default:
-                                    break
-                            }
-                            style.lineDasharray = linePattern;
-                        }
-                        value = "rgba(" + color.red + "," + color.green + "," + color.blue + "," + alpha + ")";
+                        style[leafletStyle] = value;
+                        break;
                     }
-                    style[leafletStyle] = value;
-                    break;
-                }
                 default:
                     break;
             }
         }
 
         //处理标签文本的情况
-        if (layerInfo && layerInfo.textField) {
+        if (layerInfo.textField) {
             style.textAlign = "LEFT";
         }
         return style;

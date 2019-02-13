@@ -1,8 +1,14 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import L from "leaflet";
 import '../core/Base';
 import {
     Detector
 } from "../core/Detector";
+import {
+    CommonUtil
+} from '@supermap/iclient-common';
 import {
     GraphicCanvasRenderer,
     GraphicWebGLRenderer,
@@ -21,24 +27,6 @@ const defaultProps = {
     strokeWidth: 1,
     outline: false
 };
-const CSS_TRANSFORM = (function () {
-    let div = document.createElement('div');
-    let props = [
-        'transform',
-        'WebkitTransform',
-        'MozTransform',
-        'OTransform',
-        'msTransform'
-    ];
-
-    for (let i = 0; i < props.length; i++) {
-        let prop = props[i];
-        if (div.style[prop] !== undefined) {
-            return prop;
-        }
-    }
-    return props[0];
-})();
 /**
  * @class L.supermap.graphicLayer
  * @classdesc 高效率点图层类。
@@ -46,7 +34,7 @@ const CSS_TRANSFORM = (function () {
  * @extends {L.Path}
  * @param {Array.<L.supermap.graphic>} graphics - 要素对象。
  * @param {Object} options - 图层参数。
- * @param {string}   [options.render='canvas']  -  指定使用的渲染器。可选值："webgl","canvas"（webgl渲染目前只支持散点）。
+ * @param {string}   [options.render='canvas']  -  指定使用的渲染器。可选值：“webgl”，“canvas”（webgl 渲染目前只支持散点）。
  * @param {Array.<number>} [options.color=[0, 0, 0, 255]] - 要素颜色。
  * @param {Array.<number>} [options.highlightColor] - webgl 渲染时要素高亮颜色。
  * @param {number} [options.opacity=0.8] - 要素透明度。
@@ -56,8 +44,8 @@ const CSS_TRANSFORM = (function () {
  * @param {number} [options.radiusMaxPixels=Number.MAX_SAFE_INTEGER] - webgl 渲染时的要素半径最大值（像素）。
  * @param {number} [options.strokeWidth=1] - 边框大小。
  * @param {boolean} [options.outline=false] - 是否显示边框。
- * @param {function} [options.onClick] -  图层鼠标点击响应事件（webgl、canvas 渲染时都有用）。
- * @param {function} [options.onHover] -  图层鼠标悬停响应事件（只有 webgl 渲染时有用）。
+ * @param {Function} [options.onClick] -  图层鼠标点击响应事件（webgl、canvas 渲染时都有用）。
+ * @param {Function} [options.onHover] -  图层鼠标悬停响应事件（只有 webgl 渲染时有用）。
  */
 export var GraphicLayer = L.Path.extend({
 
@@ -137,6 +125,88 @@ export var GraphicLayer = L.Path.extend({
     },
 
     /**
+     * @function L.supermap.graphicLayer.prototype.getGraphicBy
+     * @description 在 Vector 的要素数组 graphics 里面遍历每一个 graphic，当 graphic[property]===value 时，返回此 graphic（并且只返回第一个）。
+     * @param {string} property - graphic 的某个属性名称。
+     * @param {string} value - property 所对应的值。
+     * @returns {ol.Graphic} 一个匹配的 graphic。
+     */
+    getGraphicBy(property, value) {
+        let graphic = null;
+        for (let index in this.graphics) {
+            if (this.graphics[index][property] === value) {
+                graphic = this.graphics[index];
+                break;
+            }
+        }
+        return graphic;
+    },
+
+    /**
+     * @function L.supermap.graphicLayer.prototype.getGraphicById
+     * @description 通过给定一个 id，返回对应的矢量要素。
+     * @param {string} graphicId - 矢量要素的属性 id。
+     * @returns {ol.Graphic} 一个匹配的 graphic。
+     */
+    getGraphicById(graphicId) {
+        return this.getGraphicBy("id", graphicId);
+    },
+
+    /**
+     * @function L.supermap.graphicLayer.prototype.getGraphicsByAttribute
+     * @description 通过给定一个属性的 key 值和 value 值，返回所有匹配的要素数组。
+     * @param {string} attrName - graphic 的某个属性名称。
+     * @param {string} attrValue - property 所对应的值。
+     * @returns {Array.<ol.Graphic>} 一个匹配的 graphic 数组。
+     */
+    getGraphicsByAttribute(attrName, attrValue) {
+        var graphic,
+            foundgraphics = [];
+        for (let index in this.graphics) {
+            graphic = this.graphics[index];
+            if (graphic && graphic.attributes) {
+                if (graphic.attributes[attrName] === attrValue) {
+                    foundgraphics.push(graphic);
+                }
+            }
+        }
+        return foundgraphics;
+    },
+
+    /**
+     * @function L.supermap.graphicLayer.prototype.removeGraphics
+     * @description 删除要素数组，默认将删除所有要素。
+     * @param {Array.<ol.Graphic>} [graphics=null] - 删除的 graphics 数组。
+     */
+    removeGraphics(graphics = null) {
+        //当 graphics 为 null 、为空数组，或 === this.graphics，则清除所有要素
+        if (!graphics || graphics.length === 0 || graphics === this.graphics) {
+            this.graphics.length = 0;
+            this.update();
+            return;
+        }
+        if (!(CommonUtil.isArray(graphics))) {
+            graphics = [graphics];
+        }
+
+        for (let i = graphics.length - 1; i >= 0; i--) {
+            let graphic = graphics[i];
+
+            //如果我们传入的grapchic在graphics数组中没有的话，则不进行删除，
+            //并将其放入未删除的数组中。
+            let findex = CommonUtil.indexOf(this.graphics, graphic);
+
+            if (findex === -1) {
+                continue;
+            }
+            this.graphics.splice(findex, 1);
+        }
+
+        //删除完成后重新设置 setGraphics，以更新
+        this.update();
+    },
+
+    /**
      * @function L.supermap.graphicLayer.prototype.setStyle
      * @description 设置图层要素整体样式。
      * @param {Object} styleOptions - 样式对象。
@@ -182,15 +252,6 @@ export var GraphicLayer = L.Path.extend({
      */
     clear: function () {
         this.removeGraphics();
-    },
-
-    /**
-     * @function L.supermap.graphicLayer.prototype.removeGraphics
-     * @description 移除所有要素。
-     */
-    removeGraphics: function () {
-        this.graphics.length = 0;
-        this.update();
     },
 
     /**
@@ -257,30 +318,10 @@ export var GraphicLayer = L.Path.extend({
         this._update();
     },
     _moveEnd: function () {
-        //拖动和缩放结束后webgl绘制时会有跳动现象(暂时找不到原因)，故在此执行清除操作
-        this._layerRenderer._clearBuffer();
-        let size = this._map.getSize();
-
-        if (this._container._width !== size.x) {
-            this._container.width = size.x;
+        if (this._layerRenderer instanceof GraphicWebGLRenderer) {
+            this._update();
         }
-        if (this._container._height !== size.y) {
-            this._container.height = size.y;
-        }
-        this._draw();
     },
-
-    _draw: function () {
-        let mapPane = this._map.getPanes().mapPane;
-        let point = mapPane._leaflet_pos;
-
-        this._container.style[CSS_TRANSFORM] = 'translate(' +
-            -Math.round(point.x) + 'px,' +
-            -Math.round(point.y) + 'px)';
-
-        this._update();
-    },
-
     //使用canvas渲染或webgl渲染
     _createRenderer: function () {
         let map = this._map;
@@ -369,7 +410,7 @@ export var GraphicLayer = L.Path.extend({
 
     },
     toRGBA(colorArray) {
-        return `rgba(${colorArray[0]},${colorArray[1]},${colorArray[2]},${(colorArray[3]||255)/255})`;
+        return `rgba(${colorArray[0]},${colorArray[1]},${colorArray[2]},${(colorArray[3] || 255) / 255})`;
     },
     _getGraphicsInBounds: function () {
         let me = this;

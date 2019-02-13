@@ -1,5 +1,12 @@
-import {SuperMap} from '../SuperMap';
-import {MapVRenderer} from './mapv/MapVRenderer';
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
+import {
+    SuperMap
+} from '../SuperMap';
+import {
+    MapVRenderer
+} from './mapv/MapVRenderer';
 
 /**
  * @class SuperMap.Layer.MapVLayer
@@ -16,19 +23,19 @@ export class MapVLayer extends SuperMap.Layer {
         super(name, options);
 
         /**
-         * @member {mapv.DataSet} - SuperMap.Layer.MapVLayer.prototype.dataSet
+         * @member {mapv.DataSet} SuperMap.Layer.MapVLayer.prototype.dataSet
          * @description mapv dataset 对象。
          */
         this.dataSet = null;
 
         /**
-         * @member {Object} - SuperMap.Layer.MapVLayer.prototype.options
+         * @member {Object} SuperMap.Layer.MapVLayer.prototype.options
          * @description mapv 绘图风格配置信息。
          */
         this.options = null;
 
         /**
-         * @member {boolean} - [SuperMap.Layer.MapVLayer.prototype.supported=false]
+         * @member {boolean} [SuperMap.Layer.MapVLayer.prototype.supported=false]
          * @description 当前浏览器是否支持 canvas 绘制。决定了 MapV 图是否可用，内部判断使用。
          */
         this.supported = false;
@@ -41,7 +48,7 @@ export class MapVLayer extends SuperMap.Layer {
 
         /**
          * @private
-         * @member {CanvasContext} - SuperMap.Layer.MapVLayer.prototype.canvasContext
+         * @member {CanvasContext} SuperMap.Layer.MapVLayer.prototype.canvasContext
          * @description MapV 图主绘制对象。
          */
         this.canvasContext = null;
@@ -67,7 +74,7 @@ export class MapVLayer extends SuperMap.Layer {
         if (this.options.context == '2d') {
             this.canvasContext.scale(devicePixelRatio, devicePixelRatio);
         }
-        this.attribution = "© 2017 百度 <a href='http://mapv.baidu.com' target='_blank'>MapV</a> with <span>© <a target='_blank' href='http://iclient.supermap.io' " +
+        this.attribution = "© 2018 百度 <a href='http://mapv.baidu.com' target='_blank'>MapV</a> with <span>© <a target='_blank' href='http://iclient.supermap.io' " +
             "style='color: #08c;text-decoration: none;'>SuperMap iClient</a></span>";
 
         this.CLASS_NAME = "SuperMap.Layer.MapVLayer";
@@ -211,9 +218,11 @@ export class MapVLayer extends SuperMap.Layer {
      * @function SuperMap.Layer.MapVLayer.prototype.transferToMapLatLng
      * @description 将经纬度转成底图的投影坐标。
      * @param {SuperMap.Lonlat} latLng - 经纬度坐标。
+     * @deprecated
      */
     transferToMapLatLng(latLng) {
-        var source = "EPSG:4326", dest = "EPSG:4326";
+        var source = "EPSG:4326",
+            dest = "EPSG:4326";
         var unit = this.map.getUnits() || "degree";
         if (["m", "meter"].indexOf(unit.toLowerCase()) > -1) {
             dest = "EPSG:3857";

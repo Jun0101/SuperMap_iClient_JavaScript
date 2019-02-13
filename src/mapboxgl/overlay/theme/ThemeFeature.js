@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import mapboxgl from 'mapbox-gl';
 import '../../core/Base';
 import {GeometryPoint as Point, GeoText, GeometryVector as Vector} from '@supermap/iclient-common';
@@ -7,7 +10,7 @@ import {Util} from '../../core/Util';
  * @class mapboxgl.supermap.ThemeFeature
  * @category  Visualization Theme
  * @classdesc 专题图要素类。
- * @param {Object} geometry - 专题图要素几何对象，GeoJSON 格式。
+ * @param {GeoJSONObject} geometry - 专题图要素几何对象。
  * @param {Object} [attributes] - 几何对象属性。
  */
 export class ThemeFeature {

@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import L from "leaflet";
 import {
     CommonUtil,
@@ -8,7 +11,9 @@ import {
     GeoText,
     LevelRenderer
 } from '@supermap/iclient-common';
-import {ThemeFeature} from './ThemeFeature';
+import {
+    ThemeFeature
+} from './ThemeFeature';
 import Attributions from '../../core/Attributions'
 
 /**
@@ -23,6 +28,7 @@ import Attributions from '../../core/Attributions'
  * @param {boolean} [options.alwaysMapCRS=false] - 要素坐标是否和地图坐标系一致，要素默认是经纬度坐标。
  * @param {string} [options.attribution='Map Data <span>© <a href='http://support.supermap.com.cn/product/iServer.aspx' title='SuperMap iServer' target='_blank'>SuperMap iServer</a></span>'] - 版权描述信息。
  * @param {Array} [options.TFEvents] - 专题要素事件临时存储。
+ * @fires L.supermap.ThemeLayer#featuresremoved
  */
 export var ThemeLayer = L.Layer.extend({
 
@@ -67,7 +73,7 @@ export var ThemeLayer = L.Layer.extend({
     /**
      * @function L.supermap.ThemeLayer.prototype.onRemove
      * @description 删除某个地图。
-     * @param {L.map} map - 要删除的地图。
+     * @param {L.Map} map - 要删除的地图。
      */
     onRemove: function (map) {
         var me = this;
@@ -78,7 +84,7 @@ export var ThemeLayer = L.Layer.extend({
     /**
      * @function L.supermap.ThemeLayer.prototype.onAdd
      * @description 添加专题图。
-     * @param {L.map} map - 要添加的地图。
+     * @param {L.Map} map - 要添加的地图。
      * @private
      */
     onAdd: function (map) {
@@ -116,8 +122,8 @@ export var ThemeLayer = L.Layer.extend({
 
     /**
      * @function L.supermap.ThemeLayer.prototype.addFeatures
-     * @description 向专题图图层中添加数据, 支持的 feature 类型为：iServer 返回的 feature JSON 对象或 L.supermap.themeFeature 类型。
-     * @param {(L.supermap.themeFeature|Object)} features - 待转要素包括 L.supermap.ThemeFeature 类型和 GeoJOSN 规范数据类型。
+     * @description 向专题图图层中添加数据。
+     * @param {(SuperMap.ServerFeature|L.supermap.themeFeature|GeoJSONObject)} features - 待转要素。
      */
     addFeatures: function (features) { // eslint-disable-line no-unused-vars
         //子类实现此方法
@@ -134,8 +140,8 @@ export var ThemeLayer = L.Layer.extend({
 
     /**
      * @function L.supermap.ThemeLayer.prototype.destroyFeatures
-     * @description 销毁某个要素。
-     * @param {SuperMap.Feature.Vector} features - 将被销毁的要素。
+     * @description 销毁要素。
+     * @param {Array.<SuperMap.Feature.Vector>} features - 将被销毁的要素。
      */
     destroyFeatures: function (features) {
         if (features === undefined) {
@@ -153,7 +159,7 @@ export var ThemeLayer = L.Layer.extend({
     /**
      * @function L.supermap.ThemeLayer.prototype.removeFeatures
      * @description 从专题图中删除 feature。这个函数删除所有传递进来的矢量要素。
-     * @param {L.feature} features - 将被删除得要素。
+     * @param {Array.<SuperMap.Feature.Vector>} features - 将被删除的要素。
      */
     removeFeatures: function (features) {
         var me = this;
@@ -200,7 +206,16 @@ export var ThemeLayer = L.Layer.extend({
         }
 
         var succeed = featuresFailRemoved.length == 0;
-        me.fire("featuresremoved", {features: featuresFailRemoved, succeed: succeed});
+        /**
+         * @event L.supermap.ThemeLayer#featuresremoved
+         * @description 删除的要素成功之后触发。
+         * @property {Array.<SuperMap.Feature.Vector>} features - 事件对象。
+         * @property {boolean} succeed - 要输是否删除成功，true 为删除成功，false 为删除失败。
+         */
+        me.fire("featuresremoved", {
+            features: featuresFailRemoved,
+            succeed: succeed
+        });
     },
 
     /**
@@ -213,7 +228,10 @@ export var ThemeLayer = L.Layer.extend({
             me.renderer.clear();
         }
         me.features = [];
-        me.fire("featuresremoved", {features: [], succeed: true});
+        me.fire("featuresremoved", {
+            features: [],
+            succeed: true
+        });
     },
 
     /**
@@ -324,10 +342,11 @@ export var ThemeLayer = L.Layer.extend({
         if (opacity === me.options.opacity) {
             return;
         }
-        if (opacity) {
+        if (!isNaN(opacity)) {
             me.options.opacity = opacity;
+            me._updateOpacity();
         }
-        me._updateOpacity();
+
     },
 
     /**
@@ -380,10 +399,18 @@ export var ThemeLayer = L.Layer.extend({
         }
         return this;
     },
+    fire: function (type, data, propagate) { // eslint-disable-line no-unused-vars
+        if (this.renderer) {
+            this.renderer.trigger(type, data);
+        }
+        L.Layer.prototype.fire.call(this, type, data, propagate);
+        return this;
+    },
 
     /**
      * @function L.supermap.ThemeLayer.prototype.addTFEvents
      * @description 将图层添加到地图上之前用户要求添加的事件监听添加到图层。
+     * @private
      */
     addTFEvents: function () {
         var me = this;
@@ -423,7 +450,7 @@ export var ThemeLayer = L.Layer.extend({
     /**
      * @function L.supermap.ThemeLayer.prototype.toiClientFeature
      * @description 转为 iClient 要素。
-     * @param {L.supermap.themeFeature|Object} features - 待转要素包括 {@link L.supermap.ThemeFeature} 类型和 GeoJOSN 规范数据类型。
+     * @param {(SuperMap.ServerFeature|L.supermap.themeFeature|GeoJSONObject)} features - 待转要素。
      * @returns {Array.<SuperMap.Feature.Vector>} 转换后的 iClient 要素。
      */
     toiClientFeature: function (features) {
@@ -441,7 +468,7 @@ export var ThemeLayer = L.Layer.extend({
                 // 若是 GeometryVector 类型直接返回
                 featuresTemp.push(features[i]);
             } else if (["FeatureCollection", "Feature", "Geometry"].indexOf(features[i].type) != -1) {
-                //GeoJOSN 规范数据类型
+                //GeoJSON 规范数据类型
                 const format = new GeoJSONFormat();
                 featuresTemp = featuresTemp.concat(format.read(features[i]));
             } else if (features[i].geometry && features[i].geometry.parts) {
@@ -459,7 +486,7 @@ export var ThemeLayer = L.Layer.extend({
      * @function L.supermap.ThemeLayer.prototype.toFeature
      * @deprecated
      * @description 转为 iClient 要素，该方法将被弃用，由 {@link L.supermap.ThemeLayer#toiClientFeature} 代替。
-     * @param {(L.supermap.themeFeature|Object)} features - 待转要素包括 {@link L.supermap.ThemeFeature} 类型和 GeoJOSN 规范数据类型。
+     * @param {(SuperMap.ServerFeature|L.supermap.themeFeature|GeoJSONObject)} features - 待转要素。
      * @returns {SuperMap.Feature.Vector} 转换后的 iClient 要素。
      */
     toFeature: function (features) {
@@ -497,7 +524,16 @@ export var ThemeLayer = L.Layer.extend({
         var me = this;
         CommonUtil.modifyDOMElement(me.container, null, null, null, null, null, null, me.options.opacity);
         if (me._map !== null) {
-            me._map.fire("changelayer", {layer: me, property: "opacity"});
+            /**
+             * @event L.supermap.ThemeLayer#changelayer
+             * @description 图层属性改变之后触发。
+             * @property {Object} layer - 图层。
+             * @property {string} property - 图层属性。
+             */
+            me._map.fire("changelayer", {
+                layer: me,
+                property: "opacity"
+            });
         }
     },
 

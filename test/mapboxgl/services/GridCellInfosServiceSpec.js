@@ -39,9 +39,7 @@ describe('mapboxgl_GridCellInfosService', () => {
         });
 
         service.getGridCellInfos(getGridCellInfosParam, (result) => {
-            serviceResult = result
-        });
-        setTimeout(() => {
+            serviceResult = result;
             try {
                 expect(service).not.toBeNull();
                 expect(serviceResult).not.toBeNull();
@@ -63,6 +61,6 @@ describe('mapboxgl_GridCellInfosService', () => {
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 5000)
+        });
     })
 });

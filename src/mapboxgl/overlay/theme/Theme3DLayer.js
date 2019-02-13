@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import mapboxgl from 'mapbox-gl';
 import '../../core/Base';
 
@@ -153,8 +156,8 @@ export class Theme3DLayer {
 
     /**
      * @function mapboxgl.supermap.Theme3DLayer.prototype.setData
-     * @description 设置数据，数据格式必须为 geojson 格式。
-     * @param {Object} data - geojson 格式数据。
+     * @description 设置数据，数据格式必须为 GeoJSON 格式。
+     * @param {GeoJSONObject} data - GeoJSON 格式数据。
      * @param {boolean} [parseNumber=false] - 是否进行数据预处理,有些字段是 string 类型，需要转换为 number。
      */
     setData(data, parseNumber) {
@@ -177,8 +180,8 @@ export class Theme3DLayer {
 
     /**
      * @function mapboxgl.supermap.Theme3DLayer.prototype.getData
-     * @description 获取数据，返回的数据格式为 geojson。
-     * @returns {Object} 获取的数据。
+     * @description 获取数据。
+     * @returns {GeoJSONObject} 获取的数据。
      */
     getData() {
         return this.data;
@@ -187,7 +190,7 @@ export class Theme3DLayer {
     /**
      * @function mapboxgl.supermap.Theme3DLayer.prototype.addTo
      * @description 添加图层到地图上。
-     * @param {Object} map - Mapbox GL 地图对象。
+     * @param {mapboxgl.Map} map - Mapbox GL 地图对象。
      * @returns {this} this 对象。
      */
     addTo(map) {

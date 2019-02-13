@@ -1,5 +1,6 @@
-import {featureService} from '../../../src/leaflet/services/FeatureService';
-import {GetFeaturesByBufferParameters} from '../../../src/common/iServer/GetFeaturesByBufferParameters';
+import { featureService } from '../../../src/leaflet/services/FeatureService';
+import { GetFeaturesByBufferParameters } from '../../../src/common/iServer/GetFeaturesByBufferParameters';
+import { FetchRequest } from '../../../src/common/util/FetchRequest';
 
 var dataServiceURL = GlobeParameter.dataServiceURL;
 var options = {
@@ -30,10 +31,18 @@ describe('leaflet_FeatureService_getFeaturesByBuffer', () => {
             toIndex: 19
         });
         var getFeaturesByBufferService = featureService(dataServiceURL, options);
-        getFeaturesByBufferService.getFeaturesByBuffer(getFeaturesByBufferParams, (result) => {
-            serviceResult = result
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(dataServiceURL + "/featureResults.json?returnContent=true&fromIndex=0&toIndex=19");
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj.datasetNames[0]).toBe("World:Capitals");
+            expect(paramsObj.attributeFilter).toBe("SMID%26gt;0");
+            // expect(params).toContain("'attributeFilter':\"SMID%26gt;0\"");
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(JSON.stringify(getFeaturesResultJson)));
         });
-        setTimeout(() => {
+        getFeaturesByBufferService.getFeaturesByBuffer(getFeaturesByBufferParams, (result) => {
+            serviceResult = result;
             try {
                 expect(getFeaturesByBufferService).not.toBeNull();
                 expect(getFeaturesByBufferService.options.serverType).toBe("iServer");
@@ -44,30 +53,16 @@ describe('leaflet_FeatureService_getFeaturesByBuffer', () => {
                 expect(serviceResult.result.featureCount).toBeGreaterThan(0);
                 expect(serviceResult.result.totalCount).toBeGreaterThan(0);
                 expect(serviceResult.result.features.type).toBe("FeatureCollection");
-                expect(serviceResult.result.features.features.length).toEqual(20);
+                expect(serviceResult.result.features.features.length).toEqual(1);
                 for (var i = 0; i < serviceResult.result.features.features.length; i++) {
                     expect(serviceResult.result.features.features[i].type).toBe("Feature");
-                    expect(serviceResult.result.features.features[i].geometry.type).toBe("Point");
+                    expect(serviceResult.result.features.features[i].geometry.type).toBe("MultiPolygon");
                     expect(serviceResult.result.features.features[i].geometry.coordinates.length).toEqual(2);
                 }
                 expect(serviceResult.result.features.features[0].properties).toEqual(Object({
-                    CAPITAL: "圣多美",
-                    CAPITAL_CH: "圣多美",
-                    CAPITAL_EN: "Sao Tome",
-                    CAPITAL_LO: "São Tomé",
-                    CAP_POP: "53300.0",
-                    COUNTRY: "圣多美和普林西比",
-                    COUNTRY_CH: "圣多美和普林西比",
-                    COUNTRY_EN: "Sao Tome & Principe",
-                    ID: 19,
-                    POP: "53300.0",
-                    SMGEOMETRYSIZE: "16",
-                    SMID: "19",
-                    SMLIBTILEID: "1",
-                    SMUSERID: "0",
-                    SMX: "6.728004415891377",
-                    SMY: "0.33699598913014484",
-                    USERID: "0"
+                    ID: 127,
+                    SMID: '127',
+                    CAPITAL: "利伯维尔"
                 }));
                 getFeaturesByBufferService.destroy();
                 done();
@@ -77,7 +72,7 @@ describe('leaflet_FeatureService_getFeaturesByBuffer', () => {
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 2000)
+        });
     });
 
     it('successEvent:getFeaturesByBuffer_returnContent=false', (done) => {
@@ -90,10 +85,18 @@ describe('leaflet_FeatureService_getFeaturesByBuffer', () => {
             geometry: polygon
         });
         var getFeaturesByBufferService = featureService(dataServiceURL, options);
-        getFeaturesByBufferService.getFeaturesByBuffer(getFeaturesByBufferParams, (result) => {
-            serviceResult = result
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(dataServiceURL + "/featureResults.json?");
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj.datasetNames[0]).toBe("World:Capitals");
+            expect(paramsObj.attributeFilter).toBe("SMID%26gt;0");
+            expect(paramsObj.bufferDistance).toBe(30);
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(`{"postResultType":"CreateChild","newResourceID":"c01d29d8d41743adb673cd1cecda6ed0_02c1636b347046d9b1428bce7118c4df","succeed":true,"newResourceLocation":"http://localhost:8090/iserver/services/data-world/rest/data/featureResults/c01d29d8d41743adb673cd1cecda6ed0_02c1636b347046d9b1428bce7118c4df.json"}`));
         });
-        setTimeout(() => {
+        getFeaturesByBufferService.getFeaturesByBuffer(getFeaturesByBufferParams, (result) => {
+            serviceResult = result;
             try {
                 expect(getFeaturesByBufferService).not.toBeNull();
                 expect(getFeaturesByBufferService.options.serverType).toBe("iServer");
@@ -112,7 +115,7 @@ describe('leaflet_FeatureService_getFeaturesByBuffer', () => {
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 2000);
+        });
     });
 
     it('failEvent:getFeaturesByBuffer_datasetNotExist', (done) => {
@@ -124,10 +127,18 @@ describe('leaflet_FeatureService_getFeaturesByBuffer', () => {
             geometry: polygon
         });
         var getFeaturesByBufferService = featureService(dataServiceURL, options);
-        getFeaturesByBufferService.getFeaturesByBuffer(getFeaturesByBufferParams, (result) => {
-            serviceResult = result
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(dataServiceURL + "/featureResults.json?returnContent=true&fromIndex=0&toIndex=19");
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj.datasetNames[0]).toBe("World1:Capitals");
+            expect(paramsObj.attributeFilter).toBe("SMID%26gt;0");
+            expect(paramsObj.bufferDistance).toBe(30);
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(`{"succeed":false,"error":{"code":400,"errorMsg":"数据源World1不存在，获取相应的数据服务组件失败"}}`));
         });
-        setTimeout(() => {
+        getFeaturesByBufferService.getFeaturesByBuffer(getFeaturesByBufferParams, (result) => {
+            serviceResult = result;
             try {
                 expect(getFeaturesByBufferService).not.toBeNull();
                 expect(getFeaturesByBufferService.options.serverType).toBe("iServer");
@@ -144,7 +155,7 @@ describe('leaflet_FeatureService_getFeaturesByBuffer', () => {
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 2000);
+        });
     });
 
     it('failEvent:getFeaturesByBuffer_datasetNamesNull', (done) => {
@@ -156,10 +167,17 @@ describe('leaflet_FeatureService_getFeaturesByBuffer', () => {
             geometry: polygon
         });
         var getFeaturesByBufferService = featureService(dataServiceURL, options);
-        getFeaturesByBufferService.getFeaturesByBuffer(getFeaturesByBufferParams, (result) => {
-            serviceResult = result
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(dataServiceURL + "/featureResults.json?returnContent=true&fromIndex=0&toIndex=19");
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj.attributeFilter).toBe("SMID%26gt;0");
+            expect(paramsObj.bufferDistance).toBe(30);
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(`{"succeed":false,"error":{"code":400,"errorMsg":"在FeatureResults中，在检验请求体时，请求体参数datasetNames为空"}}`));
         });
-        setTimeout(() => {
+        getFeaturesByBufferService.getFeaturesByBuffer(getFeaturesByBufferParams, (result) => {
+            serviceResult = result;
             try {
                 expect(getFeaturesByBufferService).not.toBeNull();
                 expect(getFeaturesByBufferService.options.serverType).toBe("iServer");
@@ -176,7 +194,7 @@ describe('leaflet_FeatureService_getFeaturesByBuffer', () => {
                 getFeaturesByBufferService.destroy();
                 done();
             }
-        }, 2000);
+        });
     })
 });
 

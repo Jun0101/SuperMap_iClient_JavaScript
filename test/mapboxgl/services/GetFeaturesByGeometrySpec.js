@@ -1,5 +1,6 @@
 import {FeatureService} from '../../../src/mapboxgl/services/FeatureService';
 import {GetFeaturesByGeometryParameters} from '../../../src/common/iServer/GetFeaturesByGeometryParameters';
+import { FetchRequest } from '../../../src/common/util/FetchRequest';
 
 var url = GlobeParameter.dataServiceURL;
 describe('mapboxgl_FeatureService_getFeaturesByGeometry', () => {
@@ -26,10 +27,17 @@ describe('mapboxgl_FeatureService_getFeaturesByGeometry', () => {
             spatialQueryMode: "INTERSECT"
         });
         var service = new FeatureService(url);
-        service.getFeaturesByGeometry(geometryParam, (result) => {
-            serviceResult = result
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(url + "/featureResults.json?returnContent=true&fromIndex=0&toIndex=19");
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj.datasetNames[0]).toBe("World:Countries");
+            expect(paramsObj.spatialQueryMode).toBe("INTERSECT");
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(JSON.stringify(getFeaturesResultJson)));
         });
-        setTimeout(() => {
+        service.getFeaturesByGeometry(geometryParam, (result) => {
+            serviceResult = result;
             try {
                 expect(service).not.toBeNull();
                 expect(serviceResult).not.toBeNull();
@@ -53,6 +61,6 @@ describe('mapboxgl_FeatureService_getFeaturesByGeometry', () => {
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 5000);
+        });
     });
 });

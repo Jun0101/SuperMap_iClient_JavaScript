@@ -1,7 +1,23 @@
-import {SuperMap} from '../SuperMap';
-import {Util} from '../commontypes/Util';
-import {AnalystSizeUnit, AnalystAreaUnit} from '../REST';
-import {OutputSetting} from './OutputSetting';
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
+import {
+    SuperMap
+} from '../SuperMap';
+import {
+    Util
+} from '../commontypes/Util';
+import {
+    AnalystSizeUnit,
+    AnalystAreaUnit
+} from '../REST';
+import {
+    OutputSetting
+} from './OutputSetting';
+import {
+    MappingParameters
+} from './MappingParameters';
+
 
 /**
  * @class SuperMap.KernelDensityJobParameter
@@ -10,12 +26,13 @@ import {OutputSetting} from './OutputSetting';
  * @param {Object} options - 参数。 
  * @param {string} options.datasetName - 数据集名。 
  * @param {string} options.fields - 权重索引。 
- * @param {(SuperMap.Bounds|L.Bounds|ol.extent)} options.query - 分析范围。 
+ * @param {(SuperMap.Bounds|L.Bounds|ol.extent)} [options.query] - 分析范围。 
  * @param {number} [options.resolution=80] - 分辨率。 
  * @param {number} [options.method=0] - 分析方法。 
  * @param {number} [options.meshType=0] - 分析类型。 
  * @param {number} [options.radius=300] - 分析的影响半径。
  * @param {SuperMap.OutputSetting} [options.output] - 输出参数设置。
+ * @param {SuperMap.MappingParameters} [options.mappingParameters] - 分析后结果可视化的参数类。   
  */
 export class KernelDensityJobParameter {
 
@@ -30,7 +47,7 @@ export class KernelDensityJobParameter {
         this.datasetName = "";
 
         /**
-         * @member {SuperMap.Bounds|L.Bounds|ol.extent} SuperMap.KernelDensityJobParameter.prototype.query
+         * @member {SuperMap.Bounds|L.Bounds|ol.extent} [SuperMap.KernelDensityJobParameter.prototype.query]
          * @description 分析范围。 
          */
         this.query = "";
@@ -89,6 +106,12 @@ export class KernelDensityJobParameter {
          */
         this.output = null;
 
+        /**
+         * @member {SuperMap.MappingParameters} [SuperMap.KernelDensityJobParameter.prototype.mappingParameters]
+         * @description 分析后结果可视化的参数类。
+         */
+        this.mappingParameters = null;
+
         Util.extend(this, options);
 
         this.CLASS_NAME = "SuperMap.KernelDensityJobParameter";
@@ -113,6 +136,10 @@ export class KernelDensityJobParameter {
             this.output.destroy();
             this.output = null;
         }
+        if (this.mappingParameters instanceof MappingParameters) {
+            this.mappingParameters.destroy();
+            this.mappingParameters = null;
+        }
     }
 
     /**
@@ -129,16 +156,21 @@ export class KernelDensityJobParameter {
                 tempObj['input'][name] = kernelDensityJobParameter[name];
                 continue;
             }
-            if (name === "output"){
+            if (name === "output") {
                 tempObj['output'] = tempObj['output'] || {};
                 tempObj['output'] = kernelDensityJobParameter[name];
                 continue;
             }
+
             tempObj['analyst'] = tempObj['analyst'] || {};
-            if (name === 'query') {
+            if (name === 'query' && kernelDensityJobParameter[name]) {
                 tempObj['analyst'][name] = kernelDensityJobParameter[name].toBBOX();
             } else {
                 tempObj['analyst'][name] = kernelDensityJobParameter[name];
+            }
+            if (name === 'mappingParameters') {
+                tempObj['analyst'][name] = tempObj['analyst'][name] || {};
+                tempObj['analyst']['mappingParameters'] = kernelDensityJobParameter[name];
             }
         }
     }

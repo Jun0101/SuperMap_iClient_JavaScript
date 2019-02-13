@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import {SuperMap} from './SuperMap';
 import {
     DataFormat,
@@ -55,7 +58,8 @@ import {
     TopologyValidatorRule,
     OutputType,
     AggregationQueryBuilderType,
-    AggregationType
+    AggregationType,
+    GetFeatureMode
 } from './REST';
 import {
     Collection,
@@ -227,6 +231,7 @@ import {
     MeasureService,
     NetworkAnalystServiceBase,
     OutputSetting,
+    MappingParameters,
     OverlapDisplayedOptions,
     OverlayAnalystParameters,
     OverlayAnalystService,
@@ -354,7 +359,9 @@ import {
     isCORS,
     setRequestTimeout,
     getRequestTimeout,
-    FetchRequest
+    FetchRequest,
+    ColorsPickerUtil,
+    ArrayStatistic
 } from './util';
 import {
     CartoCSS,
@@ -422,9 +429,50 @@ import {
     SUtil
 
 } from './overlay';
-import {FileTypes, FileConfig, FileModel, MessageBox, WidgetContainer, widgetsUtil, FileReaderUtil} from './widgets';
+import {
+    FileTypes,
+    FileConfig,
+    FileModel, 
+    MessageBox,
+    CommonContainer,
+    DropDownBox,
+    Select,
+    AttributesPopContainer,
+    PopContainer,
+    IndexTabsPageContainer,
+    CityTabsPage,
+    NavTabsPage,
+    PaginationContainer,
+    widgetsUtil,
+    FileReaderUtil,
+    ChartView,
+    ChartViewModel
+} from './widgets';
+import {
+    Lang,
+    en,
+    zh
+} from './lang';
 
-export {FileTypes, FileConfig, FileModel, MessageBox, WidgetContainer, widgetsUtil, FileReaderUtil}
+export {
+    FileTypes,
+    FileConfig,
+    FileModel,
+    MessageBox,
+    CommonContainer,
+    DropDownBox,
+    Select,
+    AttributesPopContainer,
+    PopContainer,
+    IndexTabsPageContainer,
+    CityTabsPage,
+    NavTabsPage,
+    PaginationContainer,
+    widgetsUtil,
+    FileReaderUtil,
+    ChartView,
+    ChartViewModel
+}
 export {SuperMap};
 export {
     DataFormat,
@@ -482,7 +530,8 @@ export {
     TopologyValidatorRule,
     OutputType,
     AggregationQueryBuilderType,
-    AggregationType
+    AggregationType,
+    GetFeatureMode
 };
 export {
     Collection,
@@ -528,7 +577,9 @@ export {
     isCORS,
     setRequestTimeout,
     getRequestTimeout,
-    FetchRequest
+    FetchRequest,
+    ColorsPickerUtil,
+    ArrayStatistic
 };
 export {
     IManager,
@@ -660,6 +711,7 @@ export {
     MeasureService,
     NetworkAnalystServiceBase,
     OutputSetting,
+    MappingParameters,
     OverlapDisplayedOptions,
     OverlayAnalystParameters,
     OverlayAnalystService,
@@ -847,3 +899,8 @@ export {
 export {
     ElasticSearch
 };
+export {
+    Lang,
+    en,
+    zh
+}

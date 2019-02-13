@@ -1,4 +1,7 @@
-﻿import {SuperMap} from '../SuperMap';
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
+import {SuperMap} from '../SuperMap';
 import {Util} from '../commontypes/Util';
 import {NetworkAnalystServiceBase} from './NetworkAnalystServiceBase';
 import {FindServiceAreasParameters} from './FindServiceAreasParameters';
@@ -112,16 +115,16 @@ export class FindServiceAreasService extends NetworkAnalystServiceBase {
         var geoJSONFormat = new GeoJSON();
         result.serviceAreaList.map(function (serviceArea) {
             if (serviceArea.serviceRegion) {
-                serviceArea.serviceRegion = JSON.parse(geoJSONFormat.write(serviceArea.serviceRegion));
+                serviceArea.serviceRegion = geoJSONFormat.toGeoJSON(serviceArea.serviceRegion);
             }
             if (serviceArea.edgeFeatures) {
-                serviceArea.edgeFeatures = JSON.parse(geoJSONFormat.write(serviceArea.edgeFeatures));
+                serviceArea.edgeFeatures = geoJSONFormat.toGeoJSON(serviceArea.edgeFeatures);
             }
             if (serviceArea.nodeFeatures) {
-                serviceArea.nodeFeatures = JSON.parse(geoJSONFormat.write(serviceArea.nodeFeatures));
+                serviceArea.nodeFeatures = geoJSONFormat.toGeoJSON(serviceArea.nodeFeatures);
             }
             if (serviceArea.routes) {
-                serviceArea.routes = JSON.parse(geoJSONFormat.write(serviceArea.routes));
+                serviceArea.routes = geoJSONFormat.toGeoJSON(serviceArea.routes);
             }
             return serviceArea;
         });

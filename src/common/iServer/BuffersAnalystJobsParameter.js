@@ -1,7 +1,11 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import {SuperMap} from '../SuperMap';
 import {Util} from '../commontypes/Util';
 import {AnalystSizeUnit} from '../REST';
 import {OutputSetting} from './OutputSetting';
+import {MappingParameters} from './MappingParameters';
 
 /**
  * @class SuperMap.BuffersAnalystJobsParameter
@@ -13,7 +17,8 @@ import {OutputSetting} from './OutputSetting';
  * @param {string} [options.distance='15'] - 缓冲距离，或缓冲区半径。   
  * @param {string} [options.distanceField='pickup_latitude'] - 缓冲区分析距离字段。   
  * @param {SuperMap.AnalystSizeUnit} [options.distanceUnit=SuperMap.AnalystSizeUnit.METER] - 缓冲距离单位单位。   
- * @param {SuperMap.OutputSetting} [options.output] - 输出参数设置。   
+ * @param {SuperMap.OutputSetting} [options.output] - 输出参数设置。  
+ * @param {SuperMap.MappingParameters} [options.mappingParameters] - 分析后结果可视化的参数类。   
  */
 export class BuffersAnalystJobsParameter {
 
@@ -60,6 +65,12 @@ export class BuffersAnalystJobsParameter {
          * @description 输出参数设置类。
          */
         this.output = null;
+        
+        /**
+         * @member {SuperMap.MappingParameters} [SuperMap.BuffersAnalystJobsParameter.prototype.mappingParameters]
+         * @description 分析后结果可视化的参数类。   
+         */
+        this.mappingParameters = null;
 
         if (!options) {
             return this;
@@ -84,6 +95,10 @@ export class BuffersAnalystJobsParameter {
             this.output.destroy();
             this.output = null;
         }
+        if (this.mappingParameters instanceof MappingParameters){
+            this.mappingParameters.destroy();
+            this.mappingParameters = null;
+        }
     }
 
     /**
@@ -104,11 +119,16 @@ export class BuffersAnalystJobsParameter {
                 tempObj['output'] = BuffersAnalystJobsParameter[name];
                 continue;
             }
+
             tempObj['analyst'] = tempObj['analyst'] || {};
             if (name === 'bounds') {
                 tempObj['analyst'][name] = BuffersAnalystJobsParameter[name].toBBOX();
             } else {
                 tempObj['analyst'][name] = BuffersAnalystJobsParameter[name];
+            }
+            if(name === 'mappingParameters'){
+                tempObj['analyst'][name] = tempObj['analyst'][name] || {};
+                tempObj['analyst']['mappingParameters'] = BuffersAnalystJobsParameter[name];
             }
         }
     }

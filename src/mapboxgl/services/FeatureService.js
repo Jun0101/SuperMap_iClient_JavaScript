@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import mapboxgl from 'mapbox-gl';
 import '../core/Base';
 import {Util} from '../core/Util';
@@ -175,8 +178,8 @@ export class FeatureService extends ServiceBase {
     /**
      * @private
      * @description 参数类型转换。
-     * @param {object} params - 服务参数 。
-     * @returns {object} params - 转换后的对接 SuperMap 服务的参数。
+     * @param {Object} params - 服务参数 。
+     * @returns {Object} params - 转换后的对接 SuperMap 服务的参数。
      */
     _processParams(params) {
         if (!params) {

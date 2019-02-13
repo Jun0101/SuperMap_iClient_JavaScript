@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 /**
  * @class  SuperMap.LevelRenderer.Tool.Env
  * @category Visualization Theme
@@ -11,6 +14,7 @@ export class Env {
         // Zepto.js may be freely distributed under the MIT license.
         this.CLASS_NAME = "SuperMap.LevelRenderer.Tool.Env";
         var me = this;
+
         function detect(ua) {
             var os = me.os = {};
             var browser = me.browser = {};
@@ -45,52 +49,65 @@ export class Env {
             }
 
             if (android) {
-                os.android = true, os.version = android[2];
+                os.android = true;
+                os.version = android[2];
             }
             if (iphone && !ipod) {
-                os.ios = os.iphone = true, os.version = iphone[2].replace(/_/g, '.');
+                os.ios = os.iphone = true;
+                os.version = iphone[2].replace(/_/g, '.');
             }
             if (ipad) {
-                os.ios = os.ipad = true, os.version = ipad[2].replace(/_/g, '.');
+                os.ios = os.ipad = true;
+                os.version = ipad[2].replace(/_/g, '.');
             }
             if (ipod) {
-                os.ios = os.ipod = true, os.version = ipod[3] ? ipod[3].replace(/_/g, '.') : null;
+                os.ios = os.ipod = true;
+                os.version = ipod[3] ? ipod[3].replace(/_/g, '.') : null;
             }
             if (webos) {
-                os.webos = true, os.version = webos[2];
+                os.webos = true;
+                os.version = webos[2];
             }
             if (touchpad) {
                 os.touchpad = true;
             }
             if (blackberry) {
-                os.blackberry = true, os.version = blackberry[2];
+                os.blackberry = true;
+                os.version = blackberry[2];
             }
             if (bb10) {
-                os.bb10 = true, os.version = bb10[2];
+                os.bb10 = true;
+                os.version = bb10[2];
             }
             if (rimtabletos) {
-                os.rimtabletos = true, os.version = rimtabletos[2];
+                os.rimtabletos = true;
+                os.version = rimtabletos[2];
             }
             if (playbook) {
                 browser.playbook = true;
             }
             if (kindle) {
-                os.kindle = true, os.version = kindle[1];
+                os.kindle = true;
+                os.version = kindle[1];
             }
             if (silk) {
-                browser.silk = true, browser.version = silk[1];
+                browser.silk = true;
+                browser.version = silk[1];
             }
             if (!silk && os.android && ua.match(/Kindle Fire/)) {
                 browser.silk = true;
             }
             if (chrome) {
-                browser.chrome = true, browser.version = chrome[1];
+                browser.chrome = true;
+                browser.version = chrome[1];
             }
             if (firefox) {
-                browser.firefox = true, browser.version = firefox[1];
+                browser.firefox = true;
+                browser.version = firefox[1];
             }
             if (ie) {
-                browser.ie = true, browser.version = ie[1];
+                browser.ie = true;
+                browser.version = ie[1];
             }
             if (safari && (ua.match(/Safari/) || !!os.ios)) {
                 browser.safari = true;
@@ -99,7 +116,8 @@ export class Env {
                 browser.webview = true;
             }
             if (ie) {
-                browser.ie = true, browser.version = ie[1];
+                browser.ie = true;
+                browser.version = ie[1];
             }
 
             os.tablet = !!(ipad || playbook || (android && !ua.match(/Mobile/)) ||

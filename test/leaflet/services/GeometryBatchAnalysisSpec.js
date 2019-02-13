@@ -5,6 +5,7 @@ import {BufferSetting} from '../../../src/common/iServer/BufferSetting';
 import {BufferDistance} from '../../../src/common/iServer/BufferDistance';
 import {BufferEndType} from '../../../src/common/REST';
 import {OverlayOperationType} from '../../../src/common/REST';
+import { FetchRequest } from '../../../src/common/util/FetchRequest';
 
 var serviceUrl = GlobeParameter.spatialAnalystURL;
 describe('leaflet_SpatialAnalystService_geometryBatchAnalysis', () => {
@@ -78,23 +79,33 @@ describe('leaflet_SpatialAnalystService_geometryBatchAnalysis', () => {
         //批量分析参数
         var paramter = [geoBufferAnalystParams, OverlayBatchAnalystParameters];
         //批量分析
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(serviceUrl + "/geometry/batchanalyst.json?returnContent=true&ignoreAnalystParam=true");
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj[0].analystName).toBe("buffer");
+            expect(paramsObj[0].param.analystParameter.endType).toBe("ROUND");
+            expect(paramsObj[0].param.analystParameter.leftDistance.value).toEqual(0.05);
+            expect(paramsObj[1].analystName).toBe("overlay");
+            expect(paramsObj[1].param.operation).toBe("CLIP");
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(JSON.stringify(geometryBatchAnalystEscapedJson)));
+        });
         spatialAnalystService(serviceUrl).geometrybatchAnalysis(paramter, (result) => {
             serviceResult = result;
-        });
-        setTimeout(() => {
             expect(serviceResult).not.toBeNull();
             expect(serviceResult.type).toBe("processCompleted");
             expect(serviceResult.result.succeed).toEqual(true);
-            expect(serviceResult.result.length).toEqual(2);
+            expect(serviceResult.result.length).toEqual(1);
             for (var i = 0; i < serviceResult.result.length; i++) {
                 expect(serviceResult.result[i].resultGeometry).not.toBeNull();
                 expect(serviceResult.result[i].resultGeometry.geometry).not.toBeNull();
                 expect(serviceResult.result[i].resultGeometry.geometry.coordinates.length).toBeGreaterThan(0);
                 expect(serviceResult.result[i].resultGeometry.geometry.type).toBe("MultiPolygon");
                 expect(serviceResult.result[i].resultGeometry.type).toBe("Feature");
-                expect(serviceResult.result[i].succeed).toBe(true);
+                expect(serviceResult.result[i].succeed).toBeTruthy();
             }
             done();
-        }, 3000)
+        });
     });
 });

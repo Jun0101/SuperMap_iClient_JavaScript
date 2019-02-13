@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import L from "leaflet";
 import '../core/Base';
 import {GeoFeatureThemeLayer} from './theme/GeoFeatureThemeLayer';
@@ -48,7 +51,7 @@ export var RangeThemeLayer = GeoFeatureThemeLayer.extend({
         GeoFeatureThemeLayer.prototype.initialize.call(this, name, options);
         //{Array.<SuperMap.ThemeStyle>} 图层中专题要素的样式
         this.style = [];
-        //{String} 用于指定专题要素样式的属性字段名称。
+        //{string} 用于指定专题要素样式的属性字段名称。
         // 此属性字段是要用户数据（feature） attributes 中包含的字段，且字段对应的值的类型必须是数值型。使用标签分组显示还需要设置 styleGroups 属性。
 
         this.themeField = null;
@@ -94,7 +97,7 @@ export var RangeThemeLayer = GeoFeatureThemeLayer.extend({
         }
 
         //判断属性值是否属于styleGroups的某一个范围，以便对获取分组 style
-        if (isSfInAttributes && isValidStyleGroup) {
+        if (isSfInAttributes) {
             for (var i = 0, len = groups.length; i < len; i++) {
 				var isContianed = i === len-1 ? ((attribute >= groups[i].start) && (attribute <= groups[i].end)) : ((attribute >= groups[i].start) && (attribute < groups[i].end));
                 if (isContianed) {

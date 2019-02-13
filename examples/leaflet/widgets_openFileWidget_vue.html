@@ -1,3 +1,6 @@
+<!--********************************************************************
+* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+*********************************************************************-->
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,13 +19,13 @@
         center: [38, 110],
         zoom: 5,
     });
-    var url = 'https://www.supermapol.com/iserver/services/map_China/rest/maps/China_Light';
+    var host = window.isLocal ? window.server : "http://support.supermap.com.cn:8090";
+    var url = host + '/iserver/services/map-china400/rest/maps/China';
 
     var baseLayers = L.supermap.tiledMapLayer(url).addTo(map);
-    map.layersControl = L.control.layers({"baseLayers": baseLayers}, {}, {"position": 'topleft'});
-    map.addControl(map.layersControl);
+    var layersControl = L.control.layers({"baseLayers": baseLayers}, {}, {"position": 'topleft'}).addTo(map);
 
-    var openFileViewModel = new L.supermap.widgets.OpenFileViewModel(map);
+    var openFileViewModel = L.supermap.widgets.openFileViewModel(map);
     var messageBox = new SuperMap.Widgets.MessageBox();
 
     initEditView();
@@ -31,9 +34,11 @@
         var infoView = L.control({position: 'topright'});
         infoView.onAdd = function () {
             var me = this;
-            me._div = L.DomUtil.create('div', "openFileContainer");
+            me._div = L.DomUtil.create('div', "widget-openfile");
             me._div.id = "openFileContainer";
-            me._div.innerHTML = `<add_data v-bind:openFileViewModel="openFileViewModel" v-bind:messageBox="messageBox"></add_data>`;
+            //避免与"源码"控件重叠
+            me._div.style["margin"] = "40px 4px 0px 0px";
+            me._div.innerHTML = "<add_data v-bind:openFileViewModel='openFileViewModel' v-bind:messageBox='messageBox'></add_data>";
             handleMapEvent(me._div, me._map);
             return me._div;
         };
@@ -63,29 +68,35 @@
                 text: resources.text_openFile
             }
         },
-        template:
-            `<div class="file-select">
-                <label class="file-selectSpan" for="input_file">
-                <div class="supermapol-icons-upload"/>
-                <span class="openFile-span">{{text}}</span>
-                </label>
-                <input class="openFile_input" id="input_file" type="file"
-                       accept=".json,.geojson,.csv,.xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
-                       v-on:change="fileSelectfn(this,$event)"/>
-            </div>`,
+        template: [
+            "<div class='file-select'>",
+            "<label class='widget-openfile__span--select' for='input_file'>",
+            "<div class='supermapol-icons-upload'/>",
+            "<span class='widget-openfile__span'>{{text}}</span>",
+            "</label>",
+            "<input class='widget-openfile__input' id='input_file' type='file'",
+            "accept='.json,.geojson,.csv,.xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel'",
+            "v-on:change='fileSelectfn(this, $event)'>",
+            "</div>"
+        ].join(""),
         methods: {
             fileSelectfn(self, e) {
                 //绑定事件监听
                 self.openFileViewModel.on("filesizeexceed", _messageListener.bind(self));
                 self.openFileViewModel.on("errorfileformat", _messageListener.bind(self));
-                self.openFileViewModel.on("openfilefail", _messageListener.bind(self));
+                self.openFileViewModel.on("openfilefailed", _messageListener.bind(self));
                 self.openFileViewModel.on("readdatafail", _messageListener.bind(self));
+                self.openFileViewModel.on("openfilesucceeded", function (e) {
+                    var layer = L.geoJSON(e.result).addTo(map);
+                    map.flyToBounds(layer.getBounds());
+                    layersControl.addOverlay(layer, e.layerName);
+                });
 
                 function _messageListener(e) {
                     this.messageBox.showView(e.message, e.messageType);
                 }
 
-                self.openFileViewModel.selectFileLoadToMap(e);
+                self.openFileViewModel.readFile(e);
             },
         }
     };

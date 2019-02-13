@@ -1,9 +1,17 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import ol from 'openlayers';
 import {SuperMap, CommonUtil, StringExt} from '@supermap/iclient-common';
 import {StyleMap} from '../overlay/vectortile/StyleMap';
 import {DeafultCanvasStyle} from '../overlay/vectortile/DeafultCanvasStyle';
+import {
+    Util
+} from '../core/Util';
+import canvg from 'canvg';
 
 ol.supermap = ol.supermap || {};
+var padding = 8, doublePadding = padding*2;
 
 /**
  * @class ol.supermap.StyleUtils
@@ -265,7 +273,7 @@ export class StyleUtils {
                     } else {
                         if (prop === "globalCompositeOperation") {
                             value = StyleMap.CartoCompOpMap[value];
-                            if (!value || value === "") {
+                            if (!value) {
                                 continue;
                             }
                         } else if (fromServer && prop === 'pointFile') {
@@ -417,7 +425,7 @@ export class StyleUtils {
             return [];
         }
         var w = style.strokeWidth * widthFactor;
-        var str = style.strokeDashstyle;
+        var str = style.strokeDashstyle || style.lineDash;
         switch (str) {
             case 'solid':
                 return [];
@@ -564,12 +572,12 @@ export class StyleUtils {
 
     /**
      * @function ol.supermap.StyleUtils.getDefaultStyle
-     * @description 获取默认风格。
+     * @description 获取默认风格
      * @param {string} type - 类型参数。
-
+     * @returns {string} 
      */
     static getDefaultStyle(type) {
-        var style = style || {};
+        var style = {};
         var canvasStyle = DeafultCanvasStyle[type];
         for (var prop in canvasStyle) {
             var val = canvasStyle[prop];
@@ -577,6 +585,353 @@ export class StyleUtils {
         }
         return style;
     }
+
+    /**
+     * @function ol.supermap.StyleUtils.getDefaultStyle
+     * @description 将样式对象转换成openlayer要求的ol.style
+     * @param {string} style - 样式对象
+     * @param {string} type - feature的类型
+     * @returns {ol.style.Style}
+     */
+    static toOpenLayersStyle(style, type) {
+        style = style || this.getDefaultStyle();
+        let olStyle = new ol.style.Style();
+        let newImage, newFill, newStroke;
+        const ZERO = 0.0000001;
+        let {
+            fillColor,
+            fillOpacity,
+            strokeColor,
+            strokeWidth,
+            strokeOpacity,
+            radius,
+            lineCap,
+            src,
+            scale,
+            //size,
+            //imgSize,
+            anchor
+        } = style;
+        let fillColorArray = this.hexToRgb(fillColor);
+        if(fillColorArray){
+            fillColorArray.push(fillOpacity);
+        }
+
+        let strokeColorArray = this.hexToRgb(strokeColor);
+        if(strokeColorArray){
+            strokeColorArray.push(strokeOpacity);
+        }
+        if (type === "POINT") {
+            if (src) {
+                newImage = new ol.style.Icon({
+                    src: src,
+                    scale: scale,
+                    anchor: anchor
+                });
+            } else {
+                newImage = new ol.style.Circle({
+                    radius: radius,
+                    fill: new ol.style.Fill({
+                        color: fillColorArray
+                    }),
+                    stroke: new ol.style.Stroke({
+                        width: strokeWidth || ZERO,
+                        color: strokeColorArray
+                    })
+                });
+            }
+            olStyle.setImage(newImage);
+        } else if (type === "LINE" || type === "LINESTRING") {
+            newStroke = new ol.style.Stroke({
+                width: strokeWidth || ZERO,
+                color: strokeColorArray,
+                lineCap: lineCap || 'round',
+                lineDash: this.dashStyle(style, 1)
+            });
+            olStyle.setStroke(newStroke);
+        } else if(type === 'POLYGON' ||
+            type === 'MULTIPOLYGON'){
+            newFill = new ol.style.Fill({
+                color: fillColorArray
+            });
+            newStroke = new ol.style.Stroke({
+                width: strokeWidth || ZERO,
+                color: strokeColorArray,
+                lineCap: lineCap || 'round',
+                lineDash:this.dashStyle(style, 1)
+            });
+            olStyle.setFill(newFill);
+            olStyle.setStroke(newStroke);
+        } else {
+            let result = this.getCanvas(style);
+            newImage = new ol.style.Icon({
+                img:  result.canvas,
+                imgSize:[result.width,result.height],
+                scale: 1,
+                anchor : [0.5, 0.5]
+            });
+            olStyle.setImage(newImage);
+        }
+        return olStyle;
+    }
+
+    /**
+     * 获取文字标注对应的canvas
+     * @param style
+     * @returns {{canvas: *, width: number, height: number}}
+     */
+    static getCanvas(style) {
+        let canvas;
+        if(style.canvas) {
+            if(document.querySelector("#"+style.canvas)) {
+                canvas = document.getElemntById(style.canvas);
+            } else {
+                canvas = this.createCanvas(style);
+            }
+        } else {
+            //不存在canvas，当前feature
+            canvas = this.createCanvas(style);
+            style.canvas = canvas.id;
+        }
+        canvas.style.display = "none";
+        var ctx = canvas.getContext("2d");
+        //行高
+        let lineHeight = Number(style.font.replace(/[^0-9]/ig,""));
+        let textArray = style.text.split('\r\n');
+        let lenght = textArray.length;
+        //在改变canvas大小后再绘制。否则会被清除
+        ctx.font = style.font;
+        let size = this.drawRect(ctx, style, textArray, lineHeight, canvas);
+        this.positionY = padding;
+        if(lenght > 1) {
+            textArray.forEach(function (text, i) {
+                if(i !== 0) {
+                    this.positionY = this.positionY + lineHeight;
+                }
+                this.canvasTextAutoLine(text,style,ctx,lineHeight, size.width);
+            }, this);
+        } else {
+            this.canvasTextAutoLine(textArray[0],style,ctx,lineHeight, size.width);
+        }
+        return {
+            canvas: canvas,
+            width: size.width,
+            height: size.height
+        };
+    }
+    /**
+     * 创建当前feature对应的canvas
+     * @param style  {object}
+     * @returns {HTMLElement}
+     */
+    static createCanvas(style) {
+        let div = document.createElement('div');
+        document.body.appendChild(div);
+        let canvas = document.createElement('canvas');
+        canvas.id = style.canvas ? style.canvas : 'textCanvas' + Util.newGuid(8);
+        div.appendChild(canvas);
+        return canvas;
+    }
+    /**
+     * 绘制矩形边框背景
+     * @param ctx
+     * @param style
+     * @param textArray
+     * @param lineHeight
+     * @param canvas
+     * @returns {{width: number, height: number}}
+     */
+    static drawRect(ctx, style, textArray, lineHeight, canvas) {
+        let backgroundFill = style.backgroundFill, maxWidth = style.maxWidth - doublePadding;
+        let width, height = 0, lineCount=0, lineWidths = [];
+        //100的宽度，去掉左右两边3padding
+        textArray.forEach(function (arrText) {
+            let line='', isOverMax;
+            lineCount++;
+            for (var n = 0; n < arrText.length; n++) {
+                let textLine = line + arrText[n];
+                let metrics = ctx.measureText(textLine);
+                let textWidth = metrics.width;
+                if ((textWidth > maxWidth && n > 0) || arrText[n] === '\n') {
+                    line = arrText[n];
+                    lineCount++;
+                    //有换行，记录当前换行的width
+                    isOverMax = true;
+                } else {
+                    line = textLine;
+                    width = textWidth;
+                }
+            }
+            if(isOverMax) {
+                lineWidths.push(maxWidth);
+            } else {
+                lineWidths.push(width);
+            }
+        }, this);
+        width = this.getCanvasWidth(lineWidths, maxWidth);
+        height = lineCount * lineHeight;
+        height += doublePadding;
+        canvas.width = width;
+        canvas.height = height;
+        ctx.fillStyle = backgroundFill;
+        ctx.fillRect(0,0,width,height);
+        return {
+            width: width,
+            height: height
+        }
+    }
+    /**
+     * 获取自适应的宽度（如果没有超过最大宽度，就用文字的宽度）
+     * @param lineWidths
+     * @param maxWidth
+     * @returns {number}
+     */
+    static getCanvasWidth(lineWidths, maxWidth) {
+        let width = 0;
+        for(let i=0; i< lineWidths.length; i++) {
+            let lineW = lineWidths[i];
+            if(lineW >= maxWidth) {
+                //有任何一行超过最大高度，就用最大高度
+                return maxWidth + doublePadding;
+            } else if(lineW > width) {
+                //自己换行，就要比较每行的最大宽度
+                width = lineW;
+            }
+        }
+        return width + doublePadding;
+    }
+    /**
+     * 绘制文字，解决换行问题
+     * @param text
+     * @param style
+     * @param ctx
+     * @param lineHeight
+     */
+    static canvasTextAutoLine(text,style,ctx,lineHeight, canvasWidth) {
+        // 字符分隔为数组
+        ctx.font = style.font;
+        let textAlign = style.textAlign;
+        let x = this.getPositionX(textAlign, canvasWidth);
+        let arrText = text.split('');
+        let line = '', fillColor = style.fillColor;
+        //每一行限制的高度
+        let maxWidth= style.maxWidth - doublePadding;
+        for (var n = 0; n < arrText.length; n++) {
+            let testLine = line + arrText[n];
+            let metrics = ctx.measureText(testLine);
+            let testWidth = metrics.width;
+            if ((testWidth > maxWidth && n > 0) || arrText[n] === '\n') {
+                ctx.fillStyle = fillColor;
+                ctx.textAlign=textAlign;
+                ctx.textBaseline="top";
+                ctx.fillText(line, x, this.positionY);
+                line = arrText[n];
+                this.positionY += lineHeight;
+            } else {
+                line = testLine;
+            }
+        }
+        ctx.fillStyle = fillColor;
+        ctx.textAlign=textAlign;
+        ctx.textBaseline="top";
+        ctx.fillText(line, x, this.positionY);
+    }
+    /**
+     * 得到绘制的起点位置，根据align不同，位置也不同
+     * @param textAlign
+     * @returns {number}
+     */
+    static getPositionX(textAlign, canvasWidth) {
+        let x;
+        let width = canvasWidth - doublePadding; //减去padding
+        switch (textAlign) {
+            case 'center':
+                x = width / 2;
+                break;
+            case 'right':
+                x = width;
+                break;
+            default:
+                x = 8;
+                break;
+        }
+        return x;
+    }
+
+    /**
+     * @function ol.supermap.StyleUtils.hexToRgb
+     * @description 将16进制的颜色，转换成rgb格式
+     * @param {string} hexColor 16进制颜色
+     * @returns {string} rgb格式的颜色
+     */
+    static hexToRgb (hexColor) {
+        if (!hexColor) {
+            return;
+        }
+        var s = hexColor.replace('#', '').split('');
+        var rgb = [s[0] + s[1], s[2] + s[3], s[4] + s[5]];
+        rgb = rgb.map(function (hex) {
+            return parseInt(hex, 16);
+        });
+        return rgb;
+    }
+
+    /**
+     * @function ol.supermap.StyleUtils.formatRGB
+     * @description 将颜色数组转换成标准的rgb颜色格式
+     * @param {Array} colorArray - 颜色数组
+     * @returns {String} 'rgb(0,0,0)'或者 rgba(0,0,0,0)
+     */
+    static formatRGB(colorArray) {
+        let rgb;
+        if(colorArray.length === 3) {
+            rgb = 'rgb(';
+            colorArray.forEach(function (color,index) {
+                index === 2 ? rgb += color : rgb += color + ',';
+            });
+        } else {
+            rgb = 'rgba(';
+            colorArray.forEach(function (color,index) {
+                index === 3 ? rgb += color : rgb += color + ',';
+            });
+        }
+        return rgb;
+    }
+
+    /**
+     * @function ol.supermap.StyleUtils.getCanvasFromSVG
+     * @description 将SVG转换成Canvas
+     * @param {string} svgUrl - 颜色数组
+     * @param {object} divDom - div的dom对象
+     * @param {function} callBack - 转换成功执行的回调函数
+     */
+    static getCanvasFromSVG (svgUrl, divDom, callBack) {
+        //一个图层对应一个canvas
+        let canvgs = window.canvg ? window.canvg : canvg;
+        let canvas = document.createElement('canvas');
+        canvas.id = 'dataviz-canvas-' + Util.newGuid(8);
+        canvas.style.display = "none";
+        divDom.appendChild(canvas);
+        try {
+            canvgs(canvas.id, svgUrl, {
+                ignoreMouse: true,
+                ignoreAnimation: true,
+                renderCallback: function () {
+                    if(canvas.width > 300 || canvas.height > 300) {
+                        // Util.showMessage(DataViz.Language.sizeIsWrong,'WARNING');
+                        return;
+                    }
+                    callBack(canvas);
+                },
+                forceRedraw: function () {
+                    return false
+                }
+            });
+        } catch(e) {
+            return;
+        }
+    }
+
 }
 
 ol.supermap.StyleUtils = StyleUtils;

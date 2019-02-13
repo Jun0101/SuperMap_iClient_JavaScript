@@ -2,6 +2,7 @@ import {spatialAnalystService} from '../../../src/leaflet/services/SpatialAnalys
 import {DatasetSurfaceAnalystParameters} from '../../../src/common/iServer/DatasetSurfaceAnalystParameters';
 import {SurfaceAnalystParametersSetting} from '../../../src/common/iServer/SurfaceAnalystParametersSetting';
 import {SmoothMethod} from '../../../src/common/REST';
+import { FetchRequest } from '../../../src/common/util/FetchRequest';
 
 var spatialAnalystURL = GlobeParameter.spatialAnalystURL;
 var options = {
@@ -40,16 +41,23 @@ describe('leaflet_SpatialAnalystService_surfaceAnalysis', ()=> {
             zValueFieldName: "AVG_TMP"
         });
         var surfaceAnalystService = spatialAnalystService(spatialAnalystURL, options);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(spatialAnalystURL + "/datasets/SamplesP@Interpolation/isoline.json?returnContent=true");
+            // expect(params).toContain("extractParameter");
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj.extractParameter.interval).toBe(2);
+            expect(paramsObj.extractParameter.smoothMethod).toBe(SmoothMethod.BSPLINE);
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(surfaceAnalystEscapedJson));
+        });
         surfaceAnalystService.surfaceAnalysis(surfaceAnalystParameters, (result)=> {
             serviceResult = result;
-
-        });
-        setTimeout(()=> {
             try {
                 expect(surfaceAnalystService).not.toBeNull();
                 expect(serviceResult.type).toBe("processCompleted");
                 expect(serviceResult.result).not.toBeNull();
-                expect(serviceResult.result.succeed).toBe(true);
+                expect(serviceResult.result.succeed).toBeTruthy();
                 var recordset = serviceResult.result.recordset;
                 expect(recordset).not.toBeNull();
                 expect(recordset.features).not.toBeNull();
@@ -74,6 +82,6 @@ describe('leaflet_SpatialAnalystService_surfaceAnalysis', ()=> {
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 5000)
+        });
     });
 });

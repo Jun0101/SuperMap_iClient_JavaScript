@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import {AddressMatchService} from './AddressMatchService';
 import {AggQueryBuilderParameter} from "./AggQueryBuilderParameter";
 import {AggregationParameter} from "./AggregationParameter";
@@ -114,6 +117,7 @@ import {MeasureParameters} from './MeasureParameters';
 import {MeasureService} from './MeasureService';
 import {NetworkAnalystServiceBase} from './NetworkAnalystServiceBase';
 import {OutputSetting} from './OutputSetting';
+import {MappingParameters} from './MappingParameters';
 import {OverlapDisplayedOptions} from './OverlapDisplayedOptions';
 import {OverlayAnalystParameters} from './OverlayAnalystParameters';
 import {OverlayAnalystService} from './OverlayAnalystService';
@@ -337,6 +341,7 @@ export {MeasureService};
 export {NetworkAnalystServiceBase};
 export {OverlapDisplayedOptions};
 export {OutputSetting};
+export {MappingParameters};
 export {OverlayAnalystParameters};
 export {OverlayAnalystService};
 export {OverlayGeoJobParameter};

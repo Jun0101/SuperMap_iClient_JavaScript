@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import '../core/Base';
 import L from "leaflet";
 import Attributions from '../core/Attributions'
@@ -13,7 +16,7 @@ import Attributions from '../core/Attributions'
  * @param {L.LatLngBounds} [options.bounds=L.latLngBounds([-85.0511287798, -180],[85.0511287798, 180])] - 显示范围。
  * @param {L.Browser} [options.retina=L.Browser.retina] - 浏览器显示分辨率。
  * @param {string} [options.tileProxy] - 启用托管地址。
- * @param {string} [options.attribution='Map Data © 2017 Baidu - GS(2016)2089号 - Data © 长地万方'] - 版权信息。
+ * @param {string} [options.attribution='Map Data © 2018 Baidu - GS(2016)2089号 - Data © 长地万方'] - 版权信息。
  */
 export var BaiduTileLayer = L.TileLayer.extend({
 

@@ -1,13 +1,16 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import mapboxgl from 'mapbox-gl';
 import '../core/Base';
 import {
     CommonUtil,
-    Bounds,
-    LonLat,
     FeatureTheme
 } from "@supermap/iclient-common";
 
-import {Theme} from './theme/ThemeLayer';
+import {
+    Theme
+} from './theme/ThemeLayer';
 
 /**
  * @class mapboxgl.supermap.GraphThemeLayer
@@ -27,13 +30,14 @@ import {Theme} from './theme/ThemeLayer';
  * @param {Array.<number>} opt_options.chartsSetting.codomain - 图表允许展示的数据值域，长度为 2 的一维数组，第一个元素表示值域下限，第二个元素表示值域上限。
  * @param {number} [opt_options.chartsSetting.maxR] - 圆形的最大半径。
  * @param {number} [opt_options.chartsSetting.minR] - 圆形的最小半径。
- * @param {String} opt_options.chartsSetting.fillColor - 圆形的填充色，如：fillColor: "#FFB980"。
+ * @param {string} opt_options.chartsSetting.fillColor - 圆形的填充色，如：fillColor: "#FFB980"。
  * @param {Object} opt_options.chartsSetting.circleStyle - 圆形的基础 style，此参数控制圆形基础样式，优先级低于 circleStyleByFields 和 circleStyleByCodomain。
  * @param {number} opt_options.chartsSetting.decimalNumber - 数据值数组 dataValues 元素值小数位数，数据的小数位处理参数，取值范围：[0, 16]。如果不设置此参数，在取数据值时不对数据做小数位处理。
  * @param {Object} opt_options.chartsSetting.circleHoverStyle - 圆形 hover 状态时的样式，circleHoverAble 为 true 时有效。
  * @param {boolean} [opt_options.chartsSetting.circleHoverAble=true] - 是否允许圆形使用 hover 状态。同时设置 circleHoverAble 和 circleClickAble 为 false，可以直接屏蔽图形对专题图层事件的响应。
  * @param {boolean} [opt_options.chartsSetting.circleClickAble=true] - 是否允许圆形被点击。同时设置 circleHoverAble 和 circleClickAble 为 false，可以直接屏蔽图形对专题图层事件的响应。
  * @extends {mapboxgl.supermap.ThemeLayer}
+ * @fires mapboxgl.supermap.GraphThemeLayer#beforefeaturesadded
  */
 export class Graph extends Theme {
 
@@ -60,11 +64,18 @@ export class Graph extends Theme {
 
     /**
      * @function mapboxgl.supermap.GraphThemeLayer.prototype.addFeatures
-     * @description 向专题图图层中添加数据, 支持的feature类型为:iServer返回的feature json对象。
-     * @param {Array.<mapboxgl.supermap.ThemeFeature>} features - 待添加的要素。
+     * @description 向专题图图层中添加数据，支持的 feature 类型为：iServer 返回的 feature JSON 对象。
+     * @param {SuperMap.ServerFeature} features - 待添加的要素。
      */
     addFeatures(features) {
-        var ret = mapboxgl.Evented.prototype.fire('beforefeaturesadded', {features: features});
+        /**
+         * @event mapboxgl.supermap.GraphThemeLayer#beforefeaturesadded
+         * @description 要素添加之前触发。
+         * @property {SuperMap.ServerFeature} features - 要被添加的要素。
+         */
+        var ret = mapboxgl.Evented.prototype.fire('beforefeaturesadded', {
+            features: features
+        });
         if (ret === false) {
             return;
         }
@@ -154,13 +165,13 @@ export class Graph extends Theme {
         // 图表权重值处理des
         if (this.overlayWeightField) {
             charts.sort(function (cs, ce) {
-                if (typeof(cs["__overlayWeight"]) == "undefined" && typeof(ce["__overlayWeight"]) == "undefined") {
+                if (typeof (cs["__overlayWeight"]) == "undefined" && typeof (ce["__overlayWeight"]) == "undefined") {
                     return 0;
-                } else if (typeof(cs["__overlayWeight"]) != "undefined" && typeof(ce["__overlayWeight"]) == "undefined") {
+                } else if (typeof (cs["__overlayWeight"]) != "undefined" && typeof (ce["__overlayWeight"]) == "undefined") {
                     return -1;
-                } else if (typeof(cs["__overlayWeight"]) == "undefined" && typeof(ce["__overlayWeight"]) != "undefined") {
+                } else if (typeof (cs["__overlayWeight"]) == "undefined" && typeof (ce["__overlayWeight"]) != "undefined") {
                     return 1;
-                } else if (typeof(cs["__overlayWeight"]) != "undefined" && typeof(ce["__overlayWeight"]) != "undefined") {
+                } else if (typeof (cs["__overlayWeight"]) != "undefined" && typeof (ce["__overlayWeight"]) != "undefined") {
                     if (parseFloat(cs["__overlayWeight"]) < parseFloat(ce["__overlayWeight"])) {
                         return 1;
                     } else {
@@ -186,50 +197,60 @@ export class Graph extends Theme {
         } else {
             // 压盖判断所需 chartsBounds 集合
             var chartsBounds = [];
-            var extent = this.map.getBounds();
-            var mapBounds = new Bounds(extent.getWest(), extent.getSouth(), extent.getEast(), extent.getNorth());
-            if (mapBounds) {
-                // 获取地图像素 bounds
-                var mapPxLT = this.getLocalXY(new LonLat(mapBounds.left, mapBounds.top));
-                var mapPxRB = this.getLocalXY(new LonLat(mapBounds.right, mapBounds.bottom));
-                var mBounds = new Bounds(mapPxLT[0], mapPxRB[1], mapPxRB[0], mapPxLT[1]);
-                // 压盖处理 & 添加图形
-                for (let i = 0, len = charts.length; i < len; i++) {
-                    var chart = charts[i];
-                    // 图形参考位置  (reSetLocation 会更新 chartBounds)
-                    var shapeROP = chart.resetLocation();
-                    // 图表框
-                    var cbs = chart.chartBounds;
-                    var cBounds = [{"x": cbs.left, "y": cbs.top}, {"x": cbs.left, "y": cbs.bottom}, {
-                        "x": cbs.right,
-                        "y": cbs.bottom
-                    }, {"x": cbs.right, "y": cbs.top}, {"x": cbs.left, "y": cbs.top}];
-                    // 地图范围外不绘制
-                    if (mBounds) {
-                        // if (!this.isChartInMap(mBounds, cBounds)) continue;
-                    }
-                    // 是否压盖
-                    var isOL = false;
-                    if (i !== 0) {
-                        for (let j = 0; j < chartsBounds.length; j++) {
-                            //压盖判断
-                            if (this.isQuadrilateralOverLap(cBounds, chartsBounds[j])) {
-                                isOL = true;
-                                break;
-                            }
+            //var extent = this.map.getBounds();
+            //var mapBounds = new Bounds(extent.getWest(), extent.getSouth(), extent.getEast(), extent.getNorth());
+            // 获取地图像素 bounds
+            //var mapPxLT = this.getLocalXY(new LonLat(mapBounds.left, mapBounds.top));
+            //var mapPxRB = this.getLocalXY(new LonLat(mapBounds.right, mapBounds.bottom));
+            //var mBounds = new Bounds(mapPxLT[0], mapPxRB[1], mapPxRB[0], mapPxLT[1]);
+            // 压盖处理 & 添加图形
+            for (let i = 0, len = charts.length; i < len; i++) {
+                var chart = charts[i];
+                // 图形参考位置  (reSetLocation 会更新 chartBounds)
+                var shapeROP = chart.resetLocation();
+                // 图表框
+                var cbs = chart.chartBounds;
+                var cBounds = [{
+                    "x": cbs.left,
+                    "y": cbs.top
+                }, {
+                    "x": cbs.left,
+                    "y": cbs.bottom
+                }, {
+                    "x": cbs.right,
+                    "y": cbs.bottom
+                }, {
+                    "x": cbs.right,
+                    "y": cbs.top
+                }, {
+                    "x": cbs.left,
+                    "y": cbs.top
+                }];
+                // // 地图范围外不绘制
+                // if (mBounds) {
+                //     // if (!this.isChartInMap(mBounds, cBounds)) continue;
+                // }
+                // 是否压盖
+                var isOL = false;
+                if (i !== 0) {
+                    for (let j = 0; j < chartsBounds.length; j++) {
+                        //压盖判断
+                        if (this.isQuadrilateralOverLap(cBounds, chartsBounds[j])) {
+                            isOL = true;
+                            break;
                         }
                     }
-                    if (isOL) {
-                        continue;
-                    } else {
-                        chartsBounds.push(cBounds);
-                    }
-                    // 添加图形
-                    var shapes = chart.shapes;
-                    for (let j = 0, slen = shapes.length; j < slen; j++) {
-                        shapes[j].refOriginalPosition = shapeROP;
-                        this.renderer.addShape(shapes[j]);
-                    }
+                }
+                if (isOL) {
+                    continue;
+                } else {
+                    chartsBounds.push(cBounds);
+                }
+                // 添加图形
+                var shapes = chart.shapes;
+                for (let j = 0, slen = shapes.length; j < slen; j++) {
+                    shapes[j].refOriginalPosition = shapeROP;
+                    this.renderer.addShape(shapes[j]);
                 }
             }
         }
@@ -268,7 +289,7 @@ export class Graph extends Theme {
             quad2Len = quadrilateral2.length;
         if (quadLen !== 5 || quad2Len !== 5) {
             return null;
-        }//不是四边形
+        } //不是四边形
 
         var OverLap = false;
         //如果两四边形互不包含对方的节点，则两个四边形不相交
@@ -308,9 +329,9 @@ export class Graph extends Theme {
      */
     isPointInPoly(pt, poly) {
         for (var isIn = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i) {
-            ((poly[i].y <= pt.y && pt.y < poly[j].y) || (poly[j].y <= pt.y && pt.y < poly[i].y))
-            && (pt.x < (poly[j].x - poly[i].x) * (pt.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x)
-            && (isIn = !isIn);
+            ((poly[i].y <= pt.y && pt.y < poly[j].y) || (poly[j].y <= pt.y && pt.y < poly[i].y)) &&
+            (pt.x < (poly[j].x - poly[i].x) * (pt.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x) &&
+            (isIn = !isIn);
         }
         return isIn;
     }
@@ -347,7 +368,7 @@ export class Graph extends Theme {
     /**
      * @function mapboxgl.supermap.GraphThemeLayer.prototype.removeFeatures
      * @description  从专题图中删除 feature。这个函数删除所有传递进来的矢量要素。参数中的 features 数组中的每一项，必须是已经添加到当前图层中的 feature。
-     * @param {Object} features - 要删除的要素。
+     * @param {SuperMap.Feature.Vector} features - 要删除的要素。
      */
     removeFeatures(features) {
         this.clearCache();

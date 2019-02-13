@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import L from "leaflet";
 import '../core/Base';
 import {
@@ -28,7 +31,9 @@ import Attributions from '../core/Attributions'
  * @param {string} options.layerNames - 指定图层的名称列表，支持的类型为矢量图层。
  * @param {string} options.layersID - 获取进行切片的地图图层 ID。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型。
+ * @param {string}  [options.cartoCSS] - 客户端 CartoCSS 样式字符串。
  * @param {boolean} [options.serverCartoCSSStyle=true] - 是否使用服务端 CartoCSS 样式。
+ * @param {boolean} [options.processCharacters=false] - 设置客户端 CartoCSS 样式时是否进行特定字符转换。
  * @param {L.Proj.CRS} [options.crs] - 坐标系统类。
  * @param {boolean} [options.returnAttributes=false] - 是否返回 attributes。
  * @param {string} [options.expands] - expands。
@@ -44,6 +49,7 @@ export var TileVectorLayer = VectorGrid.extend({
         //服务器类型<SuperMap.ServerType>iServer|iPortal|Online
         serverType: null,
         crs: null,
+        //客户端cartocss样式
         cartoCSS: null,
         // 指定图层的名称列表。支持的类型为矢量图层
         layerNames: null,
@@ -51,6 +57,8 @@ export var TileVectorLayer = VectorGrid.extend({
         layersID: null,
         //是否服务端CartoCSS样式，默认使用
         serverCartoCSSStyle: true,
+        //设置客户端CartoCSS样式时是否进行特定字符转换
+        processCharacters: false,
 
         returnAttributes: false,
 
@@ -77,19 +85,19 @@ export var TileVectorLayer = VectorGrid.extend({
         L.stamp(this);
         var me = this;
 
-        if (!url || url === "" || url.indexOf("http") < 0) {
+        if (!url || url.indexOf("http") < 0) {
             url = "";
             return this;
         }
 
         me.url = url;
-        if (url && url.indexOf("/") === (url.length - 1)) {
+        if (url.indexOf("/") === (url.length - 1)) {
             url = url.substr(0, url.length - 1);
             me.url = url;
         }
         this.cartoCSSToLeaflet = new CartoCSSToLeaflet(me.url);
         me.initLayersInfo();
-        if (!me.options.serverCartoCSSStyle && me.options) {
+        if (!me.options.serverCartoCSSStyle && me.options.cartoCSS) {
             me.setClientCartoCSS(me.options.cartoCSS);
         }
     },
@@ -98,7 +106,7 @@ export var TileVectorLayer = VectorGrid.extend({
      * @private
      * @function L.supermap.tiledVectorLayer.prototype.onAdd
      * @description 添加地图。
-     * @param {L.map} map - 待添加的地图。
+     * @param {L.Map} map - 待添加的地图。
      */
     onAdd: function (map) {
         this._crs = this.options.crs || map.options.crs;
@@ -136,6 +144,7 @@ export var TileVectorLayer = VectorGrid.extend({
                 }
             }
             me.layersInfo = layersInfo;
+            me.cartoCSSToLeaflet.layersInfo = layersInfo;
             if (me.options.serverCartoCSSStyle) {
                 me.getVectorStylesFromServer();
             }
@@ -234,7 +243,11 @@ export var TileVectorLayer = VectorGrid.extend({
      * @description 客户端设置 cartoCSS 样式。
      */
     setClientCartoCSS: function (cartoCSSStr) {
-        this.cartoCSSToLeaflet.pretreatedCartoCSS(cartoCSSStr, false);
+        let processCharacters = false;
+        if (this.options.processCharacters) {
+            processCharacters = this.options.processCharacters;
+        }
+        this.cartoCSSToLeaflet.pretreatedCartoCSS(cartoCSSStr, processCharacters);
     },
 
     /**
@@ -242,7 +255,7 @@ export var TileVectorLayer = VectorGrid.extend({
      * @function L.supermap.tiledVectorLayer.prototype.getVectorTileLayerStyle
      * @description 获取图层风格信息，当 CartoCSS 中包含有对该图层的渲染信息时，优先获取，否则获取 layers 资源下 layerSytle 的渲染信息。
      * @param {Object} coords - 图层坐标参数对象。
-     * @param {L.feature} feature - 要获取的要素。
+     * @param {Object} feature - 要获取的要素。
      */
     getVectorTileLayerStyle: function (coords, feature) {
         if (!feature) {
@@ -253,7 +266,7 @@ export var TileVectorLayer = VectorGrid.extend({
             layerStyleInfo = me.getLayerStyleInfo(layerName);
 
         //处理标签图层
-        if (layerStyleInfo.textField) {
+        if (layerStyleInfo && layerStyleInfo.textField) {
             var textField = layerStyleInfo.textField;
             if (textField && textField.indexOf('.')) {
                 var arr = textField.split('.');
@@ -272,17 +285,15 @@ export var TileVectorLayer = VectorGrid.extend({
 
         // SuperMap.CartoCSSToLeaflet内部做了客户端配置的cartoCSS和服务端cartoCSS的拼接处理
         // 客户端配置的cartoCSS会覆盖相应图层的服务端cartoCSS
-        if (!style) {
-            var scale = this.getScaleFromCoords(coords);
-            var shaders = this.cartoCSSToLeaflet.pickShader(layerName) || [];
-            style = [];
-            for (var itemKey in shaders) {
-                var shader = shaders[itemKey];
-                for (var j = 0; j < shader.length; j++) {
-                    var serverStyle = this.cartoCSSToLeaflet.getValidStyleFromCarto(coords.z, scale, shader[j], feature);
-                    if (serverStyle) {
-                        style.push(serverStyle);
-                    }
+        var scale = this.getScaleFromCoords(coords);
+        var shaders = this.cartoCSSToLeaflet.pickShader(layerName) || [];
+        style = [];
+        for (var itemKey in shaders) {
+            var shader = shaders[itemKey];
+            for (var j = 0; j < shader.length; j++) {
+                var serverStyle = this.cartoCSSToLeaflet.getValidStyleFromCarto(coords.z, scale, shader[j], feature);
+                if (serverStyle) {
+                    style.push(serverStyle);
                 }
             }
         }
@@ -290,7 +301,7 @@ export var TileVectorLayer = VectorGrid.extend({
         feature = this._mergeFeatureTextField(feature, style);
 
         //次优先级是layers资源的默认的样式，最低优先级是CartoDefaultStyle的样式
-        if (feature.type === "TEXT" || (!style || style.length < 1)) {
+        if (feature.type === "TEXT" ||  style.length === 0) {
             style = this.cartoCSSToLeaflet.getValidStyleFromLayerInfo(feature, layerStyleInfo);
             if (feature.type === "TEXT") {
                 style.textName = "[" + feature.properties.textField + "]";

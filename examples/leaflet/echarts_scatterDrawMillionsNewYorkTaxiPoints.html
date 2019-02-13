@@ -1,7 +1,10 @@
+<!--********************************************************************
+* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+*********************************************************************-->
 <html>
 <head>
     <meta charset='utf-8'/>
-    <title>1.4 millions New York Taxi Points</title>
+    <title data-i18n="resources.title_echartsLinesMillions_nyTaxi"></title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no'/>
     <script type="text/javascript" include="jquery" src="../js/include-web.js"></script>
     <script type="text/javascript" include="echarts" src="../../dist/leaflet/include-leaflet.js"></script>
@@ -71,8 +74,7 @@
         if (idx >= CHUNK_COUNT) {
             return;
         }
-        var dataURL = `http://iclient.supermap.io/web/data/bigdata_nytaxi/data_${idx}.bin`;
-//        var dataURL = `../mapboxgl/resultData_NY/bigData_${idx}.bin`;
+        var dataURL = "http://iclient.supermap.io/web/data/bigdata_nytaxi/data_" + idx + ".bin";
         var xhr = new XMLHttpRequest();
         xhr.open('GET', dataURL, true);
         xhr.responseType = 'arraybuffer';

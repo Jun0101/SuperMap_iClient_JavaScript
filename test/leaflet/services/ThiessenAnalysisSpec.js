@@ -1,5 +1,6 @@
 import {spatialAnalystService} from '../../../src/leaflet/services/SpatialAnalystService';
 import {DatasetThiessenAnalystParameters} from '../../../src/common/iServer/DatasetThiessenAnalystParameters';
+import { FetchRequest } from '../../../src/common/util/FetchRequest';
 
 var spatialAnalystURL = GlobeParameter.spatialAnalystURL_Changchun;
 var options = {
@@ -16,23 +17,29 @@ describe('leaflet_SpatialAnalystService_thiessenAnalysis', () => {
     afterEach(() => {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
     });
-
     it('thiessenAnalysis', (done) => {
         var dsThiessenAnalystParameters = new DatasetThiessenAnalystParameters({
             dataset: "Factory@Changchun"
         });
         var thiessenAnalystService = spatialAnalystService(spatialAnalystURL, options);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(spatialAnalystURL + "/datasets/Factory@Changchun/thiessenpolygon.json?returnContent=true");
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj.dataset).toBe("Factory@Changchun");
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(JSON.stringify(thiessenAnalysisDatasetsEscapedJson)));
+        });
         thiessenAnalystService.thiessenAnalysis(dsThiessenAnalystParameters, (result) => {
             serviceResult = result;
-        });
-        setTimeout(() => {
+       
             try {
                 expect(thiessenAnalystService).not.toBeNull();
                 expect(thiessenAnalystService.options.serverType).toBe('iServer');
                 expect(serviceResult).not.toBeNull();
                 expect(serviceResult.type).toEqual("processCompleted");
                 expect(serviceResult.result).not.toBeNull();
-                expect(serviceResult.result.succeed).toBe(true);
+                expect(serviceResult.result.succeed).toBeTruthy();
                 var regions = serviceResult.result.regions;
                 expect(regions).not.toBeNull();
                 expect(regions.features).not.toBeNull();
@@ -56,6 +63,6 @@ describe('leaflet_SpatialAnalystService_thiessenAnalysis', () => {
                 expect(false).toBeTruthy();
                 done();
             }
-        }, 5000);
+        });
     });
 });

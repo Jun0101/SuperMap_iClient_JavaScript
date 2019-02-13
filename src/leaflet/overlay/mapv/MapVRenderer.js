@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import L from 'leaflet';
 import {
     baiduMapLayer
@@ -11,7 +14,7 @@ var BaseLayer = baiduMapLayer ? baiduMapLayer.__proto__ : Function;
  * @category Visualization MapV
  * @private
  * @extends mapv.BaseLayer
- * @param {L.map} map - 待渲染的地图。
+ * @param {L.Map} map - 待渲染的地图。
  * @param {L.Layer} layer - 待渲染的图层。
  * @param {DataSet} dataSet - 待渲染的数据集。
  * @param {Object} options - 渲染的参数。
@@ -35,7 +38,7 @@ export class MapVRenderer extends BaseLayer {
         this.mousemoveEvent = this.mousemoveEvent.bind(this);
         this._moveStartEvent = this.moveStartEvent.bind(this);
         this._moveEndEvent = this.moveEndEvent.bind(this);
-        this._zoomstart = this.zoomStartEvent.bind(this);
+        this._zoomStartEvent = this.zoomStartEvent.bind(this);
         this.bindEvent();
     }
 
@@ -79,9 +82,19 @@ export class MapVRenderer extends BaseLayer {
         }
         this.map.on('movestart', this._moveStartEvent);
         this.map.on('moveend', this._moveEndEvent);
-        this.map.on('zoomstart', this._zoomstart);
+        this.map.on('zoomstart', this._zoomStartEvent);
     }
-
+    /**
+     * @function L.supermap.MapVRenderer.prototype.destroy
+     * @description 释放资源。
+     */
+    destroy() {
+        this.unbindEvent();
+        this.clearData();
+        this.animator && this.animator.stop();
+        this.animator = null;
+        this.canvasLayer = null;
+    }
     /**
      * @function L.supermap.MapVRenderer.prototype.unbindEvent
      * @description 解绑鼠标移动和鼠标滑动触发的事件。

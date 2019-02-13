@@ -1,3 +1,4 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.*/
 /**
  * OpenLayers 示例配置文件：包括示例的分类、名称、缩略图、文件路径
  */
@@ -12,7 +13,7 @@ var exampleConfig = {
         content: {
             "map": {
                 name: "地图",
-                name_en: "map service",
+                name_en: "Map service",
                 content: [{
                     name: "4326底图",
                     name_en: "4326 coordinate system",
@@ -79,7 +80,7 @@ var exampleConfig = {
             },
             "data": {
                 name: "数据",
-                name_en: "data service",
+                name_en: "Data service",
                 content: [{
                     name: "ID查询",
                     name_en: "ID query",
@@ -129,7 +130,7 @@ var exampleConfig = {
             },
             "theme": {
                 name: "专题图",
-                name_en: "server thematic service",
+                name_en: "Server thematic service",
                 content: [{
                     name: "点密度专题图",
                     name_en: "dot density",
@@ -146,7 +147,7 @@ var exampleConfig = {
                     thumbnail: "ol_themeGraph.png",
                     fileName: "03_themeGraph"
                 }, {
-                    name: "矩阵标签专题图",
+                    name: "标签专题图",
                     name_en: "label",
                     thumbnail: "ol_themeLabel.png",
                     fileName: "03_themeLabel"
@@ -174,7 +175,7 @@ var exampleConfig = {
             },
             "spatialAnalyst": {
                 name: "空间分析",
-                name_en: "spatial analysis service",
+                name_en: "Spatial analysis service",
                 content: [{
                     name: "数据集缓冲区分析",
                     name_en: "buffer",
@@ -201,8 +202,8 @@ var exampleConfig = {
                     thumbnail: "ol_overlayAnalystService.png",
                     fileName: "04_overlayAnalystService"
                 }, {
-                    name: "表面分析",
-                    name_en: "surface",
+                    name: "表面分析(提取等值线)",
+                    name_en: "surface(Getting Contour Line)",
                     thumbnail: "ol_surfaceAnalystService.png",
                     fileName: "04_surfaceAnalystService"
                 }, {
@@ -284,7 +285,7 @@ var exampleConfig = {
             },
             "networkAnalyst": {
                 name: "网络分析",
-                name_en: "network analysis service",
+                name_en: "Network analysis service",
                 content: [{
                     name: "服务区分析",
                     name_en: "service area",
@@ -319,7 +320,7 @@ var exampleConfig = {
             },
             "trafficTransferAnalyst": {
                 name: "交通换乘",
-                name_en: "traffic transfer analysis",
+                name_en: "Traffic transfer analysis",
                 content: [{
                     name: "交通换乘",
                     name_en: "traffic transfer",
@@ -329,7 +330,7 @@ var exampleConfig = {
             },
             "processingService": {
                 name: "分布式分析",
-                name_en: "distributed analysis services",
+                name_en: "Distributed analysis services",
                 content: [{
                     name: "密度分析",
                     name_en: "density",
@@ -379,7 +380,7 @@ var exampleConfig = {
             },
             "addressMatch": {
                 name: "地址匹配",
-                name_en: "address matching service",
+                name_en: "Address matching service",
                 content: [{
                     name: "地址匹配",
                     name_en: "address match",
@@ -389,7 +390,7 @@ var exampleConfig = {
             },
             "dataFlow": {
                 name: "数据流",
-                name_en: "data flow service",
+                name_en: "Data flow service",
                 content: [{
                     name: "数据流",
                     name_en: "data flow",
@@ -399,7 +400,7 @@ var exampleConfig = {
             },
             "security": {
                 name: "安全",
-                name_en: "security",
+                name_en: "Security",
                 content: [{
                     name: "安全认证",
                     name_en: "security certification",
@@ -415,7 +416,7 @@ var exampleConfig = {
         content: {
             "ip_map": {
                 name: "地图",
-                name_en: "web map",
+                name_en: "Web map",
                 content: [{
                     name: "举办过奥运会的城市",
                     name_en: "city hosted the Olympic Games",
@@ -425,7 +426,7 @@ var exampleConfig = {
             },
             "ip_security": {
                 name: "安全",
-                name_en: "security",
+                name_en: "Security",
                 content: [{
                     name: "安全认证",
                     name_en: "security certification",
@@ -435,7 +436,7 @@ var exampleConfig = {
             },
             "ip_querymaps": {
                 name: "地图列表",
-                name_en: "web map list",
+                name_en: "Web map list",
                 content: [{
                     name: "地图列表",
                     name_en: "web map list",
@@ -452,7 +453,7 @@ var exampleConfig = {
         content: {
             "ol_map": {
                 name: "地图",
-                name_en: "web map",
+                name_en: "Web map",
                 content: [{
                     name: "2014当了一回背包客",
                     name_en: "2014 backpack travel",
@@ -462,7 +463,7 @@ var exampleConfig = {
             },
             "ol_security": {
                 name: "安全",
-                name_en: "security",
+                name_en: "Security",
                 content: [{
                     name: "安全认证",
                     name_en: "security certification",
@@ -480,12 +481,11 @@ var exampleConfig = {
     },
     "viz": {
         name: "可视化",
-        name_en: "visualization",
+        name_en: "Visualization",
         content: {
             "heat": {
                 name: "热力图",
-                name_en: "heat map",
-                version: "9.1.0",
+                name_en: "Heat map",
                 content: [{
                     name: "随机点",
                     name_en: "random points",
@@ -494,18 +494,20 @@ var exampleConfig = {
                 }, {
                     name: "随机点(Classic)",
                     name_en: "random points (Classic)",
+                    version: "9.1.0",
                     thumbnail: "ol_heatMapLayer.png",
                     fileName: "heatMapLayer"
                 }, {
                     name: "2005-2016地震次数(Classic)",
                     name_en: "earthquake occurrences(2005-2016)(classic)",
+                    version: "9.1.0",
                     thumbnail: "ol_earthquakeHeatMapLayer.png",
                     fileName: 'earthquakeHeatMapLayer'
                 }]
             },
             "cluster": {
                 name: "聚点图",
-                name_en: "cluster",
+                name_en: "Cluster",
                 content: [{
                     name: "点聚合",
                     name_en: "point cluster",
@@ -515,7 +517,7 @@ var exampleConfig = {
             },
             "animationFeature": {
                 name: "动画要素图",
-                name_en: "animation",
+                name_en: "Animation",
                 content: [{
                     name: "动画点",
                     name_en: "flashing points",
@@ -525,8 +527,7 @@ var exampleConfig = {
             },
             "graphiclayer": {
                 name: "高效率点图层",
-                name_en: "high efficiency point layer",
-                version: "9.1.0",
+                name_en: "High efficiency point layer",
                 content: [{
                     name: "纽约出租车18万点-canvas渲染",
                     name_en: "canvas rendering",
@@ -540,6 +541,7 @@ var exampleConfig = {
                 }, {
                     name: "纽约145万出租车-webgl",
                     name_en: "picture drawing of 1.45 million NY taxis",
+                    version: "9.1.0",
                     thumbnail: "graphiclayer_webgl2.png",
                     fileName: "07_graphiclayer_webgl2"
                 }, {
@@ -550,6 +552,7 @@ var exampleConfig = {
                 }, {
                     name: "随机点-三叶草",
                     name_en: "random points(clover)",
+                    version: "9.1.0",
                     thumbnail: "graphiclayer_clover.png",
                     fileName: "07_graphiclayer_clover"
                 }]
@@ -585,42 +588,49 @@ var exampleConfig = {
                     {
                         name: "全国空气质量图",
                         name_en: "ECharts",
+                        version: "9.1.0",
                         thumbnail: "ol_echartsEffectScatter.png",
                         fileName: "echartsEffectScatter"
                     },
                     {
                         name: "迁徙图",
                         name_en: "Mock migration",
+                        version: "9.1.0",
                         thumbnail: "ol_echartsGeoLines.gif",
                         fileName: "echartsGeoLines"
                     },
                     {
                         name: "热力图",
                         name_en: "heat map",
+                        version: "9.1.0",
                         thumbnail: "ol_echartsHeatmap.png",
                         fileName: "echartsHeatmap"
                     },
                     {
                         name: "线路图",
                         name_en: "line",
+                        version: "9.1.0",
                         thumbnail: "ol_echartsLinesBus.png",
                         fileName: "echartsLinesBus"
                     },
                     {
                         name: "线特效",
                         name_en: "line effect",
+                        version: "9.1.0",
                         thumbnail: "ol_echartsLinesEffect.gif",
                         fileName: "echartsLinesEffect"
                     },
                     {
                         name: "世界飞机航线图",
                         name_en: "Airplane route map",
+                        version: "9.1.0",
                         thumbnail: "ol_echartsLinesAirline.png",
                         fileName: "echartsLinesAirline"
                     },
                     {
                         name: "微博签到图",
                         name_en: "scatter of Weibo user",
+                        version: "9.1.0",
                         thumbnail: "ol_echartsScatterWeibo.png",
                         fileName: "echartsScatterWeibo"
                     },
@@ -628,48 +638,56 @@ var exampleConfig = {
                     {
                         name: "格网图",
                         name_en: "cell map",
+                        version: "9.1.0",
                         thumbnail: "ol_echartsCellMap.png",
                         fileName: "echartsCellMap"
                     },
                     {
                         name: "2005到2016年地震概况统计",
                         name_en: "Earthquake occurrences(2005-2016)",
+                        version: "9.1.0",
                         thumbnail: "ol_echartsEarthquake.png",
                         fileName: "echartsEarthquake"
 
                     }, {
                         name: "北京房价信息",
                         name_en: "Beijing house prices(2018.2)",
+                        version: "9.1.0",
                         localIgnore: true,
                         thumbnail: "ol_echartsLianjia.png",
                         fileName: "echartsLianjia"
                     }, {
                         name: "北京道路网络图（130万点数据绘制）",
                         name_en: "Use lines to draw 1.3 millions Beijing streets",
+                        version: "9.1.0",
                         localIgnore: true,
                         thumbnail: "ol_echartsLinesMillionsBeijingRoads.png",
                         fileName: "echarts_linesDrawMillionsBeijingRoadsNetwork"
                     }, {
                         name: "全国铁路网络图（400万点数据绘制）",
                         name_en: "Use lines to draw 4 millions Chinese railways",
+                        version: "9.1.0",
                         localIgnore: true,
                         thumbnail: "ol_echartsLinesMillionsRailway.png",
                         fileName: "echarts_linesDrawMillionsRailwaysNetwork"
                     }, {
                         name: "全国水系图（1400万点数据绘制）",
                         name_en: "Use lines to draw 14 millions Chinese water system",
+                        version: "9.1.0",
                         localIgnore: true,
                         thumbnail: "ol_echartsLinesMillionsWaterSystem.png",
                         fileName: "echarts_linesDrawMillionsWaterSystem"
                     }, {
                         name: "全国道路网络图（2500万点数据绘制）",
                         name_en: "Use lines to draw 25 millions Chinese roads",
+                        version: "9.1.0",
                         localIgnore: true,
                         thumbnail: "ol_echartsLinesMillionsRoads.png",
                         fileName: "echarts_linesDrawMillionsRoadsNetwork_50WFeatures"
                     }, {
                         name: "车辆监控模拟",
                         name_en: "Car Animation",
+                        version: "9.1.0",
                         thumbnail: "ol_echartsAnimatorCar.png",
                         fileName: "echartsAnimatorCar"
                     }
@@ -736,6 +754,7 @@ var exampleConfig = {
                 }, {
                     name: "2018年2月北京房价信息",
                     name_en: "Beijing house prices(2018.2)",
+                    version: "9.1.0",
                     localIgnore: true,
                     thumbnail: "mapvLianjia.png",
                     fileName: "mapvLianjia"
@@ -754,8 +773,7 @@ var exampleConfig = {
             },
             "vectorTileLayer": {
                 name: "矢量瓦片",
-                name_en: "vector tile layer",
-                version: "9.1.0",
+                name_en: "Vector tile layer",
                 content: [
                     {
                         name: "默认风格",
@@ -808,6 +826,7 @@ var exampleConfig = {
                     {
                         name: "OSM风格(MVT WGS84)",
                         name_en: "OSM Style(MVT WGS84)",
+                        version: "9.1.0",
                         localIgnore: true,
                         thumbnail: "mvtvectorlayer_mbstyle_4326.png",
                         fileName: "mvtvectorlayer_mbstyle_4326"
@@ -815,6 +834,7 @@ var exampleConfig = {
                     {
                         name: "风格动态切换",
                         name_en: "Style Switch",
+                        version: "9.1.0",
                         localIgnore: true,
                         thumbnail: "mvtvectorlayer_mbstyle_beijing.png",
                         fileName: "mvtvectorlayer_mbstyle_beijing"
@@ -822,6 +842,7 @@ var exampleConfig = {
                     {
                         name: "线样式编辑",
                         name_en: "Line Style Edit",
+                        version: "9.1.0",
                         localIgnore: true,
                         thumbnail: "mvtvectorlayer_mbstyle_linestyle.png",
                         fileName: "mvtvectorlayer_mbstyle_linestyle"
@@ -829,9 +850,17 @@ var exampleConfig = {
                     {
                         name: "土地利用",
                         name_en: "Land Use",
+                        version: "9.1.0",
                         localIgnore: true,
                         thumbnail: "mvtvectorlayer_mbstyle_landuse.png",
                         fileName: "mvtvectorlayer_mbstyle_landuse"
+                    },
+                    {
+                        name: "iServer 矢量瓦片服务",
+                        name_en: "iServer REST Vectortile",
+                        version: "9.1.1",
+                        thumbnail: "mvtvectorlayer_vectortilerest.png",
+                        fileName: "mvtvectorlayer_vectortilerest"
                     }
 
 
@@ -839,7 +868,7 @@ var exampleConfig = {
             },
             "themeLayer": {
                 name: "客户端专题图",
-                name_en: "client thematic layer",
+                name_en: "Client thematic layer",
                 content: [{
                     name: "单值专题图",
                     name_en: "unique",
@@ -871,34 +900,34 @@ var exampleConfig = {
     },
     "plot": {
         name: "标绘",
-        name_en: "plot",
+        name_en: "Plot",
         content: {
             "draw": {
                 name: "点线面绘制",
-                name_en: "draw",
+                name_en: "Draw",
                 content: [{
-                    name: "绘制",
-                    name_en: "draw",
+                    name: "图形绘制",
+                    name_en: "Features Drawing",
                     thumbnail: "drawFeatures.png",
                     fileName: "drawFeatures"
                 }, {
-                    name: "手写",
-                    name_en: "freehand draw",
+                    name: "手写图形绘制",
+                    name_en: "Handwritten Graphic Drawing",
                     thumbnail: "freehandDrawFeatures.png",
                     fileName: "freehandDrawFeatures"
                 }, {
-                    name: "捕捉",
-                    name_en: "snap draw",
+                    name: "捕捉图形绘制",
+                    name_en: "Snap Features Drawing",
                     thumbnail: "snapDrawFeatures.png",
                     fileName: "snapDrawFeatures"
                 }, {
-                    name: "修改",
-                    name_en: "modify",
+                    name: "修改图形",
+                    name_en: "Modify Features",
                     thumbnail: "modifyFeatures.png",
                     fileName: "modifyFeatures"
                 }, {
-                    name: "拖拽",
-                    name_en: "drag",
+                    name: "拖拽图形",
+                    name_en: "Features Dragging",
                     thumbnail: "dragFeatures.png",
                     fileName: "dragFeatures"
                 }]
@@ -907,7 +936,7 @@ var exampleConfig = {
     },
     "clientSpatialAnalyst": {
         name: "客户端分析",
-        name_en: "client spatial analysis",
+        name_en: "Client spatial analysis",
         content: {
             "Turf": {
                 name: "Turf",
@@ -938,11 +967,11 @@ var exampleConfig = {
     },
     "control": {
         name: "控件",
-        name_en: "control",
+        name_en: "Control",
         content: {
             "changeTileVersion": {
                 name: "缓存切换",
-                name_en: "tile version switch",
+                name_en: "Tile version switch",
                 content: [{
                     name: "多版本缓存切换控件",
                     name_en: "tile version switch control",
@@ -952,7 +981,7 @@ var exampleConfig = {
             },
             "openlayersOfficialControl": {
                 name: "基础控件",
-                name_en: "base control",
+                name_en: "Base control",
                 content: [{
                     name: "缩放控件",
                     name_en: "zoom control",
@@ -1015,12 +1044,12 @@ var exampleConfig = {
     },
     "mapping": {
         name: "互联网地图",
-        name_en: "Internet map",
+        name_en: "Third party map",
         localIgnore: true,
         content: {
             "Baidu": {
                 name: "百度地图",
-                name_en: "baidu map",
+                name_en: "Baidu map",
                 content: [{
                     name: "百度地图",
                     name_en: "baidu layer",
@@ -1030,7 +1059,7 @@ var exampleConfig = {
             },
             "Tianditu": {
                 name: "天地图",
-                name_en: "tianditu",
+                name_en: "Tianditu",
                 content: [{
                     name: "天地图-经纬度",
                     name_en: "tianditu-ll",

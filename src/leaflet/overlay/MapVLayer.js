@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import L from "leaflet";
 import '../core/Base';
 import {MapVRenderer} from "./mapv/MapVRenderer";
@@ -12,7 +15,8 @@ import Attributions from '../core/Attributions'
  * @param {Object} mapVOptions - MapV 图层参数。
  * @param {Object} options - 参数。
  * @param {string} [options.attributionPrefix] - 版权信息前缀。
- * @param {string} [options.attribution='© 2017 百度 MapV'] - 版权信息。
+ * @param {string} [options.attribution='© 2018 百度 MapV'] - 版权信息。
+ * @fires L.supermap.mapVLayer#loaded
  */
 export var MapVLayer = L.Layer.extend({
 
@@ -39,7 +43,7 @@ export var MapVLayer = L.Layer.extend({
      * @private
      * @function L.supermap.mapVLayer.prototype.onAdd
      * @description 添加地图图层。
-     * @param {L.map} map - 要添加的地图。
+     * @param {L.Map} map - 要添加的地图。
      */
     onAdd: function (map) {
         this._map = map;
@@ -51,6 +55,10 @@ export var MapVLayer = L.Layer.extend({
         container.style.height = size.y + "px";
         this.renderer = new MapVRenderer(map, this, this.dataSet, this.mapVOptions);
         this.draw();
+        /**
+         * @event L.supermap.mapVLayer#loaded
+         * @description 图层添加完成之后触发。
+         */
         this.fire("loaded");
     },
 
@@ -69,7 +77,7 @@ export var MapVLayer = L.Layer.extend({
      */
     onRemove: function () {
         L.DomUtil.remove(this.container);
-        this.renderer.unbindEvent();
+        this.renderer.destroy();
     },
 
     /**

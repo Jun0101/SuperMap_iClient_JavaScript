@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import L from "leaflet";
 import "../core/Base";
 import {
@@ -20,7 +23,7 @@ import Attributions from '../core/Attributions'
  *      L.supermap.tiledMapLayer(url).addTo(map);
  * @param {string} url - 影像图层地址。
  * @param {Object} options - 影像图层参数。
- * @param {number} [options.layersID] - 图层 ID，如果有 layersID，则是在使用专题图。
+ * @param {string} [options.layersID] - 获取进行切片的地图图层 ID，即指定进行地图切片的图层，可以是临时图层集，也可以是当前地图中图层的组合
  * @param {boolean} [options.redirect=false] - 是否重定向，如果为 true，则将请求重定向到瓦片的真实地址；如果为 false，则响应体中是瓦片的字节流。
  * @param {boolean} [options.transparent=true] - 是否背景透明。
  * @param {boolean} [options.cacheEnabled=true] - 启用缓存。
@@ -36,6 +39,8 @@ import Attributions from '../core/Attributions'
  * @param {string} [options.format='png'] - 瓦片表述类型，支持 "png" 、"bmp" 、"jpg" 和 "gif" 四种表述类型。
  * @param {(number|L.Point)} [options.tileSize=256] - 瓦片大小。
  * @param {string} [options.attribution='Map Data <span>© <a href='http://support.supermap.com.cn/product/iServer.aspx' title='SuperMap iServer' target='_blank'>SuperMap iServer</a></span>'] - 版权信息。
+ * @fires L.supermap.tiledMapLayer#tilesetsinfoloaded
+ * @fires L.supermap.tiledMapLayer#tileversionschanged
  */
 export var TiledMapLayer = L.TileLayer.extend({
 
@@ -80,7 +85,7 @@ export var TiledMapLayer = L.TileLayer.extend({
      * @private
      * @function L.supermap.tiledMapLayer.prototype.onAdd
      * @description 添加地图。
-     * @param {L.map} map - 待添加的影像地图参数。
+     * @param {L.Map} map - 待添加的影像地图参数。
      */
     onAdd: function (map) {
         this._crs = this.options.crs || map.options.crs;
@@ -181,6 +186,11 @@ export var TiledMapLayer = L.TileLayer.extend({
         if (!this.tileSets) {
             return;
         }
+        /**
+         * @event L.supermap.tiledMapLayer#tilesetsinfoloaded
+         * @description 瓦片集信息设置完成后触发。
+         * @property {Array.<Object>} tileVersions  - 瓦片集信息。
+         */
         this.fire('tilesetsinfoloaded', {
             tileVersions: this.tileSets.tileVersions
         });
@@ -227,6 +237,11 @@ export var TiledMapLayer = L.TileLayer.extend({
             var result = me.mergeTileVersionParam(name);
             if (result) {
                 me.tileSetsIndex = me.tempIndex;
+                /**
+                 * @event L.supermap.tiledMapLayer#tileversionschanged
+                 * @description 切片的版本切换和重绘成功之后触发。
+                 * @property {Object} tileVersion  - 该版本的切片。
+                 */
                 me.fire('tileversionschanged', {
                     tileVersion: tileVersions[me.tempIndex]
                 });

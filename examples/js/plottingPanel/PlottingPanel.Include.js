@@ -1,4 +1,5 @@
-﻿(function () {
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.*/
+(function () {
     var r = new RegExp("(^|(.*?\\/))(PlottingPanel.Include\.js)(\\?|$)"),
         s = document.getElementsByTagName('script'), targetScript;
     for (var i = 0; i < s.length; i++) {
@@ -41,6 +42,7 @@
         }
         if (inArray(includes, 'StylePanel')) {
             inputScript("../js/plottingPanel/customEditor/ColorpickerEditor.js");
+            inputScript("../js/plottingPanel/PublicStyleFunction.js");
             inputScript("../js/plottingPanel/StylePanel.js");
         }
         if (inArray(includes, 'SMLInfosPanel')) {

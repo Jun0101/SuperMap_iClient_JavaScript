@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import ol from 'openlayers';
 
 /**
@@ -39,7 +42,8 @@ export class CloverShape extends ol.style.RegularShape {
             angle: options.angle || 60,
             stroke: options.stroke,
             fill: options.fill,
-            radius: options.radius || 10
+            radius: options.radius || 10,
+            rotation: options.rotation || 0
         });
         this.count_ = options.count || 3;
         this.strokeOpacity = options.strokeOpacity || 1;

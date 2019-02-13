@@ -4,14 +4,17 @@ import './openlayers/control/ChangeTileVersionSpec.js';
 /*openlayers -- core*/
 import './openlayers/core/StyleUtilsSpec.js';
 import './openlayers/core/UtilSpec.js';
+import './openlayers/core/MapExtendSpec.js';
 
 /*openlayers -- mapping*/
 import './openlayers/mapping/ImageSuperMapRestSpec.js';
 import './openlayers/mapping/WebMapSpec.js';
 
 /*openlayers -- overlay*/
-/*deck相关测试未通过，待解决后打开注释*/
-// import './openlayers/overlay/GraphicSpec.js';
+import './openlayers/overlay/DataFlowSpec.js';
+import './openlayers/overlay/graphic/GraphicSpec.js';
+import './openlayers/overlay/GraphicSpec.js';
+
 import './openlayers/overlay/GraphSpec.js';
 import './openlayers/overlay/HeatMapSpec.js';
 import './openlayers/overlay/LabelSpec';
@@ -19,11 +22,14 @@ import './openlayers/overlay/MapvSpec.js';
 import './openlayers/overlay/RangeSpec.js';
 import './openlayers/overlay/RankSymbolSpec.js';
 import './openlayers/overlay/UniqueSpec.js';
+import './openlayers/overlay/VectorTileSuperMapRestSpec_mapboxstyle.js';
 import './openlayers/overlay/VectorTileSuperMapRestSpec.js';
 import './openlayers/overlay/theme/GeoFeatureSpec.js';
 import './openlayers/overlay/theme/ThemeFeatureSpec.js';
 import './openlayers/overlay/theme/ThemeSpec.js';
 import './openlayers/overlay/vectortile/VectorTileStylesSpec.js';
+import './openlayers/overlay/vectortile/MapboxStylesSpec.js';
+import './openlayers/overlay/TurfSpec.js';
 
 /**openlayers --services**/
 import './openlayers/services/BufferAnalysisSpec.js';
@@ -53,4 +59,5 @@ import './openlayers/services/TerrainCurvatureCalculateSpec.js';
 import './openlayers/services/ThemeServiceSpec.js';
 import './openlayers/services/ThiessenAnalysisSpec.js';
 import './openlayers/services/TrafficTransferAnalystServiceSpec.js';
-
+import './openlayers/services/AddressMatchServiceSpec.js';
+import './openlayers/services/GridCellInfosServiceSpec.js';

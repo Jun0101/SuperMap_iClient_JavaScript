@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import L from "leaflet";
 import {VectorFeatureType} from './VectorFeatureType';
 import {TextSymbolizer} from './TextSymbolizer';
@@ -59,7 +62,7 @@ export var VectorTile = L.Class.extend({
     /**
      * @function L.supermap.VectorTile.prototype.render
      * @description 渲染切片要素。
-     * @param {L.feature} tileFeature - 要渲染的切片要素。
+     * @param {Object} tileFeature - 要渲染的切片要素。
      * @param {Object} coords - 切片坐标参数对象。
      */
     render: function (tileFeature, coords) {
@@ -83,7 +86,7 @@ export var VectorTile = L.Class.extend({
                 }
 
                 //标签图层处理为文本
-                if (layerStyleInfo.type === VectorFeatureType.LABEL
+                if (layerStyleInfo && layerStyleInfo.type === VectorFeatureType.LABEL
                     && feat.type === VectorFeatureType.POINT
                     && feat.properties.attributes) {
                     feat.type = VectorFeatureType.TEXT;

@@ -1,4 +1,7 @@
-﻿import {SuperMap} from '../SuperMap';
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
+import {SuperMap} from '../SuperMap';
 import './BaseTypes';
 
 export var Util = SuperMap.Util = SuperMap.Util || {};
@@ -1041,7 +1044,7 @@ SuperMap.Util.lineIntersection = function (a1, a2, b1, b2) {
 
 /**
  * @description 获取文本外接矩形宽度与高度。
- * @param {SuperMap.Style} style - 文本样式。
+ * @param {SuperMap.ThemeStyle} style - 文本样式。
  * @param {string} text - 文本内容。
  * @param {Object} element - DOM 元素。
  * @returns {Object} 返回裁剪后的宽度，高度信息。

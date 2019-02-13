@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import ol from 'openlayers';
 import {Util} from '../../core/Util';
 import {
@@ -139,7 +142,7 @@ export class Theme extends ol.source.ImageCanvas {
     /**
      * @function ol.source.Theme.prototype.destroyFeatures
      * @description 销毁某个要素。
-     * @param {Object} features - 将被销毁的要素。
+     * @param {SuperMap.Feature.Vector} features - 将被销毁的要素。
      */
     destroyFeatures(features) {
         var all = (features == undefined);
@@ -174,7 +177,7 @@ export class Theme extends ol.source.ImageCanvas {
 
     /**
      * @function ol.source.Theme.prototype.addFeatures
-     * @param {(ol.supermap.ThemeFeature|Object|ol.Feature)} features - 待转要素包括 {@link ol.supermap.ThemeFeature} 类型、GeoJOSN 规范数据类型，以及 {@link ol.feature}。
+     * @param {(ol.supermap.ThemeFeature|GeoJSONObject|ol.Feature)} features - 待转要素。
      * @description 抽象方法，可实例化子类必须实现此方法。向专题图图层中添加数据，
      *              专题图仅接收 SuperMap.Feature.Vector 类型数据，
      *              feature 将储存于 features 属性中，其存储形式为数组。
@@ -429,6 +432,7 @@ export class Theme extends ol.source.ImageCanvas {
     /**
      * @function ol.source.Theme.prototype.addTFEvents
      * @description 将图层添加到地图上之前用户要求添加的事件监听添加到图层。
+     * @private
      */
     addTFEvents() {
         var tfEs = this.TFEvents;
@@ -496,7 +500,7 @@ export class Theme extends ol.source.ImageCanvas {
     /**
      * @function ol.source.Theme.prototype.toiClientFeature
      * @description 转为 iClient 要素。
-     * @param {(ol.supermap.ThemeFeature|Object|ol.Feature)} features - 待转要素包括 {@link ol.supermap.ThemeFeature} 类型、GeoJOSN 规范数据类型，以及 {@link ol.feature}。
+     * @param {(ol.supermap.ThemeFeature|GeoJSONObject|ol.Feature)} features - 待转要素。
      * @returns {SuperMap.Feature.Vector} 转换后的 iClient 要素
      */
     toiClientFeature(features) {
@@ -524,7 +528,7 @@ export class Theme extends ol.source.ImageCanvas {
                 //iServer服务器返回数据格式
                 featuresTemp.push(ServerFeature.fromJson(features[i]).toFeature());
             } else if (["FeatureCollection", "Feature", "Geometry"].indexOf(features[i].type) != -1) {
-                //GeoJOSN 规范数据类型
+                //GeoJSON 规范数据类型
                 const format = new GeoJSONFormat();
                 featuresTemp = featuresTemp.concat(format.read(features[i]));
             } else {
@@ -539,7 +543,7 @@ export class Theme extends ol.source.ImageCanvas {
      * @function ol.source.Theme.prototype.toFeature
      * @deprecated
      * @description 转为 iClient 要素，该方法将被弃用，由 {@link ol.source.Theme#toiClientFeature} 代替。
-     * @param {(ol.supermap.ThemeFeature|Object|ol.Feature)} features - 待转要素包括 {@link ol.supermap.ThemeFeature} 类型、GeoJOSN 规范数据类型，以及 {@link ol.feature}。
+     * @param {(ol.supermap.ThemeFeature|GeoJSONObject|ol.Feature)} features - 待转要素。
      * @returns {SuperMap.Feature.Vector} 转换后的 iClient 要素
      */
     toFeature(features) {

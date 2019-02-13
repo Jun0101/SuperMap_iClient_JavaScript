@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import {SuperMap} from '../SuperMap';
 import {Geometry} from '../commontypes/Geometry';
 import {Util as CommonUtil} from '../commontypes/Util';
@@ -49,49 +52,49 @@ export class ThemeVector extends Theme {
         }
 
         /**
-         * @member {SuperMap.Bounds} - SuperMap.Feature.Theme.Vector.prototype.dataBounds
+         * @member {SuperMap.Bounds} [SuperMap.Feature.Theme.Vector.prototype.dataBounds]
          * @description 用户数据的（feature.geometry）地理范围。
          */
         this.dataBounds = data.geometry.getBounds();
 
         /**
-         * @member {number} - [SuperMap.Feature.Theme.Vector.prototype.nodesClipPixel=2]
+         * @member {number} [SuperMap.Feature.Theme.Vector.prototype.nodesClipPixel=2]
          * @description 节点抽稀像素距离。
          */
         this.nodesClipPixel = 2;
 
         /**
-         * @member {boolean} -  [SuperMap.Feature.Theme.Vector.prototype.isHoverAble=true]
+         * @member {boolean} [SuperMap.Feature.Theme.Vector.prototype.isHoverAble=true]
          * @description 图形是否可 hover。
          */
         this.isHoverAble = true;
 
         /**
-         * @member {boolean} - [SuperMap.Feature.Theme.Vector.prototype.isMultiHover=true]
+         * @member {boolean} [SuperMap.Feature.Theme.Vector.prototype.isMultiHover=true]
          * @description 是否使用多图形高亮，isHoverAble 为 true 时生效。
          */
         this.isMultiHover = true;
 
         /**
-         * @member {boolean} - [SuperMap.Feature.Theme.Vector.prototype.isClickAble=true]
+         * @member {boolean} [SuperMap.Feature.Theme.Vector.prototype.isClickAble=true]
          * @description 图形是否可点击。
          */
         this.isClickAble = true;
 
         /**
-         * @member {Object} - [SuperMap.Feature.Theme.Vector.prototype.highlightStyle]
+         * @member {Object} [SuperMap.Feature.Theme.Vector.prototype.highlightStyle]
          * @description 高亮样式。
          */
         this.highlightStyle = null;
 
         /**
-         * @member {Object} - SuperMap.Feature.Theme.Vector.prototype.shapeOptions
+         * @member {Object} [SuperMap.Feature.Theme.Vector.prototype.shapeOptions]
          * @description 添加到渲染器前修改 shape 的一些属性，非特殊情况通常不允许这么做。
          */
         this.shapeOptions = {};
 
         /**
-         * @member {Object} - SuperMap.Feature.Theme.Vector.prototype.style
+         * @member {Object} [SuperMap.Feature.Theme.Vector.prototype.style]
          * @description 可视化图形的 style。在子类中规定其对象结构和默认属性值。
          */
         this.style = style || {};
@@ -644,7 +647,7 @@ export class ThemeVector extends Theme {
     /**
      * @function SuperMap.Feature.Theme.Vector.prototype.getShapesCount
      * @description 获得专题要素中可视化图形的数量。
-     * @return {number} 可视化图形的数量。
+     * @returns {number} 可视化图形的数量。
      */
     getShapesCount() {
         return this.shapes.length;

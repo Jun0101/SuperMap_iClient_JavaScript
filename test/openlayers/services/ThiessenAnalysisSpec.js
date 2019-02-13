@@ -2,6 +2,7 @@ import ol from 'openlayers';
 import {SpatialAnalystService} from '../../../src/openlayers/services/SpatialAnalystService';
 import {DatasetThiessenAnalystParameters} from '../../../src/common/iServer/DatasetThiessenAnalystParameters';
 import {GeometryThiessenAnalystParameters} from '../../../src/common/iServer/GeometryThiessenAnalystParameters';
+import { FetchRequest } from '../../../src/common/util/FetchRequest';
 
 var originalTimeout, serviceResults;
 var changchunServiceUrl = GlobeParameter.spatialAnalystURL_Changchun;
@@ -21,15 +22,22 @@ describe('openlayers_SpatialAnalystService_thiessenAnalysis', () => {
             dataset: "Factory@Changchun"
         });
         var spatialAnalystService = new SpatialAnalystService(changchunServiceUrl);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(changchunServiceUrl + "/datasets/Factory@Changchun/thiessenpolygon.json?returnContent=true");
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj.dataset).toBe("Factory@Changchun");
+            expect(paramsObj.returnResultRegion).toBeTruthy();
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(JSON.stringify(thiessenAnalysisDatasetsEscapedJson)));
+        });
         spatialAnalystService.thiessenAnalysis(dThiessenAnalystParameters, (serviceResult) => {
             serviceResults = serviceResult;
-        });
-        setTimeout(() => {
             expect(serviceResults).not.toBeNull();
             expect(serviceResults.type).toBe('processCompleted');
             expect(serviceResults.result.dataset).not.toBeNull();
             done();
-        }, 8000);
+        });
     });
 
     //几何泰森多边形
@@ -52,14 +60,37 @@ describe('openlayers_SpatialAnalystService_thiessenAnalysis', () => {
         });
         //创建泰森多边形服务实例
         var spatialAnalystService = new SpatialAnalystService(changchunServiceUrl);
+        spyOn(FetchRequest, 'commit').and.callFake((method, testUrl, params, options) => {
+            expect(method).toBe("POST");
+            expect(testUrl).toBe(changchunServiceUrl + "/geometry/thiessenpolygon.json?returnContent=true");
+            var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+            expect(paramsObj.returnResultRegion).toBeTruthy();
+            expect(paramsObj.points.length).toBeGreaterThan(9);
+            expect(options).not.toBeNull();
+            return Promise.resolve(new Response(thiessenAnalysisGeometryEscapedJson));
+        });
         spatialAnalystService.thiessenAnalysis(gThiessenAnalystParameters, (serviceResult) => {
             serviceResults = serviceResult;
-        });
-        setTimeout(() => {
             expect(serviceResults).not.toBeNull();
             expect(serviceResults.type).toBe('processCompleted');
             expect(serviceResults.result.dataset).not.toBeNull();
+            expect(serviceResults.result.succeed).toBeTruthy();
+            var regions = serviceResults.result.regions;
+            expect(regions).not.toBeNull();
+            expect(regions.features).not.toBeNull();
+            expect(regions.features.length).toBeGreaterThan(0);
+            for (var i = 0; i < regions.features.length; i++) {
+                expect(regions.features[i].type).toEqual("Feature");
+                expect(regions.features[i].geometry.type).toEqual("MultiPolygon");
+                var coordinates = regions.features[i].geometry.coordinates;
+                expect(coordinates).not.toBeNull();
+                expect(coordinates[0][0].length).toBeGreaterThan(0);
+                for (var j = 0; j < coordinates[0][0].length; j++) {
+                    expect(coordinates[0][0][j].length).toEqual(2);
+                }
+            }
+            expect(regions.type).toEqual("FeatureCollection");
             done();
-        }, 8000);
+        });
     });
 });

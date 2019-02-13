@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import L from "leaflet";
 import '../core/Base';
 import echarts from "echarts";
@@ -11,7 +14,7 @@ import Attributions from '../core/Attributions'
  * @param {Object} echartsOptions - 图表参数。
  * @param {Object} options - 可选图层参数。
  * @param {boolean} [options.loadWhileAnimating=false] - 是否在移动时实时绘制。
- * @param {string} [options.attribution='© 2017 百度 ECharts'] - 版权信息。
+ * @param {string} [options.attribution='© 2018 百度 ECharts'] - 版权信息。
  */
 export const EchartsLayer = L.Layer.extend({
 
@@ -60,7 +63,7 @@ export const EchartsLayer = L.Layer.extend({
      * @private
      * @function L.supermap.echartsLayer.prototype.onAdd
      * @description 添加地图。
-     * @param {L.map} map - 待添加的地图。
+     * @param {L.Map} map - 待添加的地图。
      */
     onAdd: function (map) {
         this._map = map;
@@ -154,19 +157,19 @@ export const EchartsLayer = L.Layer.extend({
                     me._enableEchartsContainer();
                 }
 
-                if (this._oldMoveHandler) {
-                    leafletMap.off(me.options.loadWhileAnimating ? 'move' : 'moveend', this._oldMoveHandler);
+                if (me._oldMoveHandler) {
+                    leafletMap.off(me.options.loadWhileAnimating ? 'move' : 'moveend', me._oldMoveHandler);
 
                 }
-                if (this._oldZoomEndHandler) {
-                    leafletMap.off('zoomend', this._oldZoomEndHandler);
+                if (me._oldZoomEndHandler) {
+                    leafletMap.off('zoomend', me._oldZoomEndHandler);
 
                 }
 
                 leafletMap.on(me.options.loadWhileAnimating ? 'move' : 'moveend', moveHandler);
                 leafletMap.on('zoomend', zoomEndHandler);
-                this._oldMoveHandler = moveHandler;
-                this._oldZoomEndHandler = zoomEndHandler;
+                me._oldMoveHandler = moveHandler;
+                me._oldZoomEndHandler = zoomEndHandler;
                 rendering = false;
             }
         });
@@ -175,11 +178,24 @@ export const EchartsLayer = L.Layer.extend({
 
     onRemove: function () {
         // 销毁echarts实例
+        this._ec.clear();
         this._ec.dispose();
+        delete this._ec;
         L.DomUtil.remove(this._echartsContainer);
-        this._map.off("zoomend", this._oldZoomEndHandler);
-        this._map.off(this.options.loadWhileAnimating ? 'move' : 'moveend', this._oldMoveHandler);
-        this._map.off('resize', this._resizeHandler);
+        
+        if (this._oldZoomEndHandler) {
+            this._map.off("zoomend", this._oldZoomEndHandler);
+            this._oldZoomEndHandler = null;
+        }
+        if (this._oldMoveHandler) {
+            this._map.off(this.options.loadWhileAnimating ? 'move' : 'moveend', this._oldMoveHandler);
+            this._oldMoveHandler = null;
+        }
+        if (this._resizeHandler) {
+            this._map.off('resize', this._resizeHandler);
+            this._resizeHandler = null;
+        }
+        delete this._map;
     },
 
     _initEchartsContainer: function () {
@@ -212,7 +228,7 @@ export const EchartsLayer = L.Layer.extend({
  * @class L.supermap.LeafletMapCoordSys
  * @private
  * @classdesc 地图坐标系统类。
- * @param {L.map} leafletMap - 地图。
+ * @param {L.Map} leafletMap - 地图。
  */
 export function LeafletMapCoordSys(leafletMap) {
     this._LeafletMap = leafletMap;

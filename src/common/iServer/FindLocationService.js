@@ -1,4 +1,7 @@
-﻿import {SuperMap} from '../SuperMap';
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
+import {SuperMap} from '../SuperMap';
 import {Util} from '../commontypes/Util';
 import {NetworkAnalystServiceBase} from './NetworkAnalystServiceBase';
 import {FindLocationParameters} from './FindLocationParameters';
@@ -104,10 +107,10 @@ export class FindLocationService extends NetworkAnalystServiceBase {
         }
         var geoJSONFormat = new GeoJSON();
         if (result.demandResults) {
-            result.demandResults = JSON.parse(geoJSONFormat.write(result.demandResults));
+            result.demandResults = geoJSONFormat.toGeoJSON(result.demandResults);
         }
         if (result.supplyResults) {
-            result.supplyResults = JSON.parse(geoJSONFormat.write(result.supplyResults));
+            result.supplyResults = geoJSONFormat.toGeoJSON(result.supplyResults);
         }
 
         return result;

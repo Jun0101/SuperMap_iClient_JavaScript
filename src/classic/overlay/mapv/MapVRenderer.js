@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import {SuperMap} from '../../SuperMap';
 import {baiduMapLayer, DataSet} from 'mapv';
 
@@ -8,7 +11,7 @@ import {baiduMapLayer, DataSet} from 'mapv';
  * @extends {mapv.baiduMapLayer}
  * @param {SuperMap.Map} map - 待渲染的地图。
  * @param {SuperMap.Layer.MapVLayer} layer - 待渲染的图层。
- * @param {Mapv.DataSet} dataSet - 待渲染的数据集。
+ * @param {Mapv.DataSet} dataSet - 待渲染的数据集，数据所属坐标系要求与 map 保持一致。
  * @param {Object} options - 渲染的参数。
  */
 var MapVBaseLayer = baiduMapLayer ? baiduMapLayer.__proto__ : Function;
@@ -26,7 +29,6 @@ export class MapVRenderer extends MapVBaseLayer {
         self.init(options);
         self.argCheck(options);
         this.canvasLayer = layer;
-        self.transferToMercator();
         this.clickEvent = this.clickEvent.bind(this);
         this.mousemoveEvent = this.mousemoveEvent.bind(this);
         this.bindEvent();
@@ -136,7 +138,7 @@ export class MapVRenderer extends MapVBaseLayer {
     /**
      * @function MapvRenderer.prototype.removeData
      * @description 删除符合过滤条件的数据。
-     * @param {function} [filter] - 过滤条件。条件参数为数据项，返回值为 true，表示删除该元素；否则表示不删除。
+     * @param {function} filter - 过滤条件。条件参数为数据项，返回值为 true，表示删除该元素；否则表示不删除。
      */
     removeData(filter) {
         if (!this.dataSet) {
@@ -172,6 +174,7 @@ export class MapVRenderer extends MapVBaseLayer {
     /**
      * @function MapvRenderer.prototype.transferToMercator
      * @description 墨卡托坐标为经纬度。
+     * @deprecated
      */
     transferToMercator() {
         if (this.options.coordType && ["bd09mc", "coordinates_mercator"].indexOf(this.options.coordType) > -1) {
@@ -229,7 +232,8 @@ export class MapVRenderer extends MapVBaseLayer {
         var dataGetOptions = {
             fromColumn: 'coordinates',
             transferCoordinate: function (coordinate) {
-                var coord = layer.transferToMapLatLng({lon: coordinate[0], lat: coordinate[1]});
+                // var coord = layer.transferToMapLatLng({lon: coordinate[0], lat: coordinate[1]});
+                var coord = {lon: coordinate[0], lat: coordinate[1]};
                 var worldPoint = map.getViewPortPxFromLonLat(coord);
                 return [worldPoint.x, worldPoint.y];
             }

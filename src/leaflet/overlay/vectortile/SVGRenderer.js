@@ -1,3 +1,6 @@
+/* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+ * This program are made available under the terms of the Apache License, Version 2.0
+ * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
 import L from "leaflet";
 
 /**
@@ -46,7 +49,7 @@ export var SVGRenderer = L.SVG.extend({
     /**
      * @function L.supermap.SVGRenderer.prototype.addTo
      * @description 添加到地图。
-     * @param {L.map} map - map 对象。
+     * @param {L.Map} map - map 对象。
      */
     addTo: function (map) {
         this._map = map;
@@ -62,7 +65,7 @@ export var SVGRenderer = L.SVG.extend({
     /**
      * @function L.supermap.SVGRenderer.prototype.removeFrom
      * @description 从地图移除。
-     * @param {L.map} map - map 对象。
+     * @param {L.Map} map - map 对象。
      */
     removeFrom: function (map) {
         var _map = map || this._map;

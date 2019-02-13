@@ -1,3 +1,6 @@
+<!--********************************************************************
+* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
+*********************************************************************-->
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,18 +18,21 @@
         center: [38, 110],
         zoom: 5,
     });
-    var url = 'https://www.supermapol.com/iserver/services/map_China/rest/maps/China_Light';
+    var host = window.isLocal ? window.server : "http://support.supermap.com.cn:8090";
+    var url = host + '/iserver/services/map-china400/rest/maps/China';
 
     var baseLayers = L.supermap.tiledMapLayer(url).addTo(map);
-    map.layersControl = L.control.layers({"baseLayers": baseLayers}, {}, {"position": 'topleft'});
-    map.addControl(map.layersControl);
+    var layersControl = L.control.layers({"baseLayers": baseLayers}, {}, {"position": 'topleft'}).addTo(map);
+
     initEditView();
 
     function initEditView() {
         var infoView = L.control({position: 'topright'});
         infoView.onAdd = function () {
             var me = this;
-            me._div = L.DomUtil.create('div', "openFileContainer");
+            me._div = L.DomUtil.create('div', "widget-openfile");
+            //避免与"源码"控件重叠
+            me._div.style["margin"] = "40px 4px 0px 0px";
             me._div.id = "addDataContainer";
 
             handleMapEvent(me._div, me._map);
@@ -57,12 +63,18 @@
             //微件功能组件
             this.openFileViewModel = props.openFileViewModel;
             this.messageBox = props.messageBox;
-            this.fileSelectfn = this.openFileViewModel.selectFileLoadToMap.bind(this.openFileViewModel);
+            this.layersControl = props.layersControl;
+            this.fileSelectfn = this.openFileViewModel.readFile.bind(this.openFileViewModel);
             //监听vm 事件：
             this.openFileViewModel.on("filesizeexceed", this._messageListener.bind(this));
             this.openFileViewModel.on("errorfileformat", this._messageListener.bind(this));
-            this.openFileViewModel.on("openfilefail", this._messageListener.bind(this));
+            this.openFileViewModel.on("openfilefailed", this._messageListener.bind(this));
             this.openFileViewModel.on("readdatafail", this._messageListener.bind(this));
+            this.openFileViewModel.on("openfilesucceeded", function (e) {
+                var layer = L.geoJSON(e.result).addTo(map);
+                map.flyToBounds(layer.getBounds());
+                layersControl.addOverlay(layer, e.layerName);
+            });
         }
 
         _messageListener(e) {
@@ -71,18 +83,18 @@
 
         render() {
             return <div className="file-select">
-                <label className="file-selectSpan" htmlFor="input_file">
+                <label className="widget-openfile__span--select" htmlFor="input_file">
                     <div className="supermapol-icons-upload"/>
-                    <span className="openFile-span">{this.props.text}</span>
+                    <span className="widget-openfile__span">{this.props.text}</span>
                 </label>
-                <input className="openFile_input" id="input_file" type="file"
+                <input className="widget-openfile__input" id="input_file" type="file"
                        accept=".json,.geojson,.csv,.xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
                        onChange={this.fileSelectfn}/>
             </div>
         }
     }
 
-    var openFileViewModel = new L.supermap.widgets.OpenFileViewModel(map);
+    var openFileViewModel = L.supermap.widgets.openFileViewModel(map);
     var messageBox = new SuperMap.Widgets.MessageBox();
     ReactDOM.render(
             <AddData openFileViewModel={openFileViewModel} messageBox={messageBox} text={resources.text_openFile}/>,

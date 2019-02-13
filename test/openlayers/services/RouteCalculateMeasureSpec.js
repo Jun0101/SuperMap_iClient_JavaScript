@@ -4,6 +4,7 @@ import {RouteCalculateMeasureParameters} from '../../../src/common/iServer/Route
 import {QueryService} from '../../../src/openlayers/services/QueryService';
 import {QueryBySQLParameters} from '../../../src/common/iServer/QueryBySQLParameters';
 import {FilterParameter} from '../../../src/common/iServer/FilterParameter';
+import { FetchRequest } from '../../../src/common/util/FetchRequest';
 
 
 var originalTimeout, serviceResults;
@@ -31,6 +32,23 @@ describe('openlayers_SpatialAnalystService_routeCalculateMeasure', () => {
                 })
             ]
         });
+        spyOn(FetchRequest, 'commit').and.callFake((method,url,params) => {
+            expect(method).toBe("POST");
+            if(url.indexOf("/queryResults.json?returnContent=true")>-1){
+                expect(params).not.toBeNull();
+                var paramsObj = JSON.parse(params.replace(/'/g, "\""));
+                expect(paramsObj.queryMode).toBe("SqlQuery");
+                expect(paramsObj.queryParameters.queryParams[0].attributeFilter).toBe("RouteID=1690");
+                expect(paramsObj.queryParameters.queryParams[0].name).toBe("RouteDT_road@Changchun");
+                return Promise.resolve(new Response(JSON.stringify(routeCalculateMeasure_queryBySQLServiceResult)));
+            }else if(url.indexOf("/calculatemeasure.json?returnContent=true")>-1){
+                expect(params).not.toBeNull();
+                var param= JSON.parse(params.replace(/'/g, "\""));
+                expect(param.sourceRoute.type).toBe("LINEM");
+                return Promise.resolve(new Response(JSON.stringify(routeCalculateMeasureServiceResult)));
+            }
+            return Promise.resolve();
+        });
         queryBySQLService.queryBySQL(queryBySQLParams, (SQLQueryServiceResult) => {
             var queryBySQLResult = SQLQueryServiceResult.result.recordsets[0].features;
             //将形成路由的点提出来，为了构造下面点定里程服务sourceRoute
@@ -41,7 +59,7 @@ describe('openlayers_SpatialAnalystService_routeCalculateMeasure', () => {
             }
             var routeLine = new ol.geom.LineString([pointsList]);
             //在组成路由的点中选取一个查询点(数组中第8个点),并添加到地图上
-            var point = new ol.geom.Point([routeObj[7][0], routeObj[7][1]]);
+            var point = new ol.geom.Point([routeObj[3][0], routeObj[3][1]]);
             //点定里程服务
             var routeCalculateMeasureService = new SpatialAnalystService(changchunServiceUrl);
             var routeCalculateMeasureParameters = new RouteCalculateMeasureParameters({
@@ -52,13 +70,11 @@ describe('openlayers_SpatialAnalystService_routeCalculateMeasure', () => {
             });
             routeCalculateMeasureService.routeCalculateMeasure(routeCalculateMeasureParameters, (routeCaculateServiceResult) => {
                 serviceResults = routeCaculateServiceResult;
+                expect(serviceResults).not.toBeNull();
+                expect(serviceResults.type).toBe('processCompleted');
+                expect(serviceResults.result.dataset).not.toBeNull();
+                done();
             });
         });
-        setTimeout(() => {
-            expect(serviceResults).not.toBeNull();
-            expect(serviceResults.type).toBe('processCompleted');
-            expect(serviceResults.result.dataset).not.toBeNull();
-            done();
-        }, 8000);
     });
 });
