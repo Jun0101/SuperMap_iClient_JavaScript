@@ -292,44 +292,44 @@ var exampleConfig = {
     "iPortal": {
         name: "iPortal",
         name_en: "iPortal",
-        version: "10.x.x",
+        version: "9.1.2",
         content: {
             "ip_map": {
                 name: "地图",
                 name_en: "iPortal Web map",
-                version: "10.x.x",
+                version: "9.1.2",
                 content: [{
                     name: "分段专题图",
                     name_en: "Range",
-                    version: "10.x.x",
+                    version: "9.1.2",
                     thumbnail: "iPortalWebmap_range.png",
                     fileName: "iPortalWebmap_range"
                 },
                 {
                     name: "单值专题图",
                     name_en: "Unique",
-                    version: "10.x.x",
+                    version: "9.1.2",
                     thumbnail: "iPortalWebmap_unique.png",
                     fileName: "iPortalWebmap_unique"
                 },
                 {
                     name: "标签专题图",
                     name_en: "Label",
-                    version: "10.x.x",
+                    version: "9.1.2",
                     thumbnail: "iPortalWebmap_label.png",
                     fileName: "iPortalWebmap_label"
                 },
                 {
                     name: "热力图",
                     name_en: "Heat map",
-                    version: "10.x.x",
+                    version: "9.1.2",
                     thumbnail: "iPortalWebmap_heat.png",
                     fileName: "iPortalWebmap_heat"
                 },
                 {
                     name: "点样式",
                     name_en: "Point style",
-                    version: "10.x.x",
+                    version: "9.1.2",
                     thumbnail: "iPortalWebmap_unicode.png",
                     fileName: "iPortalWebmap_unicode"
                 }]
@@ -424,6 +424,14 @@ var exampleConfig = {
                         version: "9.1.0",
                         thumbnail: "mvtVectorTile_landuse.png",
                         fileName: "mvtVectorTile_landuse"
+                    },
+                    {
+                        name: "矢量瓦片叠加",
+                        name_en: "MVT overlay",
+                        localIgnore: true,
+                        version: "9.1.2",
+                        thumbnail: "mvtVectorTile_overlay.png",
+                        fileName: "mvtVectorTile_overlay"
                     }
                 ]
             },
@@ -1043,36 +1051,226 @@ var exampleConfig = {
     "widgets": {
         name: "微件",
         name_en: "Widgets",
+        localIgnore: true,
         content: {
-            "widgetsSuperMap": {
-                name: "基础",
-                name_en: "Basic",
+            // "widgetsSuperMap": {
+            //     name: "基础",
+            //     name_en: "Basic",
+            //     content: [
+            //         {
+            //             name: "图表_iServer",
+            //             name_en: "chart_iServer",
+            //             version: "9.1.2",
+            //             thumbnail: "widgets_chart_isvr.png",
+            //             fileName: "widgets_chart_isvr"
+            //         },{
+            //             name: "图表_iPortal",
+            //             name_en: "chart_iPortal",
+            //             version: "9.1.2",
+            //             thumbnail: "widgets_chart_iptl.png",
+            //             fileName: "widgets_chart_iptl"
+            //         }
+            //     ]
+            // },
+            "widgetsAdvanced": {
+                name: "for Vue",
+                name_en: "for Vue",
                 content: [
                     {
-                        name: "图表_iServer",
-                        name_en: "chart_iServer",
-                        version: "10.X.X",
-                        thumbnail: "widgets_chart_isvr.png",
-                        fileName: "widgets_chart_isvr"
-                    },{
-                        name: "图表_iPortal",
-                        name_en: "chart_iPortal",
-                        version: "10.X.X",
-                        thumbnail: "widgets_chart_iptl.png",
-                        fileName: "widgets_chart_iptl"
-                    } 
+                        name: "地图",
+                        name_en: "Map",
+                        version: "9.1.2",
+                        thumbnail: "widgets_map_vue.png",
+                        fileName: "widgets_map_vue"
+                    } ,{
+                        name: "Web Map",
+                        name_en: "Web Map",
+                        version: "9.1.2",
+                        thumbnail: "widgets_webmap_vue.png",
+                        fileName: "widgets_webmap_vue"
+                    } ,{
+                        name: "图表",
+                        name_en: "Chart",
+                        version: "9.1.2",
+                        thumbnail: "widgets_chart_vue.png",
+                        fileName: "widgets_chart_vue"
+                    } ,{
+                      name: "图表-饼图",
+                      name_en: "Chart(pie)",
+                      version: "9.1.2",
+                      thumbnail: "widgets_chart_vue(pie).png",
+                      fileName: "widgets_pie_chart_vue"
+                  } ,{
+                    name: "图表-雷达图",
+                    name_en: "Chart(radar)",
+                    version: "9.1.2",
+                    thumbnail: "widgets_chart_vue(radar).png",
+                    fileName: "widgets_radar_chart_vue"
+                  } ,{
+                    name: "图表-仪表盘",
+                    name_en: "Chart(gauge)",
+                    version: "9.1.2",
+                    thumbnail: "widgets_chart_vue(gauge).png",
+                    fileName: "widgets_gauge_chart_vue"
+                  } ,
+                    {
+                        name: "图层",
+                        name_en: "LayerList",
+                        version: "9.1.2",
+                        thumbnail: "widgets_layerList_vue.png",
+                        fileName: "widgets_layerList_vue"
+                    } ,{
+                        name: "鹰眼",
+                        name_en: "Minimap",
+                        version: "9.1.2",
+                        thumbnail: "widgets_minimap_vue.png",
+                        fileName: "widgets_minimap_vue"
+                    } ,{
+                        name: "平移",
+                        name_en: "Pan",
+                        version: "9.1.2",
+                        thumbnail: "widgets_pan_vue.png",
+                        fileName: "widgets_pan_vue"
+                    } ,{
+                        name: "比例尺",
+                        name_en: "Scale",
+                        version: "9.1.2",
+                        thumbnail: "widgets_scale_vue.png",
+                        fileName: "widgets_scale_vue"
+                    } ,{
+                        name: "缩放",
+                        name_en: "Zoom",
+                        version: "9.1.2",
+                        thumbnail: "widgets_zoom_vue.png",
+                        fileName: "widgets_zoom_vue"
+                    } ,{
+                        name: "图例",
+                        name_en: "Legend",
+                        version: "9.1.2",
+                        thumbnail: "widgets_legend_vue.png",
+                        fileName: "widgets_legend_vue"
+                    } ,{
+                        name: "基础微件",
+                        name_en: "Basic Widget",
+                        version: "9.1.2",
+                        thumbnail: "widgets_basic_vue.png",
+                        fileName: "widgets_basic_vue"
+                    } ,{
+                        name: "量算",
+                        name_en: "Measure",
+                        version: "9.1.2",
+                        thumbnail: "widgets_measure_vue.png",
+                        fileName: "widgets_measure_vue"
+                    } ,{
+                        name: "查询",
+                        name_en: "Query",
+                        version: "9.1.2",
+                        thumbnail: "widgets_query_vue.png",
+                        fileName: "widgets_query_vue"
+                    } ,{
+                        name: "搜索",
+                        name_en: "Search",
+                        version: "9.1.2",
+                        thumbnail: "widgets_search_vue.png",
+                        fileName: "widgets_search_vue"
+                    } ,{
+                        name: "主题切换",
+                        name_en: "Theme switching",
+                        version: "9.1.2",
+                        thumbnail: "widgets_theme_vue.png",
+                        fileName: "widgets_theme_vue"
+                    } ,{
+                        name: "土地利用示例",
+                        name_en: "Land use example",
+                        version: "9.1.2",
+                        thumbnail: "widgets_demo_vue.png",
+                        fileName: "widgets_demo_vue"
+                    } ,{
+                      name: "栅格图层",
+                      name_en: "Raster layer",
+                      version: "10.x.x",
+                      thumbnail: "widgets_rasterLayer_vue.png",
+                      fileName: "widgets_raster_vue"
+                    } ,{
+                      name: "矢量瓦片图层",
+                      name_en: "Vector tile layer",
+                      version: "10.x.x",
+                      thumbnail: "widgets_vector_tile_vue.png",
+                      fileName: "widgets_vector_tile_vue"
+                    } ,{
+                      name: "点聚合图层",
+                      name_en: "Cluster layer",
+                      version: "10.x.x",
+                      thumbnail: "widgets_cluster_vue.png",
+                      fileName: "widgets_cluster_vue"
+                    } ,{
+                        name: "单值专题图",
+                        name_en: "Unique Theme layer",
+                        version: "10.x.x",
+                        thumbnail: "widgets_uniquetheme_vue.png",
+                        fileName: "widgets_uniquetheme_vue"
+                      } ,{
+                        name: "分段专题图",
+                        name_en: "Range Theme layer",
+                        version: "10.x.x",
+                        thumbnail: "widgets_rangetheme_vue.png",
+                        fileName: "widgets_rangetheme_vue"
+                      } ,{
+                        name: "等级符号专题图",
+                        name_en: "RanSymbol Theme layer",
+                        version: "10.x.x",
+                        thumbnail: "widgets_ranksymboltheme_vue.png",
+                        fileName: "widgets_ranksymboltheme_vue"
+                      } ,{
+                        name: "标签专题图",
+                        name_en: "Label Theme layer",
+                        version: "10.x.x",
+                        thumbnail: "widgets_labeltheme_vue.png",
+                        fileName: "widgets_labeltheme_vue"
+                      } ,{
+                        name: "图表专题图",
+                        name_en: "Statistical chart",
+                        version: "10.x.x",
+                        thumbnail: "widgets_graph_theme_layer_vue.png",
+                        fileName: "widgets_graph_theme_layer_vue"
+                      } ,{
+                      name: "热力图图层",
+                      name_en: "Heatmap layer",
+                      version: "10.x.x",
+                      thumbnail: "widgets_heatmap_vue.png",
+                      fileName: "widgets_heatmap_vue"
+                    } ,{
+                      name: "MapV 图层",
+                      name_en: "MapV layer",
+                      version: "10.x.x",
+                      thumbnail: "widgets_mapv_vue.gif",
+                      fileName: "widgets_mapv_vue"
+                    } ,{
+                      name: "Echarts 图层",
+                      name_en: "Echarts layer",
+                      version: "10.x.x",
+                      thumbnail: "widgets_echartsLayer_vue.gif",
+                      fileName: "widgets_echarts_vue"
+                    } ,{
+                      name: "DeckGL 图层",
+                      name_en: "DeckGL layer",
+                      version: "10.x.x",
+                      thumbnail: "widgets_deckgl_vue.png",
+                      fileName: "widgets_deckgl_vue"
+                    } ,{
+                      name: "打开文件",
+                      name_en: "Open File",
+                      version: "10.x.x",
+                      thumbnail: "widgets_openfile_vue.png",
+                      fileName: "widgets_openfile_vue"
+                    } ,{
+                      name: "数据流图层",
+                      name_en: "Data Flow Layer",
+                      version: "10.x.x",
+                      thumbnail: "widgets_dataflow_vue.gif",
+                      fileName: "widgets_dataflow_vue"
+                    }
                 ]
-            },
-            "widgetsAdvanced": {
-                name: "扩展",
-                name_en: "Advanced",
-                content: [{
-                    name: "WebMap(Vue)",
-                    name_en: "WebMap(Vue)",
-                    version: "10.X.X",
-                    thumbnail: "iPortalWebmap_unique.png",
-                    fileName: "iportalWebMap_vue"
-                }]
             }
         }
     },
@@ -1121,6 +1319,6 @@ var exampleIconConfig = {
     "viz": "fa-map",
     "GTC": "fa-globe",
     "widgets": "fa-window-restore",
-    'multiCoordSys': "fa-globe",
+    'multiCoordSys': "fa-globe"
 };
 window.mapboxglExampleConfig = exampleConfig;

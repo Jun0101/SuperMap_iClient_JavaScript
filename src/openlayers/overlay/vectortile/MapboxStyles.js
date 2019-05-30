@@ -1,15 +1,10 @@
 /* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
  * This program are made available under the terms of the Apache License, Version 2.0
  * which accompanies this distribution and is available at http://www.apache.org/licenses/LICENSE-2.0.html.*/
-import ol from 'openlayers';
-import {
-    FetchRequest,
-    CommonUtil
-} from "@supermap/iclient-common";
-import {
-    olExtends
-} from './olExtends'
-
+import ol from "openlayers";
+import { FetchRequest, CommonUtil } from "@supermap/iclient-common";
+import { olExtends } from "./olExtends";
+import remove from "lodash.remove";
 
 /**
  * @class ol.supermap.MapboxStyles
@@ -25,9 +20,10 @@ import {
  * @param {(Object|string|undefined)} [options.style] - Mapbox Style JSON 对象或获取 Mapbox Style JSON 对象的 URL。与 options.url 互斥，优先级高于 options.url。
  * @param {Array.<number>} [options.resolutions] - 地图分辨率数组，用于映射 zoom 值。通常情況与地图的 {@link ol.View} 的分辨率一致。</br>
  * 默认值为：[78271.51696402048,39135.75848201024, 19567.87924100512,9783.93962050256,4891.96981025128,2445.98490512564, 1222.99245256282,611.49622628141,305.748113140705,152.8740565703525, 76.43702828517625,38.21851414258813,19.109257071294063,9.554628535647032, 4.777314267823516,2.388657133911758,1.194328566955879,0.5971642834779395, 0.29858214173896974,0.14929107086948487,0.07464553543474244]。
- * @param {(string|Array.<string>)} [options.source] - Mapbox Style 'source'的 key 值或者 'layer' 的 ID 数组。
+ * @param {(string|Array.<string>|undefined)} [options.source] - Mapbox Style 'source'的 key 值或者 'layer' 的 ID 数组。
  * 当配置 'source' 的 key 值时，source 为该值的 layer 会被加载；
  * 当配置为 'layer' 的 ID 数组时，指定的 layer 会被加载，注意被指定的 layer 需要有相同的 source。
+ * 当不配置时，默认为 Mapbox Style JSON 的 `sources` 对象中的第一个。
  * @param {ol.Map} [options.map] - Openlayers 地图对象，仅用于面填充样式，若没有面填充样式可不填。
  * @param {ol.StyleFunction} [options.selectedStyle] -选中样式Function。
  * @example
@@ -57,41 +53,42 @@ export class MapboxStyles extends ol.Observable {
         super();
         options = options || {};
         this.spriteRegEx = /^(.*)(\?.*)$/;
-        this.defaultFont = ["DIN Offc Pro Medium",
-            "Arial Unicode MS Regular"
-        ];
+        this.defaultFont = ["DIN Offc Pro Medium", "Arial Unicode MS Regular"];
         this.map = options.map;
         this.source = options.source;
-        this.styleTarget = options.style || options.url + '/tileFeature/vectorstyles.json?type=MapBox_GL&styleonly=true';
+        this.styleTarget =
+            options.style || options.url + "/tileFeature/vectorstyles.json?type=MapBox_GL&styleonly=true";
         this.resolutions = options.resolutions;
-        this.selectedStyle = options.selectedStyle || function () {
-            return new ol.style.Style({
-                fill: new ol.style.Fill({
-                    color: 'rgba(255, 0, 0, 1)'
-                }),
-                stroke: new ol.style.Stroke({
-                    color: 'rgba(255, 0, 0, 1)',
-                    width: 10
-                }),
-                text: new ol.style.Text({
-                    font: 'normal 400 11.19px "Microsoft YaHei"',
-                    placement: 'point',
+        this.selectedObjects = [];
+        this.selectedStyle =
+            options.selectedStyle ||
+            function() {
+                return new ol.style.Style({
                     fill: new ol.style.Fill({
-                        color: 'blue'
+                        color: "rgba(255, 0, 0, 1)"
+                    }),
+                    stroke: new ol.style.Stroke({
+                        color: "rgba(255, 0, 0, 1)",
+                        width: 10
+                    }),
+                    text: new ol.style.Text({
+                        font: 'normal 400 11.19px "Microsoft YaHei"',
+                        placement: "point",
+                        fill: new ol.style.Fill({
+                            color: "blue"
+                        })
+                    }),
+                    image: new ol.style.Circle({
+                        radius: 5,
+                        fill: new ol.style.Fill({
+                            color: "blue"
+                        })
                     })
-                }),
-                image: new ol.style.Circle({
-                    radius: 5,
-                    fill: new ol.style.Fill({
-                        color: 'blue'
-                    })
-                })
-            })
-        }
+                });
+            };
         this.layersBySourceLayer = {};
         olExtends(this.map);
         this._loadStyle(this.styleTarget);
-
     }
     /**
      * @function ol.supermap.MapboxStyles.prototype.getStyleFunction
@@ -113,26 +110,81 @@ export class MapboxStyles extends ol.Observable {
         const layers = [];
         for (let index = 0; index < this._mbStyle.layers.length; index++) {
             const layer = this._mbStyle.layers[index];
-            if (layer['source-layer'] !== sourceLayer) {
+            if (layer["source-layer"] !== sourceLayer) {
                 continue;
             }
             layers.push(layer);
-
         }
         this.layersBySourceLayer[sourceLayer] = layers;
         return layers;
     }
     /**
      * @function ol.supermap.MapboxStyles.prototype.setSelectedId
-     * @description 设置选中要素，该要素将会用 `selectedStyle` 样式绘制。
+     * @description 设置选中要素，该要素将会用 `selectedStyle` 样式绘制。调用该方法后需要调用 `ol.layer.VectorTile` 的 `changed`,才能生效。
      * @param {number} selectedId - 要素ID。
      * @param {string} sourceLayer - 要素所在图层名称。
      */
     setSelectedId(selectedId, sourceLayer) {
-        this.selectedObject = {
-            selectedId: selectedId,
+        this.selectedObjects = [];
+        this.selectedObjects.push({
+            id: selectedId,
             sourceLayer: sourceLayer
-        };
+        });
+    }
+    /**
+     * @typedef {Object} ol.supermap.MapboxStyles.selectedObject
+     * @description 要选择的要素对象。
+     * @property {number} selectedId - 要素ID。
+     * @property {string} sourceLayer - 要素所在图层名称。
+     */
+
+    /**
+     * @function ol.supermap.MapboxStyles.prototype.setSelectedObjects
+     * @version 10.x.x
+     * @description 设置选中要素或要素数组，该要素将会用 `selectedStyle` 样式绘制。调用该方法后需要调用 `ol.layer.VectorTile` 的 `changed`,才能生效。
+     * @param {ol.supermap.MapboxStyles.selectedObject|Array.<ol.supermap.MapboxStyles.selectedObject>} addSelectedObjects - 选择的要素或要素数组。
+     */
+    setSelectedObjects(selectedObjects) {
+        if (!Array.isArray(selectedObjects)) {
+            selectedObjects = [selectedObjects];
+        }
+        this.selectedObjects = [];
+        this.selectedObjects = selectedObjects;
+    }
+    /**
+     * @function ol.supermap.MapboxStyles.prototype.addSelectedObjects
+     * @version 10.x.x
+     * @description 增加选中的要素或要素数组，该要素将会用 `selectedStyle` 样式绘制。调用该方法后需要调用 `ol.layer.VectorTile` 的 `changed`,才能生效。
+     * @param {ol.supermap.MapboxStyles.selectedObject|Array.<ol.supermap.MapboxStyles.selectedObject>} addSelectedObjects - 选择的要素或要素数组。
+     */
+    addSelectedObjects(selectedObjects) {
+        if (!Array.isArray(selectedObjects)) {
+            selectedObjects = [selectedObjects];
+        }
+        this.selectedObjects.push(...selectedObjects);
+    }
+    /**
+     * @function ol.supermap.MapboxStyles.prototype.clearSelectedObjects
+     * @version 10.x.x
+     * @description 清空选中状态。调用该方法后需要调用 `ol.layer.VectorTile` 的 `changed`,才能生效。
+     */
+    removeSelectedObjects(selectedObjects) {
+        if (!Array.isArray(selectedObjects)) {
+            selectedObjects = [selectedObjects];
+        }
+        selectedObjects.forEach(element => {
+            remove(this.selectedObjects, obj => {
+                return element.id === obj.id && element.sourceLayer === obj.sourceLayer;
+            });
+        });
+    }
+    /**
+     * @function ol.supermap.MapboxStyles.prototype.clearSelectedObjects
+     * @version 10.x.x
+     * @description 清空选中状态。调用该方法后需要调用 `ol.layer.VectorTile` 的 `changed`,才能生效。
+     */
+    clearSelectedObjects() {
+        this.selectedObjects = [];
     }
     /**
      * @function ol.supermap.MapboxStyles.prototype.updateStyles
@@ -140,7 +192,7 @@ export class MapboxStyles extends ol.Observable {
      * @param {Object} layerStyles - 图层样式或图层样式数组。
      */
     updateStyles(layerStyles) {
-        if (Object.prototype.toString.call(layerStyles) !== '[object Array]') {
+        if (Object.prototype.toString.call(layerStyles) !== "[object Array]") {
             layerStyles = [layerStyles];
         }
         const layerObj = {};
@@ -154,7 +206,7 @@ export class MapboxStyles extends ol.Observable {
             if (count >= layerStyles.length) {
                 break;
             }
-            const newLayerStyle = layerObj[oldLayerStyle.id]
+            const newLayerStyle = layerObj[oldLayerStyle.id];
             if (!newLayerStyle) {
                 continue;
             }
@@ -178,35 +230,38 @@ export class MapboxStyles extends ol.Observable {
             this._mbStyle = style;
             this._resolve();
         } else {
-            FetchRequest.get(style).then(response =>
-                response.json()).then(mbStyle => {
-                this._mbStyle = mbStyle;
-                this._resolve()
-            });
+            FetchRequest.get(style)
+                .then(response => response.json())
+                .then(mbStyle => {
+                    this._mbStyle = mbStyle;
+                    this._resolve();
+                });
         }
     }
     _resolve() {
+        if (!this.source) {
+            this.source = Object.keys(this._mbStyle.sources)[0];
+        }
         if (this._mbStyle.sprite) {
             const spriteScale = window.devicePixelRatio >= 1.5 ? 0.5 : 1;
-            const sizeFactor = spriteScale == 0.5 ? '@2x' : '';
+            const sizeFactor = spriteScale == 0.5 ? "@2x" : "";
             //兼容一下iServer 等iServer修改
-            this._mbStyle.sprite = this._mbStyle.sprite.replace('@2x', "");
-            const spriteUrl = this._toSpriteUrl(this._mbStyle.sprite, this.path, sizeFactor + '.json');
+            this._mbStyle.sprite = this._mbStyle.sprite.replace("@2x", "");
+            const spriteUrl = this._toSpriteUrl(this._mbStyle.sprite, this.path, sizeFactor + ".json");
             FetchRequest.get(spriteUrl)
-                .then(response =>
-                    response.json()).then(spritesJson => {
+                .then(response => response.json())
+                .then(spritesJson => {
                     this._spriteData = spritesJson;
-                    this._spriteImageUrl = this._toSpriteUrl(this._mbStyle.sprite, this.path, sizeFactor + '.png');
+                    this._spriteImageUrl = this._toSpriteUrl(this._mbStyle.sprite, this.path, sizeFactor + ".png");
                     this._spriteImage = null;
                     const img = new Image();
-                    img.crossOrigin = 'anonymous';
+                    img.crossOrigin = "anonymous";
                     img.onload = () => {
                         this._spriteImage = img;
                         this._initStyleFunction();
                     };
                     img.src = this._spriteImageUrl;
-
-                })
+                });
         } else {
             this._initStyleFunction();
         }
@@ -226,7 +281,7 @@ export class MapboxStyles extends ol.Observable {
          * @event ol.supermap.MapboxStyles#styleloaded
          * @description 样式加载成功后触发。
          */
-        this.dispatchEvent('styleloaded');
+        this.dispatchEvent("styleloaded");
     }
     _createStyleFunction() {
         if (this.map) {
@@ -235,14 +290,23 @@ export class MapboxStyles extends ol.Observable {
         this.featureStyleFuntion = this._getStyleFunction();
     }
     _getStyleFunction() {
-        this.fun = window.olms.stylefunction({
-            setStyle: function () {},
-            set: function () {},
-            changed: function () {}
-        }, this._mbStyle, this.source, this.resolutions, this._spriteData, "", this._spriteImage);
+        this.fun = window.olms.stylefunction(
+            { setStyle: function() {}, set: function() {}, changed: function() {} },
+            this._mbStyle,
+            this.source,
+            this.resolutions,
+            this._spriteData,
+            "",
+            this._spriteImage
+        );
         return (feature, resolution) => {
             const style = this.fun(feature, resolution);
-            if (this.selectedObject && this.selectedObject.selectedId === feature.getId() && this.selectedObject.sourceLayer === feature.get('layer')) {
+            if (
+                this.selectedObjects.length > 0 &&
+                this.selectedObjects.find(element => {
+                    return element.id === feature.getId() && element.sourceLayer === feature.get("layer");
+                })
+            ) {
                 const styleIndex = style && style[0] ? style[0].getZIndex() : 99999;
                 let selectStyles = this.selectedStyle(feature, resolution);
                 if (!Array.isArray(selectStyles)) {
@@ -250,7 +314,7 @@ export class MapboxStyles extends ol.Observable {
                 }
                 for (let index = 0; index < selectStyles.length; index++) {
                     const selectStyle = selectStyles[index];
-                    if (feature.getGeometry().getType() === 'Point' && style[0].getText() && selectStyle.getText()) {
+                    if (feature.getGeometry().getType() === "Point" && style[0].getText() && selectStyle.getText()) {
                         selectStyle.setFill(null);
                         selectStyle.setStroke(null);
                         selectStyle.setImage();
@@ -259,14 +323,12 @@ export class MapboxStyles extends ol.Observable {
                     selectStyle.setZIndex(styleIndex);
                 }
                 return selectStyles;
-
             }
             return style;
-        }
-
+        };
     }
     _withPath(url, path) {
-        if (path && url.indexOf('http') != 0) {
+        if (path && url.indexOf("http") != 0) {
             url = path + url;
         }
         return url;
@@ -275,9 +337,7 @@ export class MapboxStyles extends ol.Observable {
     _toSpriteUrl(url, path, extension) {
         url = this._withPath(url, path);
         const parts = url.match(this.spriteRegEx);
-        return parts ?
-            parts[1] + extension + (parts.length > 2 ? parts[2] : '') :
-            url + extension;
+        return parts ? parts[1] + extension + (parts.length > 2 ? parts[2] : "") : url + extension;
     }
 }
 ol.supermap.MapboxStyles = MapboxStyles;

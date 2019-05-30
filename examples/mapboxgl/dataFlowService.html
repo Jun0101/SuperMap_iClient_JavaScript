@@ -19,14 +19,12 @@
     <div id="map" style="margin:0 auto;width: 100%;height: 100%"></div>
     <script type="text/javascript" src="../../dist/mapboxgl/include-mapboxgl.js"></script>
     <script>
-        var host = (window.isLocal ? window.server : "http://iclsvr.supermap.io"),
+        var host = (window.isLocal ? window.server : "http://iclient.supermap.io"),
             tileUrl = host +
             '/iserver/services/map-china400/rest/maps/China/zxyTileImage.png?prjCoordSys={"epsgCode":3857}&z={z}&x={x}&y={y}',
             urlQuery = host + "/iserver/services/map-china400/rest/maps/China_4326";
 
         wsHost = "ws:\//" + (window.isLocal ? document.location.hostname + ":8800" : "iclsvrws.supermap.io");
-        mapboxgl.accessToken =
-            'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
 
         var urlDataFlow = wsHost + "/iserver/services/dataflowTest/dataflow";
         var attribution = "<a href='https://www.mapbox.com/about/maps/' target='_blank'>© Mapbox </a>" +
@@ -79,7 +77,7 @@
             query();
         });
 
-        //模拟实时数据
+        //模拟实时数据 start
         //查询一个线数据，每两秒将一个点通过dataFlowService广播给iSevrer的dataflow服务
         function query() {
             var param = new SuperMap.QueryBySQLParameters({
@@ -158,6 +156,7 @@
                 .setHTML(feature.properties.time)
                 .addTo(map);
         }
+        //模拟实时数据 end
     </script>
 
 </body>

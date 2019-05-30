@@ -206,7 +206,7 @@ export class TileSuperMapRest extends ol.source.TileImage {
 
         function tileUrlFunction(tileCoord, pixelRatio, projection) {
             if (!me.tileGrid) {
-                if (me.extent) {
+                if (options.extent) {
                     me.tileGrid = TileSuperMapRest.createTileGrid(options.extent);
                     if (me.resolutions) {
                         me.tileGrid.resolutions = me.resolutions;
@@ -229,10 +229,12 @@ export class TileSuperMapRest extends ol.source.TileImage {
             var resolution = me.tileGrid.getResolution(z);
             var dpi = 96;
             var unit = projection.getUnits() || Unit.DEGREE;
-            if (unit === 'degrees') {
+            // OGC WKT 解析出单位是 degree
+            if (unit === 'degrees' || unit === 'degree') {
                 unit = Unit.DEGREE;
             }
-            if (unit === 'm') {
+            //通过wkt方式自定义坐标系的时候，是meter
+            if (unit === 'm' || unit === 'meter') {
                 unit = Unit.METER;
             }
             var scale = Util.resolutionToScale(resolution, dpi, unit);

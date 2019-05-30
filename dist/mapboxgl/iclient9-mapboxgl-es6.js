@@ -3,7 +3,7 @@
  *          iclient9-mapboxgl.(http://iclient.supermap.io)
  *          Copyright© 2000 - 2019 SuperMap Software Co.Ltd
  *          license: Apache-2.0
- *          version: v9.1.1
+ *          version: v9.1.2
  *         
  */
 /******/ (function(modules) { // webpackBootstrap
@@ -11778,16 +11778,16 @@ var fetch_jsonp_default = /*#__PURE__*/__webpack_require__.n(fetch_jsonp);
 const FetchRequest_fetch = window.fetch;
 /**
  * @function SuperMap.setCORS
- * @description 设置是否支持跨域。
- * @param {boolean} cors - 是否支持跨域。
+ * @description 设置是否允许跨域请求，全局配置，优先级低于 service 下的 crossOring 参数。
+ * @param {boolean} cors - 是否允许跨域请求。
  */
 var FetchRequest_setCORS = SuperMap.setCORS = function (cors) {
     SuperMap.CORS = cors;
 }
 /**
  * @function SuperMap.isCORS
- * @description 是否支持跨域。
- * @returns {boolean} 是否支持跨域。
+ * @description 是是否允许跨域请求。
+ * @returns {boolean} 是否允许跨域请求。
  */
 var FetchRequest_isCORS = SuperMap.isCORS = function () {
     if (SuperMap.CORS != undefined) {
@@ -11828,7 +11828,13 @@ var FetchRequest_FetchRequest = SuperMap.FetchRequest = {
         }
     },
     supportDirectRequest: function (url, options) {
-        return Util_Util.isInTheSameDomain(url) || FetchRequest_isCORS() || options.proxy
+        if(Util_Util.isInTheSameDomain(url)){
+          return true;
+        }if(options.crossOrigin != undefined){
+          return options.crossOrigin;
+        }else{
+          return FetchRequest_isCORS() || options.proxy
+        }
     },
     get: function (url, params, options) {
         options = options || {};
@@ -12209,6 +12215,7 @@ class SecurityManager_SecurityManager {
 
     /**
      * @description 从服务器获取一个token,在此之前要注册服务器信息。
+     * @function SuperMap.SecurityManager.generateToken
      * @param {string} url - 服务器域名+端口，如：http://localhost:8092。
      * @param {SuperMap.TokenServiceParameter} tokenParam - token 申请参数。
      * @returns {Promise} 返回包含 token 信息的 Promise 对象。
@@ -12226,6 +12233,7 @@ class SecurityManager_SecurityManager {
 
     /**
      * @description 注册安全服务器相关信息。
+     * @function SuperMap.SecurityManager.registerServers
      * @param {SuperMap.ServerInfo} serverInfos - 服务器信息。
      */
     static registerServers(serverInfos) {
@@ -12241,6 +12249,7 @@ class SecurityManager_SecurityManager {
 
     /**
      * @description 服务请求都会自动带上这个 token。
+     * @function SuperMap.SecurityManager.registerToken
      * @param {string} url -服务器域名+端口：如http://localhost:8090。
      * @param {string} token - token
      */
@@ -12255,6 +12264,7 @@ class SecurityManager_SecurityManager {
 
     /**
      * @description 注册 key,ids 为数组(存在一个 key 对应多个服务)。
+     * @function SuperMap.SecurityManager.registerKey
      * @param {Array} ids - 可以是服务 id 数组或者 url 地址数组或者 webAPI 类型数组。
      * @param {string} key - key
      */
@@ -12273,6 +12283,7 @@ class SecurityManager_SecurityManager {
 
     /**
      * @description 获取服务器信息。
+     * @function SuperMap.SecurityManager.getServerInfo
      * @param {string} url - 服务器域名+端口，如：http://localhost:8092。
      * @returns {SuperMap.ServerInfo} 服务器信息。
      */
@@ -12283,6 +12294,7 @@ class SecurityManager_SecurityManager {
 
     /**
      * @description 根据 Url 获取token。
+     * @function SuperMap.SecurityManager.getToken
      * @param {string} url - 服务器域名+端口，如：http://localhost:8092。
      * @returns {string} token
      */
@@ -12297,6 +12309,7 @@ class SecurityManager_SecurityManager {
 
     /**
      * @description 根据 Url 获取 key。
+     * @function SuperMap.SecurityManager.getKey
      * @param {string} id - id
      * @returns {string} key
      */
@@ -12308,6 +12321,7 @@ class SecurityManager_SecurityManager {
 
     /**
      * @description iServer 登录验证。
+     * @function SuperMap.SecurityManager.loginiServer
      * @param {string} url - iServer 首页地址，如：http://localhost:8090/iserver。
      * @param {string} username - 用户名。
      * @param {string} password - 密码。
@@ -12336,6 +12350,7 @@ class SecurityManager_SecurityManager {
 
     /**
      * @description iServer登出。
+     * @function SuperMap.SecurityManager.logoutiServer
      * @param {string} url - iServer 首页地址,如：http://localhost:8090/iserver。
      * @returns {Promise} 是否登出成功。
      */
@@ -12359,6 +12374,7 @@ class SecurityManager_SecurityManager {
 
     /**
      * @description Online 登录验证。
+     * @function SuperMap.SecurityManager.loginOnline
      * @param {string} callbackLocation - 跳转位置。
      * @param {boolean} [newTab=true] - 是否新窗口打开。
      */
@@ -12369,7 +12385,8 @@ class SecurityManager_SecurityManager {
 
     /**
      * @description iPortal登录验证。
-     * @param {string} url - iportal 首页地址。
+     * @function SuperMap.SecurityManager.loginiPortal
+     * @param {string} url - iportal 首页地址,如：http://localhost:8092/iportal.
      * @param {string} username - 用户名。
      * @param {string} password - 密码。
      * @returns {Promise} 返回包含 iPortal 登录请求结果的 Promise 对象。
@@ -12396,7 +12413,8 @@ class SecurityManager_SecurityManager {
 
     /**
      * @description iPortal 登出。
-     * @param {string} url - iportal 首页地址。
+     * @function SuperMap.SecurityManager.logoutiPortal
+     * @param {string} url - iportal 首页地址,如：http://localhost:8092/iportal.
      * @returns {Promise} 如果登出成功，返回 true;否则返回 false。
      */
     static logoutiPortal(url) {
@@ -12420,6 +12438,7 @@ class SecurityManager_SecurityManager {
 
     /**
      * @description iManager 登录验证。
+     * @function SuperMap.SecurityManager.loginManager
      * @param {string} url - iManager 地址。地址参数为 iManager 首页地址，如： http://localhost:8390/imanager。
      * @param {Object} [loginInfoParams] - iManager 登录参数。
      * @param {string} loginInfoParams.userName - 用户名。
@@ -12459,6 +12478,7 @@ class SecurityManager_SecurityManager {
 
     /**
      * @description 清空全部验证信息。
+     * @function SuperMap.SecurityManager.destroyAllCredentials
      */
     static destroyAllCredentials() {
         this.keys = null;
@@ -12468,6 +12488,8 @@ class SecurityManager_SecurityManager {
 
     /**
      * @description 清空令牌信息。
+     * @function SuperMap.SecurityManager.destroyToken
+     * @param {string} url - iportal 首页地址,如：http://localhost:8092/iportal.
      */
     static destroyToken(url) {
         if (!url) {
@@ -12482,13 +12504,15 @@ class SecurityManager_SecurityManager {
 
     /**
      * @description 清空服务授权码。
+     * @function SuperMap.SecurityManager.destroyKey
+     * @param {string} url - iServer 首页地址,如：http://localhost:8090/iserver。
      */
-    static destroyKey(id) {
-        if (!id) {
+    static destroyKey(url) {
+        if (!url) {
             return;
         }
         this.keys = this.keys || {};
-        var key = this._getUrlRestString(id) || id;
+        var key = this._getUrlRestString(url) || url;
         if (this.keys[key]) {
             delete this.keys[key];
         }
@@ -12550,14 +12574,17 @@ SuperMap.SecurityManager = SecurityManager_SecurityManager;
  * @classdesc iManager 服务基类（有权限限制的类需要实现此类）。
  * @category iManager
  * @param {string} url - iManager 首页地址，如：http://localhost:8390/imanager。
+ * @param {Object} options - 服务参数。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class iManagerServiceBase_IManagerServiceBase {
 
-    constructor(url) {
+    constructor(url,options) {
         if (url) {
             var end = url.substr(url.length - 1, 1);
             this.serviceUrl = end === "/" ? url.substr(0, url.length - 2) : url;
         }
+        this.options = options || {};
         this.CLASS_NAME = "SuperMap.iManagerServiceBase";
     }
 
@@ -12581,6 +12608,7 @@ class iManagerServiceBase_IManagerServiceBase {
         if (!requestOptions.hasOwnProperty("withCredentials")) {
             requestOptions['withCredentials'] = true;
         }
+        requestOptions['crossOrigin'] = this.options.crossOrigin;
         var token = SecurityManager_SecurityManager.imanagerToken;
         if (token) {
             if (!requestOptions.headers) {
@@ -12837,13 +12865,19 @@ SuperMap.iPortalMapsQueryParam = iPortalMapsQueryParam_IPortalMapsQueryParam;
  * @classdesc iPortal 服务基类（有权限限制的类需要实现此类）。
  * @category iPortal/Online
  * @param {string} url - iPortal 服务地址。
+ * @param {Object} options - 可选参数。
+ * @param {boolean} [options.withCredentials=false] - 请求是否携带 cookie。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class iPortalServiceBase_IPortalServiceBase {
 
-    constructor(url) {
+    constructor(url, options) {
+        options = options || {};
         this.serviceUrl = url;
         this.serverType = REST_ServerType.iPortal;
         this.CLASS_NAME = "SuperMap.iPortalServiceBase";
+        this.withCredentials = options.withCredentials || false;
+        this.crossOrigin = options.crossOrigin
     }
 
     /**
@@ -12856,7 +12890,7 @@ class iPortalServiceBase_IPortalServiceBase {
      * @returns {Promise} 返回包含请求结果的 Promise 对象。
      */
 
-    request(method, url, param, requestOptions) {
+    request(method, url, param, requestOptions = {crossOrigin: this.crossOrigin, withCredentials: this.withCredentials }) {
         url = this.createCredentialUrl(url);
         return FetchRequest_FetchRequest.commit(method, url, param, requestOptions).then(function (response) {
             return response.json();
@@ -12938,14 +12972,15 @@ SuperMap.iPortalServiceBase = iPortalServiceBase_IPortalServiceBase;
  * @extends {SuperMap.iPortalServiceBase}
  * @param {string} seviceUrl - 服务地址。
  * @param {Object} params - 服务请求参数。
- *
+ * @param {boolean} [params.withCredentials=false] - 请求是否携带 cookie。
+ * @param {boolean} [params.crossOrigin] - 请求是否携带 cookie。 * 
  */
 class iPortalService_IPortalService extends iPortalServiceBase_IPortalServiceBase {
 
 
 
     constructor(serviceUrl, params) {
-        super(serviceUrl);
+        super(serviceUrl, params);
         params = params || {};
         this.addedMapNames = null;
         this.addedSceneNames = null;
@@ -13144,13 +13179,14 @@ SuperMap.iPortalMap = iPortalMap_IPortalMap;
  * @category iPortal/Online
  * @extends {SuperMap.iPortalServiceBase}
  * @param {string} iportalUrl - 地址。
- *
  */
 class iPortal_IPortal extends iPortalServiceBase_IPortalServiceBase {
 
-    constructor(iportalUrl) {
-        super(iportalUrl);
+    constructor(iportalUrl, options) {
+        super(iportalUrl,options);
         this.iportalUrl = iportalUrl;
+        options = options || {};
+        this.withCredentials = options.withCredentials || false;
     }
 
     /**
@@ -13191,7 +13227,7 @@ class iPortal_IPortal extends iPortalServiceBase_IPortalServiceBase {
      */
     deleteServices(ids) {
         var serviceUrl = this.iportalUrl + "/web/services";
-        return this.request("DELETE", serviceUrl, {ids: ids});
+        return this.request("DELETE", serviceUrl, { ids: ids });
     }
 
     /**
@@ -13204,7 +13240,12 @@ class iPortal_IPortal extends iPortalServiceBase_IPortalServiceBase {
         if (!(queryParams instanceof iPortalMapsQueryParam_IPortalMapsQueryParam)) {
             return null;
         }
-        var mapsUrl = this.iportalUrl + "/web/maps";
+        let mapsUrl;
+        if (this.withCredentials) {
+            mapsUrl = this.iportalUrl + "/web/mycontent/maps";
+        } else {
+            mapsUrl = this.iportalUrl + "/web/maps";
+        }
         return this.request("GET", mapsUrl, queryParams).then(function (result) {
             var mapRetult = {};
             var maps = [];
@@ -13266,6 +13307,7 @@ SuperMap.iPortal = iPortal_IPortal;
  * @param {string} [options.proxy] - 服务代理地址。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。
  * @param {boolean} [options.withCredentials=false] - 请求是否携带 cookie。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class CommonServiceBase_CommonServiceBase {
 
@@ -13303,6 +13345,8 @@ class CommonServiceBase_CommonServiceBase {
         this.isInTheSameDomain = null;
 
         this.withCredentials = false;
+        
+        
 
         if (Util_Util.isArray(url)) {
             me.urls = url;
@@ -13323,11 +13367,11 @@ class CommonServiceBase_CommonServiceBase {
             me.url = url[0];
             me.totalTimes = 1;
         }
-
+        
         me.serverType = me.serverType || REST_ServerType.ISERVER;
 
         options = options || {};
-
+        this.crossOrigin = options.crossOrigin;
         Util_Util.extend(this, options);
 
         me.isInTheSameDomain = Util_Util.isInTheSameDomain(me.url);
@@ -13381,12 +13425,15 @@ class CommonServiceBase_CommonServiceBase {
      * @param {Object} [options.scope] - 如果回调函数是对象的一个公共方法，设定该对象的范围。
      * @param {boolean} [options.isInTheSameDomain] - 请求是否在当前域中。
      * @param {boolean} [options.withCredentials=false] - 请求是否携带 cookie。
+     * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
+     * 
      */
     request(options) {
         let me = this;
         options.url = options.url || me.url;
         options.proxy = options.proxy || me.proxy;
         options.withCredentials = options.withCredentials != undefined ? options.withCredentials : me.withCredentials;
+        options.crossOrigin = options.crossOrigin != undefined ? options.crossOrigin : me.crossOrigin;
         options.isInTheSameDomain = me.isInTheSameDomain;
         //为url添加安全认证信息片段
         let credential = this.getCredential(options.url);
@@ -13565,6 +13612,7 @@ class CommonServiceBase_CommonServiceBase {
         FetchRequest_FetchRequest.commit(options.method, options.url, options.params, {
             headers: options.headers,
             withCredentials: options.withCredentials,
+            crossOrigin: options.crossOrigin,
             timeout: options.async ? 0 : null,
             proxy: options.proxy
         }).then(function (response) {
@@ -13827,11 +13875,13 @@ SuperMap.GeoDecodingParameter = GeoDecodingParameter_GeoDecodingParameter;
  * @classdesc 地址匹配服务，包括正向匹配和反向匹配。
  * @param {string} url - 地址匹配服务地址。
  * @param {Object} options - 参数。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class AddressMatchService_AddressMatchService extends CommonServiceBase_CommonServiceBase {
 
     constructor(url, options) {
         super(url, options);
+        this.options = options || {}
         this.CLASS_NAME = "SuperMap.AddressMatchService";
     }
 
@@ -13876,7 +13926,7 @@ class AddressMatchService_AddressMatchService extends CommonServiceBase_CommonSe
 
     processAsync(url, params) {
         var me = this;
-        FetchRequest_FetchRequest.get(url, params,{proxy: me.proxy}).then(function (response) {
+        FetchRequest_FetchRequest.get(url, params,{crossOrigin:me.crossOrigin, proxy: me.proxy}).then(function (response) {
             return response.json();
         }).then(function (result) {
             if (result) {
@@ -14195,6 +14245,7 @@ SuperMap.AreaSolarRadiationParameters = AreaSolarRadiationParameters_AreaSolarRa
  * @classdesc 空间分析服务基类。
  * @param {string} url - 地址。
  * @param {Object} options - 参数。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @extends {SuperMap.CommonServiceBase}
  */
 class SpatialAnalystBase_SpatialAnalystBase extends CommonServiceBase_CommonServiceBase {
@@ -14298,6 +14349,7 @@ SuperMap.SpatialAnalystBase = SpatialAnalystBase_SpatialAnalystBase;
  * @param {string} url - 服务的访问地址。如：</br>http://localhost:8090/iserver/services/spatialanalyst-sample/restjsr/spatialanalyst。</br>
  * @param {Object} options - 参数。</br>
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @extends {SuperMap.SpatialAnalystBase}
  * @example 例如：
  * (start code)
@@ -15373,6 +15425,7 @@ SuperMap.GeometryBufferAnalystParameters = GeometryBufferAnalystParameters_Geome
  * @param {string} url - 服务的访问地址。如：http://localhost:8090/iserver/services/spatialanalyst-changchun/restjsr/spatialanalyst。
  * @param {Object} options - 参数。</br>
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @extends {SuperMap.SpatialAnalystBase}
  * @example 例如：
  * (start code)
@@ -15762,6 +15815,7 @@ SuperMap.BuffersAnalystJobsParameter = BuffersAnalystJobsParameter_BuffersAnalys
  * @param {number} options.length - 服务访问地址数组长度。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。
  * @param {Object} [options.eventListeners] - 事件监听器对象。有 processCompleted 属性可传入处理完成后的回调函数。processFailed 属性传入处理失败后的回调函数。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class ProcessingServiceBase_ProcessingServiceBase extends CommonServiceBase_CommonServiceBase {
 
@@ -15832,6 +15886,7 @@ class ProcessingServiceBase_ProcessingServiceBase extends CommonServiceBase_Comm
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
             withCredentials: me.withCredentials,
+            crossOrigin:me.crossOrigin,
             isInTheSameDomain: me.isInTheSameDomain
         };
         FetchRequest_FetchRequest.post(me._processUrl(url), JSON.stringify(parameterObject), options).then(function (response) {
@@ -15921,6 +15976,7 @@ SuperMap.ProcessingServiceBase = ProcessingServiceBase_ProcessingServiceBase;
  * @extends {SuperMap.ProcessingServiceBase}
  * @param {string} url - 服务地址。
  * @param {Object} options - 参数。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class BuffersAnalystJobsService_BuffersAnalystJobsService extends ProcessingServiceBase_ProcessingServiceBase {
     constructor(url, options) {
@@ -16051,7 +16107,7 @@ SuperMap.BurstPipelineAnalystParameters = BurstPipelineAnalystParameters_BurstPi
  * @extends {SuperMap.CommonServiceBase}
  * @param {string} url - 网络分析服务地址。
  * @param {Object} options - 参数。
- *
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class NetworkAnalystServiceBase_NetworkAnalystServiceBase extends CommonServiceBase_CommonServiceBase {
 
@@ -16122,6 +16178,7 @@ SuperMap.NetworkAnalystServiceBase = NetworkAnalystServiceBase_NetworkAnalystSer
  *                       例如: "http://localhost:8090/iserver/services/test/rest/networkanalyst/WaterNet@FacilityNet"。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class BurstPipelineAnalystService_BurstPipelineAnalystService extends NetworkAnalystServiceBase_NetworkAnalystServiceBase {
 
@@ -16203,8 +16260,9 @@ SuperMap.BurstPipelineAnalystService = BurstPipelineAnalystService_BurstPipeline
  *        发送请求格式类似于："http://localhost:8090/iserver/services/map-ChartW/rest/maps/海图/chartFeatureInfoSpecs.json"。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 事件监听器对象。有processCompleted属性可传入处理完成后的回调函数。processFailed属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式，参数格式为"ISERVER","GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。
+ * @param {SuperMap.DataFormat} [options.format] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式，参数格式为"ISERVER","GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class ChartFeatureInfoSpecsService_ChartFeatureInfoSpecsService extends CommonServiceBase_CommonServiceBase {
 
@@ -16624,8 +16682,9 @@ SuperMap.QueryParameters = QueryParameters_QueryParameters;
  * @param {string} url - 地图查询服务访问地址。如："http://192.168.168.35:8090/iserver/services/map-ChartW/rest/maps/海图"。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 事件监听器对象。有processCompleted属性可传入处理完成后的回调函数。processFailed属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为"ISERVER","GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。
+ * @param {SuperMap.DataFormat} [options.format] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为"ISERVER","GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @example
  * 下面示例显示了如何进行海图属性查询：
  * var nameArray = ["GB4X0000_52000"];
@@ -16853,37 +16912,13 @@ class ClipParameter_ClipParameter {
      * @returns {string} 返回转换后的 JSON 字符串。
      */
     toJSON() {
-        if (this.isClipInRegion == false) {
-            return null;
-        }
-        var strClipParameter = "";
-        var me = this;
-
-        strClipParameter += "'isClipInRegion':" + Util_Util.toJSON(me.isClipInRegion);
-
-        if (me.clipDatasetName != null) {
-            strClipParameter += "," + "'clipDatasetName':" + Util_Util.toJSON(me.clipDatasetName);
-        }
-
-        if (me.clipDatasourceName != null) {
-            strClipParameter += "," + "'clipDatasourceName':" + Util_Util.toJSON(me.clipDatasourceName);
-        }
-
-        if (me.isExactClip != null) {
-            strClipParameter += "," + "'isExactClip':" + Util_Util.toJSON(me.isExactClip);
-        }
-
-        if (me.clipRegion != null) {
-            var serverGeometry = ServerGeometry_ServerGeometry.fromGeometry(me.clipRegion);
-            if (serverGeometry) {
-                var pointsCount = serverGeometry.parts[0];
-                var point2ds = serverGeometry.points.splice(0, pointsCount);
-                strClipParameter += "," + "'clipRegion':" + "{\"point2Ds\":";
-                strClipParameter += Util_Util.toJSON(point2ds);
-                strClipParameter += "}";
-            }
-        }
-        return "{" + strClipParameter + "}";
+        return Util_Util.toJSON({
+            isClipInRegion: this.isClipInRegion,
+            clipDatasetName: this.clipDatasetName,
+            clipDatasourceName: this.clipDatasourceName,
+            isExactClip: this.isExactClip,
+            clipRegion: ServerGeometry_ServerGeometry.fromGeometry(this.clipRegion)
+        });
     }
 
 }
@@ -17248,6 +17283,7 @@ SuperMap.ComputeWeightMatrixParameters = ComputeWeightMatrixParameters_ComputeWe
  *                       例如："http://localhost:8090/iserver/services/components-rest/rest/networkanalyst/RoadNet@Changchun"。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class ComputeWeightMatrixService_ComputeWeightMatrixService extends NetworkAnalystServiceBase_NetworkAnalystServiceBase {
 
@@ -17340,9 +17376,10 @@ SuperMap.ComputeWeightMatrixService = ComputeWeightMatrixService_ComputeWeightMa
  * @param {string} url - 数据流服务地址
  * @param {Object} options - 参数。
  * @param {function} options.style - 设置数据加载样式。
- * @param {function} options.onEachFeature - 设置每个数据加载popup等。
- * @param {Array.<Object>} options.geometry - 设置增添的几何要素对象数组。
- * @param {Object} options.excludeField - -排除字段。
+ * @param {function} [options.onEachFeature] - 设置每个数据加载popup等。
+ * @param {GeoJSONObject} [options.geometry] - 指定几何范围，该范围内的要素才能被订阅。
+ * @param {Object} [options.excludeField] - -排除字段。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class DataFlowService_DataFlowService extends CommonServiceBase_CommonServiceBase {
 
@@ -17358,8 +17395,8 @@ class DataFlowService_DataFlowService extends CommonServiceBase_CommonServiceBas
         super(url, options);
 
         /**
-         * @member {Array.<Object>} SuperMap.DataFlowService.prototype.geometry
-         * @description 设置增添的几何要素对象数组。
+         * @member {GeoJSONObject} SuperMap.DataFlowService.prototype.geometry
+         * @description 指定几何范围，该范围内的要素才能被订阅。
          */
         this.geometry = null;
 
@@ -17464,7 +17501,7 @@ class DataFlowService_DataFlowService extends CommonServiceBase_CommonServiceBas
     /**
      * @function SuperMap.DataFlowService.prototype.setGeometry
      * @description 设置添加的几何要素数据
-     * @param {Array.<Object>} geometry - 设置增添的几何要素对象数组。
+     * @param {GeoJSONObject} geometry - 指定几何范围，该范围内的要素才能被订阅。
      * @returns {this} this
      */
     setGeometry(geometry) {
@@ -18496,6 +18533,7 @@ SuperMap.DensityKernelAnalystParameters = DensityKernelAnalystParameters_Density
  * @param {string} url - 服务的访问地址。如 http://localhost:8090/iserver/services/spatialanalyst-changchun/restjsr/spatialanalyst 。
  * @param {Object} options - 参数。</br>
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @extends {SuperMap.SpatialAnalystBase}
  * @example  例如：
  *  var myDensityAnalystService = new SuperMap.DensityAnalystService(url);
@@ -18709,8 +18747,9 @@ SuperMap.EditFeaturesParameters = EditFeaturesParameters_EditFeaturesParameters;
  * 例如：http://localhost:8090/iserver/services/data-jingjin/rest/data/datasources/name/Jingjin/datasets/name/Landuse_R
  * @param {Object} options - 参数。</br>
  * @param {Object} options.eventListeners - 事件监听器对象。有processCompleted属性可传入处理完成后的回调函数。processFailed属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} serverType - 服务器类型，iServer|iPortal|Online。
- * @param {SuperMap.DataFormat} format -查询结果返回格式，目前支持iServerJSON 和GeoJSON两种格式。参数格式为"ISERVER","GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。
+ * @param {SuperMap.DataFormat} [format] -查询结果返回格式，目前支持iServerJSON 和GeoJSON两种格式。参数格式为"ISERVER","GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @example
  * var myService = new SuperMap.EditFeaturesService(url, {eventListeners: {
  *     "processCompleted": editFeatureCompleted,
@@ -18950,6 +18989,7 @@ SuperMap.FacilityAnalystSinks3DParameters = FacilityAnalystSinks3DParameters_Fac
  *                       例如:"http://localhost:8090/iserver/services/components-rest/rest/networkanalyst/RoadNet@Changchun"。<br>
  * @param {Object} options - 参数。<br>
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class FacilityAnalystSinks3DService_FacilityAnalystSinks3DService extends CommonServiceBase_CommonServiceBase {
 
@@ -19062,6 +19102,7 @@ SuperMap.FacilityAnalystSources3DParameters = FacilityAnalystSources3DParameters
  *                       例如:"http://localhost:8090/iserver/services/components-rest/rest/networkanalyst/RoadNet@Changchun"。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class FacilityAnalystSources3DService_FacilityAnalystSources3DService extends CommonServiceBase_CommonServiceBase {
 
@@ -19202,6 +19243,7 @@ SuperMap.FacilityAnalystStreamParameters = FacilityAnalystStreamParameters_Facil
  *                       例如: "http://localhost:8090/iserver/services/test/rest/networkanalyst/WaterNet@FacilityNet";
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class FacilityAnalystStreamService_FacilityAnalystStreamService extends NetworkAnalystServiceBase_NetworkAnalystServiceBase {
 
@@ -19329,6 +19371,7 @@ SuperMap.FacilityAnalystTracedown3DParameters = FacilityAnalystTracedown3DParame
  *                       例如:"http://localhost:8090/iserver/services/components-rest/rest/networkanalyst/RoadNet@Changchun"。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class FacilityAnalystTracedown3DService_FacilityAnalystTracedown3DService extends CommonServiceBase_CommonServiceBase {
 
@@ -19432,6 +19475,7 @@ SuperMap.FacilityAnalystTraceup3DParameters = FacilityAnalystTraceup3DParameters
  *                       例如:"http://localhost:8090/iserver/services/components-rest/rest/networkanalyst/RoadNet@Changchun"。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class FacilityAnalystTraceup3DService_FacilityAnalystTraceup3DService extends CommonServiceBase_CommonServiceBase {
 
@@ -19550,6 +19594,7 @@ SuperMap.FacilityAnalystUpstream3DParameters = FacilityAnalystUpstream3DParamete
  *                       例如:"http://localhost:8090/iserver/services/components-rest/rest/networkanalyst/RoadNet@Changchun"。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class FacilityAnalystUpstream3DService_FacilityAnalystUpstream3DService extends CommonServiceBase_CommonServiceBase {
 
@@ -19769,12 +19814,13 @@ SuperMap.FieldStatisticsParameters = FieldStatisticsParameters_FieldStatisticsPa
  * @param {string} url - 服务的访问地址。如访问 World Map 服务，只需将 url 设为：http://localhost:8090/iserver/services/data-world/rest/data 即可。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 事件监听器对象。有 processCompleted 属性可传入处理完成后的回调函数。processFailed 属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持 iServerJSON 和GeoJSON 两种格式。参数格式为 "ISERVER","GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。
+ * @param {SuperMap.DataFormat} [options.format] - 查询结果返回格式，目前支持 iServerJSON 和GeoJSON 两种格式。参数格式为 "ISERVER","GEOJSON"。
  * @param {string} options.datasource - 数据集所在的数据源名称。
  * @param {string} options.dataset - 数据集名称。
  * @param {string} options.field - 查询统计的目标字段名称。
  * @param {SuperMap.StatisticMode} options.statisticMode - 字段查询统计的方法类型。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @example
  * var myService = new SuperMap.FieldStatisticService(url, {eventListeners: {
  *     "processCompleted": fieldStatisticCompleted,
@@ -19993,6 +20039,7 @@ SuperMap.FindClosestFacilitiesParameters = FindClosestFacilitiesParameters_FindC
  *                       例如:"http://localhost:8090/iserver/services/components-rest/rest/networkanalyst/RoadNet@Changchun"。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class FindClosestFacilitiesService_FindClosestFacilitiesService extends NetworkAnalystServiceBase_NetworkAnalystServiceBase {
 
@@ -20225,6 +20272,7 @@ SuperMap.FindLocationParameters = FindLocationParameters_FindLocationParameters;
  *                       如 http://localhost:8090/iserver/services/transportationanalyst-sample/rest/networkanalyst/RoadNet@Changchun 。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class FindLocationService_FindLocationService extends NetworkAnalystServiceBase_NetworkAnalystServiceBase {
 
@@ -20433,6 +20481,7 @@ SuperMap.FindMTSPPathsParameters = FindMTSPPathsParameters_FindMTSPPathsParamete
  *                       例如:"http://localhost:8090/iserver/services/components-rest/rest/networkanalyst/RoadNet@Changchun"。
  * @param {Object} options - 互服务时所需可选参数。如：
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class FindMTSPPathsService_FindMTSPPathsService extends NetworkAnalystServiceBase_NetworkAnalystServiceBase {
 
@@ -20654,6 +20703,7 @@ SuperMap.FindPathParameters = FindPathParameters_FindPathParameters;
  *                       例如:"http://localhost:8090/iserver/services/components-rest/rest/networkanalyst/RoadNet@Changchun"。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class FindPathService_FindPathService extends NetworkAnalystServiceBase_NetworkAnalystServiceBase {
 
@@ -20886,6 +20936,7 @@ SuperMap.FindServiceAreasParameters = FindServiceAreasParameters_FindServiceArea
  *                       例如:"http://localhost:8090/iserver/services/components-rest/rest/networkanalyst/RoadNet@Changchun"。
  * @param {Object} options - 互服务时所需可选参数。如：
  * @param {Object} options.eventListeners - 需要被注册的监听器对象
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class FindServiceAreasService_FindServiceAreasService extends NetworkAnalystServiceBase_NetworkAnalystServiceBase {
 
@@ -21101,7 +21152,8 @@ SuperMap.FindTSPPathsParameters = FindTSPPathsParameters_FindTSPPathsParameters;
  *                       http://{服务器地址}:{服务端口号}/iserver/services/{网络分析服务名}/rest/networkanalyst/{网络数据集@数据源}；
  *                       例如:"http://localhost:8090/iserver/services/components-rest/rest/networkanalyst/RoadNet@Changchun"。
  * @param {Object} options - 参数。
- *        {Object} eventListeners - 需要被注册的监听器对象。
+ * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class FindTSPPathsService_FindTSPPathsService extends NetworkAnalystServiceBase_NetworkAnalystServiceBase {
 
@@ -21361,6 +21413,7 @@ SuperMap.GenerateSpatialDataParameters = GenerateSpatialDataParameters_GenerateS
  * @param {string} url - 服务的访问地址。如 http://localhost:8090/iserver/services/spatialanalyst-changchun/restjsr/spatialanalyst。
  * @param {Object} options - 参数。</br>
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @extends {SuperMap.SpatialAnalystBase}
  * @example 实例化该类如下例所示：
  * (start code)
@@ -21950,6 +22003,7 @@ SuperMap.GeoRelationAnalystParameters = GeoRelationAnalystParameters_GeoRelation
  * @param {string} url - 服务的访问地址。如 http://localhost:8090/iserver/services/spatialanalyst-changchun/restjsr/spatialanalyst。
  * @param {Object} options - 参数。</br>
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @extends {SuperMap.SpatialAnalystBase}
  * @example 实例化该类如下例所示：
  * (start code)
@@ -22280,6 +22334,7 @@ SuperMap.GetFeaturesByBoundsParameters = GetFeaturesByBoundsParameters_GetFeatur
  * @param {Object} options.eventListeners - 事件监听器对象。有 processCompleted 属性可传入处理完成后的回调函数。processFailed 属性传入处理失败后的回调函数。 
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。 
  * @param {SuperMap.DataFormat} [options.format=SuperMap.DataFormat.GEOJSON] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @example
  * var myService = new SuperMap.GetFeaturesServiceBase(url, {
  *     eventListeners: {
@@ -22436,8 +22491,9 @@ SuperMap.GetFeaturesServiceBase = GetFeaturesServiceBase_GetFeaturesServiceBase;
  * 例如："http://localhost:8090/iserver/services/data-jingjin/rest/data/"
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 事件监听器对象。有 processCompleted 属性可传入处理完成后的回调函数。processFailed 属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。<
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持 iServerJSON 和GeoJSON 两种格式。参数格式为 "ISERVER","GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。 
+ * @param {SuperMap.DataFormat} [options.format=SuperMap.DataFormat.GEOJSON] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @example
  * var myGetFeaturesByBoundsService = new SuperMa.GetFeaturesByBoundsService(url, {
  *     eventListeners: {
@@ -22615,8 +22671,9 @@ SuperMap.GetFeaturesByBufferParameters = GetFeaturesByBufferParameters_GetFeatur
  * 例如："http://localhost:8090/iserver/services/data-jingjin/rest/data/"
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 事件监听器对象。有processCompleted属性可传入处理完成后的回调函数。processFailed属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。
- * @param {SuperMap.DataFormat} options.format -查询结果返回格式，目前支持iServerJSON 和GeoJSON两种格式。参数格式为"ISERVER","GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。 
+ * @param {SuperMap.DataFormat} [options.format=SuperMap.DataFormat.GEOJSON] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @extends {SuperMap.GetFeaturesServiceBase}
  * @example
  * var myGetFeaturesByBufferService = new SuperMap.GetFeaturesByBufferService(url, {
@@ -22808,8 +22865,9 @@ SuperMap.GetFeaturesByGeometryParameters = GetFeaturesByGeometryParameters_GetFe
  * 例如："http://localhost:8090/iserver/services/data-jingjin/rest/data"
  * @param {Object} options - 参数。</br>
  * @param {Object} options.eventListeners - 事件监听器对象。有processCompleted属性可传入处理完成后的回调函数。processFailed属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为"ISERVER"，"GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。 
+ * @param {SuperMap.DataFormat} [options.format=SuperMap.DataFormat.GEOJSON] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @extends {SuperMap.GetFeaturesServiceBase}
  * @example
  * var myService = new SuperMap.GetFeaturesByGeometryService(url, {
@@ -22961,8 +23019,9 @@ SuperMap.GetFeaturesByIDsParameters = GetFeaturesByIDsParameters_GetFeaturesByID
  *                       例如："http://localhost:8090/iserver/services/data-jingjin/rest/data/"
  * @param {Object} options - 参数。</br>
  * @param {Object} options.eventListeners - 事件监听器对象。有processCompleted属性可传入处理完成后的回调函数。processFailed属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持iServerJSON 和GeoJSON两种格式。参数格式为"ISERVER","GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。 
+ * @param {SuperMap.DataFormat} [options.format=SuperMap.DataFormat.GEOJSON] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @extends {SuperMap.GetFeaturesServiceBase}
  * @example
  * var myGetFeaturesByIDsService = new SuperMap.GetFeaturesByIDsService(url, {
@@ -23104,8 +23163,9 @@ SuperMap.GetFeaturesBySQLParameters = GetFeaturesBySQLParameters_GetFeaturesBySQ
  *                       例如："http://localhost:8090/iserver/services/data-jingjin/rest/data/"
  * @param {Object} options - 参数。</br>
  * @param {Object} options.eventListeners - 事件监听器对象。有processCompleted属性可传入处理完成后的回调函数。processFailed属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持iServerJSON 和GeoJSON两种格式。参数格式为"ISERVER","GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。 
+ * @param {SuperMap.DataFormat} [options.format=SuperMap.DataFormat.GEOJSON] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @extends {SuperMap.GetFeaturesServiceBase}
  * @example
  * var myGetFeaturesBySQLService = new SuperMap.GetFeaturesBySQLService(url, {
@@ -23163,10 +23223,11 @@ SuperMap.GetFeaturesBySQLService = GetFeaturesBySQLService_GetFeaturesBySQLServi
  * @param {string} url - 服务的访问地址。如访问World Map服务，只需将url设为：http://localhost:8090/iserver/services/data-world/rest/data 即可。
  * @param {Object} options - 参数。</br>
  * @param {Object} options.eventListeners - 事件监听器对象。有processCompleted属性可传入处理完成后的回调函数。processFailed属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持iServerJSON 和GeoJSON两种格式。参数格式为"ISERVER","GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。 
+ * @param {SuperMap.DataFormat} [options.format=SuperMap.DataFormat.GEOJSON] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
  * @param {string}options.datasource - 要查询的数据集所在的数据源名称。</br>
  * @param {string}options.dataset - 要查询的数据集名称。</br>
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @extends {SuperMap.CommonServiceBase}
  * @example
  * var myService = new SuperMap.GetFieldsService(url, {eventListeners: {
@@ -23318,8 +23379,9 @@ SuperMap.GetGridCellInfosParameters = GetGridCellInfosParameters_GetGridCellInfo
  * @param {string} url - 查询服务地址。例如: http://localhost:8090/iserver/services/data-jingjin/rest/data
  * @param {Object} options - 参数。</br>
  * @param {Object} options.eventListeners - 事件监听器对象。有processCompleted属性可传入处理完成后的回调函数。processFailed属性传入处理失败后的回调函数。<br>
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。<br>
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为"ISERVER","GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。 
+ * @param {SuperMap.DataFormat} [options.format=SuperMap.DataFormat.GEOJSON] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @extends {SuperMap.CommonServiceBase}
  * @example
  * var myService = new SuperMap.GetGridCellInfosService(url, {eventListeners: {
@@ -27415,8 +27477,9 @@ SuperMap.Vector = iServer_Vector_Vector;
  *        http://localhost:8090/iserver/services/map-world/rest/maps/World/tempLayersSet/resourceID
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 事件监听器对象。有processCompleted属性可传入处理完成后的回调函数。processFailed属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为"ISERVER","GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。 
+ * @param {SuperMap.DataFormat} [options.format=SuperMap.DataFormat.GEOJSON] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @param {boolean} options.isTempLayers - 当前url对应的图层是否是临时图层。
  */
 class GetLayersInfoService_GetLayersInfoService extends CommonServiceBase_CommonServiceBase {
@@ -28234,6 +28297,7 @@ SuperMap.InterpolationKrigingAnalystParameters = InterpolationKrigingAnalystPara
  * @param {string} url - 服务的访问地址。如 http://localhost:8090/iserver/services/spatialanalyst-changchun/restjsr/spatialanalyst。
  * @param {Object} options - 参数。</br>
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @extends {SuperMap.SpatialAnalystBase}
  * @example 例如：
  * (start code)
@@ -28513,6 +28577,7 @@ SuperMap.KernelDensityJobParameter = KernelDensityJobParameter_KernelDensityJobP
  * @extends {SuperMap.ProcessingServiceBase}
  * @param {string} url -核密度分析服务地址。
  * @param {Object} options - 交互服务时所需可选参数。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class KernelDensityJobsService_KernelDensityJobsService extends ProcessingServiceBase_ProcessingServiceBase {
 
@@ -28929,8 +28994,9 @@ SuperMap.LayerStatus = LayerStatus_LayerStatus;
  * @param {string} url - 服务的访问地址。如：http://localhost:8090/iserver/services/map-world/rest/maps/World+Map 。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 事件监听器对象。有 processCompleted 属性可传入处理完成后的回调函数。processFailed 属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持 iServerJSON 和GeoJSON 两种格式。参数格式为 "ISERVER","GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。 
+ * @param {SuperMap.DataFormat} [options.format=SuperMap.DataFormat.GEOJSON] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class MapService_MapService extends CommonServiceBase_CommonServiceBase {
 
@@ -29169,9 +29235,10 @@ SuperMap.MathExpressionAnalysisParameters = MathExpressionAnalysisParameters_Mat
  * @class SuperMap.MathExpressionAnalysisService
  * @category  iServer SpatialAnalyst GridMathAnalyst
  * @classdesc 栅格代数运算服务类。
+ * @param {string} url - 服务的访问地址。如 http://localhost:8090/iserver/services/spatialanalyst-changchun/restjsr/spatialanalyst
  * @param {Object} options - 参数。</br>
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
- * @param {string} url - 服务的访问地址。如 http://localhost:8090/iserver/services/spatialanalyst-changchun/restjsr/spatialanalyst
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @extends {SuperMap.SpatialAnalystBase}
  * @example 例如：
  * (start code)
@@ -29333,8 +29400,9 @@ SuperMap.MeasureParameters = MeasureParameters_MeasureParameters;
  * @param {string} url - 服务访问的地址。如：http://localhost:8090/iserver/services/map-world/rest/maps/World+Map 。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 事件监听器对象。有 processCompleted 属性可传入处理完成后的回调函数。processFailed 属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER","GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。 
+ * @param {SuperMap.DataFormat} [options.format=SuperMap.DataFormat.GEOJSON] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @param {MeasureMode} options.measureMode - 量算模式，包括距离量算模式和面积量算模式。
  */
 class MeasureService_MeasureService extends CommonServiceBase_CommonServiceBase {
@@ -29443,6 +29511,7 @@ SuperMap.MeasureService = MeasureService_MeasureService;
  * @param {string} url - 服务的访问地址。如http://localhost:8090/iserver/services/spatialanalyst-changchun/restjsr/spatialanalyst。
  * @param {Object} options - 参数。</br>
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @extends {SuperMap.CommonServiceBase}
  * @example 例如：
  * (start code)
@@ -29662,10 +29731,11 @@ SuperMap.OverlayGeoJobParameter = OverlayGeoJobParameter_OverlayGeoJobParameter;
  * @param {string} url - 叠加分析任务地址。
  * @param {Object} options - 参数。
  * @param {SuperMap.Events} options.events - 处理所有事件的对象。
- * @param {Object} options.eventListeners - 听器对象。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。
+ * @param {Object} [options.eventListeners] - 事件监听器对象。有 processCompleted 属性可传入处理完成后的回调函数。processFailed 属性传入处理失败后的回调函数。
  * @param {number} options.index - 服务访问地址在数组中的位置。
  * @param {number} options.length - 服务访问地址数组长度。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class OverlayGeoJobsService_OverlayGeoJobsService extends ProcessingServiceBase_ProcessingServiceBase {
 
@@ -29799,8 +29869,9 @@ SuperMap.QueryByBoundsParameters = QueryByBoundsParameters_QueryByBoundsParamete
  * @param {string} url - 服务地址。请求地图查询服务的 URL 应为：http://{服务器地址}:{服务端口号}/iserver/services/{地图服务名}/rest/maps/{地图名}；
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 事件监听器对象。有processCompleted属性可传入处理完成后的回调函数。processFailed属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持iServerJSON 和GeoJSON两种格式。参数格式为"ISERVER"，"GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。 
+ * @param {SuperMap.DataFormat} [options.format=SuperMap.DataFormat.GEOJSON] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @example
  * var myService = new SuperMap.QueryService(url, {
  *     eventListeners: {
@@ -29985,8 +30056,9 @@ SuperMap.QueryService = QueryService_QueryService;
  * @param {string} url - 服务的访问地址。如访问World Map服务，只需将url设为: http://localhost:8090/iserver/services/map-world/rest/maps/World+Map 即可。
  * @param {Object} options - 参数。<br>
  * @param {Object} options.eventListeners - 事件监听器对象。有processCompleted属性可传入处理完成后的回调函数。processFailed属性传入处理失败后的回调函数。<br>
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。<br>
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持iServerJSON 和GeoJSON两种格式。参数格式为"ISERVER"，"GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。 
+ * @param {SuperMap.DataFormat} [options.format=SuperMap.DataFormat.GEOJSON] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class QueryByBoundsService_QueryByBoundsService extends QueryService_QueryService {
 
@@ -30157,8 +30229,9 @@ SuperMap.QueryByDistanceParameters = QueryByDistanceParameters_QueryByDistancePa
  * @param {string} url - 服务的访问地址。如访问World Map服务，只需将url设为：http://localhost:8090/iserver/services/map-world/rest/maps/World+Map 即可。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 事件监听器对象。有processCompleted属性可传入处理完成后的回调函数。processFailed属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持iServerJSON 和GeoJSON两种格式。参数格式为"ISERVER"，"GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。 
+ * @param {SuperMap.DataFormat} [options.format=SuperMap.DataFormat.GEOJSON] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class QueryByDistanceService_QueryByDistanceService extends QueryService_QueryService {
 
@@ -30311,8 +30384,9 @@ SuperMap.QueryByGeometryParameters = QueryByGeometryParameters_QueryByGeometryPa
  * @param {string} url - 服务的访问地址。如访问World Map服务，只需将url设为: http://localhost:8090/iserver/services/map-world/rest/maps/World+Map 即可。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 事件监听器对象。有processCompleted属性可传入处理完成后的回调函数。processFailed属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持iServerJSON 和GeoJSON两种格式。参数格式为"ISERVER"，"GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。 
+ * @param {SuperMap.DataFormat} [options.format=SuperMap.DataFormat.GEOJSON] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class QueryByGeometryService_QueryByGeometryService extends QueryService_QueryService {
 
@@ -30453,8 +30527,9 @@ SuperMap.QueryBySQLParameters = QueryBySQLParameters_QueryBySQLParameters;
  * @param {string} url - 服务的访问地址。如访问World Map服务，只需将url设为: http://localhost:8090/iserver/services/map-world/rest/maps/World+Map 即可。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 事件监听器对象。有processCompleted属性可传入处理完成后的回调函数。processFailed属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为"ISERVER"，"GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。 
+ * @param {SuperMap.DataFormat} [options.format=SuperMap.DataFormat.GEOJSON] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class QueryBySQLService_QueryBySQLService extends QueryService_QueryService {
 
@@ -30589,9 +30664,10 @@ SuperMap.RouteCalculateMeasureParameters = RouteCalculateMeasureParameters_Route
  *            该类负责将客户设置的计算指定点的 M 值参数传递给服务端，并接收服务端返回的
  *            指定点的 M 值。通过该类支持的事件的监听函数参数获取。
  * @extends {SuperMap.SpatialAnalystBase}
+ * @param {string} url - 服务的访问地址。如 http://localhost:8090/iserver/services/spatialanalyst-changchun/restjsr/spatialanalyst
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
- * @param {string} url - 服务的访问地址。如 http://localhost:8090/iserver/services/spatialanalyst-changchun/restjsr/spatialanalyst
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @example 实例化该类如下例所示：
  * (start code)
  * var parameters = new SuperMap.RouteCalculateMeasureParameters({
@@ -30845,9 +30921,10 @@ SuperMap.RouteLocatorParameters = RouteLocatorParameters_RouteLocatorParameters;
  * @category iServer SpatialAnalyst RouteLocator
  * @classdesc 路由对象定位空间对象的服务类。
  * @extends {SuperMap.SpatialAnalystBase}
+ * @param {string} url -服务的访问地址。如 http://localhost:8090/iserver/services/spatialanalyst-changchun/restjsr/spatialanalyst。
  * @param {Object} options - 参数。</br>
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
- * @param {string} url -服务的访问地址。如 http://localhost:8090/iserver/services/spatialanalyst-changchun/restjsr/spatialanalyst。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @example 实例化该类如下例所示：
  * (start code)
  * var routeLocatorParameters_point = new SuperMap.RouteLocatorParameters({
@@ -31146,8 +31223,9 @@ SuperMap.SetLayerInfoParameters = SetLayerInfoParameters_SetLayerInfoParameters;
  *                 http://{服务器地址}:{服务端口号}/iserver/services/{地图服务名}/rest/maps/{地图名}/tempLayersSet/{tempLayerID}/Rivers@World@@World"；
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 事件监听器对象。有processCompleted属性可传入处理完成后的回调函数。processFailed属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持iServerJSON 和GeoJSON两种格式。参数格式为"ISERVER"，"GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。 
+ * @param {SuperMap.DataFormat} [options.format=SuperMap.DataFormat.GEOJSON] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class SetLayerInfoService_SetLayerInfoService extends CommonServiceBase_CommonServiceBase {
 
@@ -31275,8 +31353,9 @@ SuperMap.SetLayersInfoParameters = SetLayersInfoParameters_SetLayersInfoParamete
  * @param {string} options.resourceID - 图层资源ID，临时图层的资源ID标记。
  * @param {boolean} options.isTempLayers - 当前url对应的图层是否是临时图层。
  * @param {Object} options.eventListeners - 事件监听器对象。有processCompleted属性可传入处理完成后的回调函数。processFailed属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持iServerJSON 和GeoJSON两种格式。参数格式为"ISERVER","GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。 
+ * @param {SuperMap.DataFormat} [options.format=SuperMap.DataFormat.GEOJSON] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class SetLayersInfoService_SetLayersInfoService extends CommonServiceBase_CommonServiceBase {
 
@@ -31486,8 +31565,9 @@ SuperMap.SetLayerStatusParameters = SetLayerStatusParameters_SetLayerStatusParam
  *                       http://{服务器地址}:{服务端口号}/iserver/services/{地图服务名}/rest/maps/{地图名}；
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 事件监听器对象。有processCompleted属性可传入处理完成后的回调函数。processFailed属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持iServerJSON 和GeoJSON两种格式。参数格式为"ISERVER","GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。 
+ * @param {SuperMap.DataFormat} [options.format=SuperMap.DataFormat.GEOJSON] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class SetLayerStatusService_SetLayerStatusService extends CommonServiceBase_CommonServiceBase {
 
@@ -31750,6 +31830,7 @@ SuperMap.SingleObjectQueryJobsParameter = SingleObjectQueryJobsParameter_SingleO
  * @extends {SuperMap.ProcessingServiceBase}
  * @param {string} url - 单对象空间查询分析服务地址。
  * @param {Object} options - 参数。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class SingleObjectQueryJobsService_SingleObjectQueryJobsService extends ProcessingServiceBase_ProcessingServiceBase {
 
@@ -31862,6 +31943,7 @@ SuperMap.StopQueryParameters = StopQueryParameters_StopQueryParameters;
  * 例如：</br>"http://localhost:8090/iserver/services/traffictransferanalyst-sample/restjsr/traffictransferanalyst/Traffic-Changchun"。
  * @param {Object} options - 参数。</br>
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @example 例如：
  * (start code)
  * var myService = new SuperMap.StopQueryService(url, {eventListeners: {
@@ -32046,6 +32128,7 @@ SuperMap.SummaryAttributesJobsParameter = SummaryAttributesJobsParameter_Summary
  * @extends {SuperMap.ProcessingServiceBase}
  * @param {string} url - 汇总统计分析服务地址。
  * @param {Object} options - 参数。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class SummaryAttributesJobsService_SummaryAttributesJobsService extends ProcessingServiceBase_ProcessingServiceBase {
 
@@ -32280,10 +32363,11 @@ SuperMap.SummaryMeshJobParameter = SummaryMeshJobParameter_SummaryMeshJobParamet
  * @param {string} url -点聚合分析任务地址。
  * @param {Object} options - 参数。
  * @param {SuperMap.Events} options.events - 处理所有事件的对象。<br>
- * @param {Object} options.eventListeners - 听器对象。<br>
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。<br>
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。
+ * @param {Object} [options.eventListeners] - 事件监听器对象。有 processCompleted 属性可传入处理完成后的回调函数。processFailed 属性传入处理失败后的回调函数。
  * @param {number} options.index - 服务访问地址在数组中的位置。<br>
  * @param {number} options.length - 服务访问地址数组长度。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class SummaryMeshJobsService_SummaryMeshJobsService extends ProcessingServiceBase_ProcessingServiceBase {
 
@@ -32559,6 +32643,7 @@ SuperMap.SummaryRegionJobParameter = SummaryRegionJobParameter_SummaryRegionJobP
  * @extends {SuperMap.ProcessingServiceBase}
  * @param {string} url - 区域汇总分析服务地址。
  * @param {Object} options - 参数。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class SummaryRegionJobsService_SummaryRegionJobsService extends ProcessingServiceBase_ProcessingServiceBase {
 
@@ -32712,9 +32797,10 @@ SuperMap.SupplyCenter = SupplyCenter_SupplyCenter;
  * @classdesc 表面分析服务类。
  * 该类负责将客户设置的表面分析服务参数传递给服务端，并接收服务端返回的表面分析服务分析结果数据。
  * 表面分析结果通过该类支持的事件的监听函数参数获取
+ * @param {string} url - 服务的访问地址。如 http://localhost:8090/iserver/services/spatialanalyst-changchun/restjsr/spatialanalyst
  * @param {Object} options - 参数。</br>
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
- * @param {string} url - 服务的访问地址。如 http://localhost:8090/iserver/services/spatialanalyst-changchun/restjsr/spatialanalyst 。s
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @extends {SuperMap.SpatialAnalystBase}
  * @example 例如：
  * (start code)
@@ -32913,6 +32999,7 @@ SuperMap.TerrainCurvatureCalculationParameters = TerrainCurvatureCalculationPara
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
  * @param {string} options.url - 服务的访问地址。如 http://localhost:8090/iserver/services/spatialanalyst-changchun/restjsr/spatialanalyst 。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @example 例如：
  * (start code)
  * var myTerrainCurvatureCalculationService = new SuperMap.TerrainCurvatureCalculationService(url);
@@ -33670,6 +33757,7 @@ SuperMap.ThemeParameters = ThemeParameters_ThemeParameters;
  * @param {string} url - 服务的访问地址。如：http://localhost:8090/iserver/services/map-world/rest/maps/World+Map 。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class ThemeService_ThemeService extends CommonServiceBase_CommonServiceBase {
 
@@ -33803,10 +33891,11 @@ SuperMap.ThemeService = ThemeService_ThemeService;
  * 泰森多边形分析的参数支持两种，当参数为 {SuperMap.DatasetThiessenAnalystParameters} 类型
  * 时，执行数据集泰森多边形分析，当参数为 {SuperMap.GeometryThiessenAnalystParameters} 类型时，
  * 执行几何对象泰森多边形分析。
- * @param {Object} options - 参数。</br>
- * @param {Object} options.eventListeners - 需要被注册的监听器对象。
  * @param url - {string} 服务的访问地址。
  * 如 http://localhost:8090/iserver/services/spatialanalyst-changchun/restjsr/spatialanalyst。
+ * @param {Object} options - 参数。</br>
+ * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @extends {SuperMap.SpatialAnalystBase}
  * @example 例如：
  * (start code)
@@ -33903,6 +33992,7 @@ SuperMap.ThiessenAnalystService = ThiessenAnalystService_ThiessenAnalystService;
  * @param {string} url - 服务的访问地址。如：http://localhost:8090/iserver/services/spatialanalyst-changchun/restjsr/spatialanalyst。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @example
  * var myOverlayAnalystService = new SuperMap.REST.GeometryBatchAnalystService(url, {
  *     eventListeners: {
@@ -34037,8 +34127,9 @@ SuperMap.GeometryBatchAnalystService = GeometryBatchAnalystService_GeometryBatch
  *                       例如: "http://localhost:8090/iserver/services/test/rest/maps/tianlocal"。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 事件监听器对象。有 processCompleted 属性可传入处理完成后的回调函数。processFailed 属性传入处理失败后的回调函数。
- * @param {SuperMap.ServerType} options.serverType - 服务器类型，iServer|iPortal|Online。
- * @param {SuperMap.DataFormat} options.format - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
+ * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务器类型，iServer|iPortal|Online。 
+ * @param {SuperMap.DataFormat} [options.format=SuperMap.DataFormat.GEOJSON] - 查询结果返回格式，目前支持 iServerJSON 和 GeoJSON 两种格式。参数格式为 "ISERVER"，"GEOJSON"。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class TilesetsService_TilesetsService extends CommonServiceBase_CommonServiceBase {
 
@@ -34209,6 +34300,7 @@ SuperMap.TopologyValidatorJobsParameter = TopologyValidatorJobsParameter_Topolog
  * @extends {SuperMap.ProcessingServiceBase}
  * @param {string} url - 拓扑检查分析服务地址。
  * @param {Object} options - 参数。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class TopologyValidatorJobsService_TopologyValidatorJobsService extends ProcessingServiceBase_ProcessingServiceBase {
 
@@ -34464,6 +34556,7 @@ SuperMap.TransferPathParameters = TransferPathParameters_TransferPathParameters;
  * 例如:</br>"http://localhost:8090/iserver/services/traffictransferanalyst-sample/restjsr/traffictransferanalyst/Traffic-Changchun"。
  * @param {Object} options - 参数。</br>
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class TransferPathService_TransferPathService extends CommonServiceBase_CommonServiceBase {
 
@@ -34664,6 +34757,7 @@ SuperMap.TransferSolutionParameters = TransferSolutionParameters_TransferSolutio
  * 例如:</br>"http://localhost:8090/iserver/services/traffictransferanalyst-sample/restjsr/traffictransferanalyst/Traffic-Changchun"。
  * @param {Object} options - 参数。</br>
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。</br>
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @extends {SuperMap.CommonServiceBase}
  * @example 例如：
  * (start code)
@@ -34844,6 +34938,7 @@ SuperMap.UpdateEdgeWeightParameters = UpdateEdgeWeightParameters_UpdateEdgeWeigh
  * @param {string} url - 服务的访问地址。如：http://localhost:8090/iserver/services/transportationanalyst-sample/rest/networkanalyst/RoadNet@Changchun 。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class UpdateEdgeWeightService_UpdateEdgeWeightService extends NetworkAnalystServiceBase_NetworkAnalystServiceBase {
 
@@ -35028,6 +35123,7 @@ SuperMap.UpdateTurnNodeWeightParameters = UpdateTurnNodeWeightParameters_UpdateT
  *                       http://localhost:8090/iserver/services/transportationanalyst-sample/rest/networkanalyst/RoadNet@Changchun 。
  * @param {Object} options - 参数。
  * @param {Object} options.eventListeners - 需要被注册的监听器对象。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class UpdateTurnNodeWeightService_UpdateTurnNodeWeightService extends NetworkAnalystServiceBase_NetworkAnalystServiceBase {
 
@@ -35248,6 +35344,7 @@ SuperMap.VectorClipJobsParameter = VectorClipJobsParameter_VectorClipJobsParamet
  * @extends {SuperMap.ProcessingServiceBase}
  * @param {string} url -矢量裁剪分析服务地址。
  * @param {Object} options - 交互服务时所需可选参数。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class VectorClipJobsService_VectorClipJobsService extends ProcessingServiceBase_ProcessingServiceBase {
 
@@ -35892,6 +35989,7 @@ var OnlineResources_FilterField = SuperMap.FilterField = {
  * @classdesc Online 服务基类（使用 key 作为权限限制的类需要实现此类）。
  * @category iPortal/Online
  * @param {Object} options - 服务参数。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  */
 class OnlineServiceBase_OnlineServiceBase {
 
@@ -38534,6 +38632,7 @@ class Color_Color {
 // CONCATENATED MODULE: ./src/common/util/ColorsPickerUtil.js
 
 
+
 var ColorsPickerUtil_ColorRender = new Color_Color();
 // let "http://www.qzu.zj.cn": "#bd10e0"
 // 					"www.qzct.net": "#7ed321" = new SuperMap.LevelRenderer.Tool.Color();
@@ -38697,8 +38796,12 @@ class ColorsPickerUtil_ColorsPickerUtil  {
         return ret;
     }
 }
+SuperMap.ColorsPickerUtil = ColorsPickerUtil_ColorsPickerUtil;
+
 // CONCATENATED MODULE: ./src/common/util/ArrayStatistic.js
-class ArrayStatistic {
+
+
+class ArrayStatistic_ArrayStatistic {
 
     // geostatsInstance: null,
 
@@ -38895,6 +38998,7 @@ class ArrayStatistic {
     }
 
 }
+SuperMap.ArrayStatistic = ArrayStatistic_ArrayStatistic;
 // CONCATENATED MODULE: ./src/common/util/index.js
 /* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
  * This program are made available under the terms of the Apache License, Version 2.0
@@ -61663,10 +61767,6 @@ SuperMap.Widgets.MessageBox = MessageBox_MessageBox;
 var external_function_try_return_echarts_catch_e_return_ = __webpack_require__(9);
 var external_function_try_return_echarts_catch_e_return_default = /*#__PURE__*/__webpack_require__.n(external_function_try_return_echarts_catch_e_return_);
 
-// EXTERNAL MODULE: external "function(){try{return XLSX}catch(e){return {}}}()"
-var external_function_try_return_XLSX_catch_e_return_ = __webpack_require__(6);
-var external_function_try_return_XLSX_catch_e_return_default = /*#__PURE__*/__webpack_require__.n(external_function_try_return_XLSX_catch_e_return_);
-
 // CONCATENATED MODULE: ./src/common/lang/Lang.js
 /* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
  * This program are made available under the terms of the Apache License, Version 2.0
@@ -61772,6 +61872,10 @@ let Lang_Lang = {
 
 SuperMap.Lang = Lang_Lang;
 SuperMap.i18n = SuperMap.Lang.i18n;
+
+// EXTERNAL MODULE: external "function(){try{return XLSX}catch(e){return {}}}()"
+var external_function_try_return_XLSX_catch_e_return_ = __webpack_require__(6);
+var external_function_try_return_XLSX_catch_e_return_default = /*#__PURE__*/__webpack_require__.n(external_function_try_return_XLSX_catch_e_return_);
 
 // CONCATENATED MODULE: ./src/common/widgets/util/FileReaderUtil.js
 /* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
@@ -62001,6 +62105,13 @@ SuperMap.Widgets.FileReaderUtil = FileReaderUtil_FileReaderUtil;
 
 
 
+
+
+
+
+
+
+
 /**
  * @class SuperMap.Widgets.ChartModel
  * @classdesc 图表微件数据模型
@@ -62154,7 +62265,7 @@ class ChartModel_ChartModel {
                     }
                 })
                 // 如果有服务，获取数据源和数据集, 然后请求rest服务
-                me.getDatafromRest(resultData.serviceType, resultData.address, success)
+                resultData && me.getDatafromRest(resultData.serviceType, resultData.address, success)
             } else {
                 me.getDatafromContent(url, success);
                 return;
@@ -63119,7 +63230,7 @@ SuperMap.Widgets.ChartViewModel = ChartViewModel_ChartViewModel;
 /**
  * @class SuperMap.Widgets.Chart
  * @classdesc 图表微件
- * @version 10.X.X
+ * @version 9.1.2
  * @param {string} domID - 图表dom元素ID。
  * @param {Object} options - 可选参数。
  * @param {string} options.type - 图表类型。
@@ -65000,12 +65111,13 @@ var MapExtend_MapExtend = function () {
     external_mapboxgl_default.a.Map.prototype.setLayoutProperty = function (layerID, name, value) {
         if (this.overlayLayersManager[layerID]) {
             if (name === "visibility") {
-                if (value === "block") {
+                if (value === "visible") {
                     value = true;
                 } else {
                     value = false;
                 }
                 setVisibility(this.overlayLayersManager[layerID], value);
+                this.style.fire('data', {dataType: 'style'});
             }
             return this;
         }
@@ -65082,6 +65194,7 @@ var MapExtend_MapExtend = function () {
     }
 
 }();
+
 // CONCATENATED MODULE: ./src/mapboxgl/core/Base.js
 /* Copyright© 2000 - 2019 SuperMap Software Co.Ltd. All rights reserved.
  * This program are made available under the terms of the Apache License, Version 2.0
@@ -72512,6 +72625,7 @@ external_mapboxgl_default.a.supermap.map.setPaintProperty = MapExtend_setPaintPr
  * @param {string} [options.proxy] - 服务代理地址。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务来源 iServer|iPortal|online。
  * @param {boolean} [options.withCredentials=false] - 请求是否携带 cookie。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @fires mapboxgl.supermap.ServiceBase#initialized
  */
 class ServiceBase_ServiceBase extends external_mapboxgl_default.a.Evented {
@@ -72552,6 +72666,7 @@ external_mapboxgl_default.a.supermap.ServiceBase = ServiceBase_ServiceBase;
  * @param {Object} options - 交互时所需可选参数。
  * @param {string} [options.proxy] - 服务代理地址。
  * @param {boolean} [options.withCredentials=false] - 请求是否携带 cookie。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务来源 iServer|iPortal|online。
  * @extends {mapboxgl.supermap.ServiceBase}
  */
@@ -72571,6 +72686,7 @@ class services_AddressMatchService_AddressMatchService extends ServiceBase_Servi
         var addressMatchService = new AddressMatchService_AddressMatchService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -72592,6 +72708,7 @@ class services_AddressMatchService_AddressMatchService extends ServiceBase_Servi
         var addressMatchService = new AddressMatchService_AddressMatchService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -72629,6 +72746,7 @@ external_mapboxgl_default.a.supermap.AddressMatchService = services_AddressMatch
  * @param {Object} options - 交互时所需可选参数。
  * @param {string} [options.proxy] - 服务代理地址。
  * @param {boolean} [options.withCredentials=false] - 请求是否携带 cookie。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务来源 iServer|iPortal|online。
  */
 class ChartService_ChartService extends ServiceBase_ServiceBase {
@@ -72650,6 +72768,7 @@ class ChartService_ChartService extends ServiceBase_ServiceBase {
         var chartQueryService = new ChartQueryService_ChartQueryService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -72673,6 +72792,7 @@ class ChartService_ChartService extends ServiceBase_ServiceBase {
         var chartFeatureInfoSpecsService = new ChartFeatureInfoSpecsService_ChartFeatureInfoSpecsService(url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -72742,8 +72862,9 @@ external_mapboxgl_default.a.supermap.ChartService = ChartService_ChartService;
  * })
  * @param {string} url - 与客户端交互的实时数据服务地址。
  * @param {Object} options - 加载实时数据可选参数。
- * @param {Array.<Object>} [options.geometry] - 设置增添的几何要素对象数组。
+ * @param {GeoJSONObject} [options.geometry] - 指定几何范围，该范围内的要素才能被订阅。
  * @param {Object} [options.excludeField] - 排除字段。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @fires mapboxgl.supermap.DataFlowService#broadcastSocketConnected
  * @fires mapboxgl.supermap.DataFlowService#broadcastSocketError
  * @fires mapboxgl.supermap.DataFlowService#broadcastFailed
@@ -72862,7 +72983,7 @@ class services_DataFlowService_DataFlowService extends ServiceBase_ServiceBase {
     /**
      * @function mapboxgl.supermap.DataFlowService.prototype.setGeometry
      * @description 设置添加的几何要素数据。
-     * @param {Array.<Object>} geometry - 设置增添的几何要素对象数组。
+     * @param {GeoJSONObject} geometry - 指定几何范围，该范围内的要素才能被订阅。
      */
     setGeometry(geometry) {
         this.dataFlow.setGeometry(geometry);
@@ -72916,6 +73037,7 @@ external_mapboxgl_default.a.supermap.DataFlowService = services_DataFlowService_
  * @param {Object} options - 创建要素数据集服务类可选参数。
  * @param {string} [options.proxy] - 服务代理地址。
  * @param {boolean} [options.withCredentials=false] - 请求是否携带 cookie。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务来源 iServer|iPortal|online。
  */
 class FeatureService_FeatureService extends ServiceBase_ServiceBase {
@@ -72935,6 +73057,7 @@ class FeatureService_FeatureService extends ServiceBase_ServiceBase {
         var getFeaturesByIDsService = new GetFeaturesByIDsService_GetFeaturesByIDsService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 processCompleted: callback,
@@ -72957,6 +73080,7 @@ class FeatureService_FeatureService extends ServiceBase_ServiceBase {
         var getFeaturesByBoundsService = new GetFeaturesByBoundsService_GetFeaturesByBoundsService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 processCompleted: callback,
@@ -72979,6 +73103,7 @@ class FeatureService_FeatureService extends ServiceBase_ServiceBase {
         var getFeatureService = new GetFeaturesByBufferService_GetFeaturesByBufferService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 processCompleted: callback,
@@ -73001,6 +73126,7 @@ class FeatureService_FeatureService extends ServiceBase_ServiceBase {
         var getFeatureBySQLService = new GetFeaturesBySQLService_GetFeaturesBySQLService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 processCompleted: callback,
@@ -73024,6 +73150,7 @@ class FeatureService_FeatureService extends ServiceBase_ServiceBase {
         var getFeaturesByGeometryService = new GetFeaturesByGeometryService_GetFeaturesByGeometryService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 processCompleted: callback,
@@ -73053,6 +73180,7 @@ class FeatureService_FeatureService extends ServiceBase_ServiceBase {
         var editFeatureService = new EditFeaturesService_EditFeaturesService(url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 processCompleted: callback,
@@ -73148,6 +73276,7 @@ external_mapboxgl_default.a.supermap.FeatureService = FeatureService_FeatureServ
  * @param {Object} options - 参数。
  * @param {string} [options.proxy] - 服务代理地址。
  * @param {boolean} [options.withCredentials=false] - 请求是否携带 cookie。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务来源 iServer|iPortal|online。
  * @extends {mapboxgl.supermap.ServiceBase}
  */
@@ -73167,6 +73296,7 @@ class FieldService_FieldService extends ServiceBase_ServiceBase {
         var getFieldsService = new GetFieldsService_GetFieldsService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -73264,6 +73394,7 @@ external_mapboxgl_default.a.supermap.FieldService = FieldService_FieldService;
  * @param {Object} options - 服务所需可选参数。
  * @param {string} [options.proxy] - 服务代理地址。
  * @param {boolean} [options.withCredentials=false] - 请求是否携带 cookie。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务来源 iServer|iPortal|online。
  */
 class GridCellInfosService_GridCellInfosService extends ServiceBase_ServiceBase {
@@ -73285,6 +73416,7 @@ class GridCellInfosService_GridCellInfosService extends ServiceBase_ServiceBase 
         var gridCellQueryService = new GetGridCellInfosService_GetGridCellInfosService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -73320,6 +73452,7 @@ external_mapboxgl_default.a.supermap.GridCellInfosService = GridCellInfosService
  * @param {Object} options - 服务所需可选参数。
  * @param {string} [options.proxy] - 服务代理地址。
  * @param {boolean} [options.withCredentials=false] - 请求是否携带 cookie。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务来源 iServer|iPortal|online。
  */
 class LayerInfoService_LayerInfoService extends ServiceBase_ServiceBase {
@@ -73339,6 +73472,7 @@ class LayerInfoService_LayerInfoService extends ServiceBase_ServiceBase {
         var getLayersInfoService = new GetLayersInfoService_GetLayersInfoService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 processCompleted: callback,
@@ -73370,6 +73504,7 @@ class LayerInfoService_LayerInfoService extends ServiceBase_ServiceBase {
         var setLayerInfoService = new SetLayerInfoService_SetLayerInfoService(url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 processCompleted: callback,
@@ -73399,6 +73534,7 @@ class LayerInfoService_LayerInfoService extends ServiceBase_ServiceBase {
         var setLayersInfoService = new SetLayersInfoService_SetLayersInfoService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 processCompleted: callback,
@@ -73424,6 +73560,7 @@ class LayerInfoService_LayerInfoService extends ServiceBase_ServiceBase {
         var setLayerStatusService = new SetLayerStatusService_SetLayerStatusService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 processCompleted: callback,
@@ -73453,6 +73590,7 @@ external_mapboxgl_default.a.supermap.LayerInfoService = LayerInfoService_LayerIn
  * @param {Object} options - 地图服务信息相关参数。 
  * @param {string} [options.proxy] - 服务代理地址。
  * @param {boolean} [options.withCredentials=false] - 请求是否携带 cookie。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务来源 iServer|iPortal|online。
  * @example
  * new mapboxgl.supermap.MapService(url)
@@ -73477,6 +73615,7 @@ class services_MapService_MapService extends ServiceBase_ServiceBase {
         var getMapStatusService = new MapService_MapService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -73498,6 +73637,7 @@ class services_MapService_MapService extends ServiceBase_ServiceBase {
         var tilesetsService = new TilesetsService_TilesetsService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -73528,6 +73668,7 @@ external_mapboxgl_default.a.supermap.MapService = services_MapService_MapService
  * @param {Object} options - 交互服务时所需可选参数。 
  * @param {string} [options.proxy] - 服务代理地址。
  * @param {boolean} [options.withCredentials=false] - 请求是否携带 cookie。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务来源 iServer|iPortal|online。
  * @param {SuperMap.MeasureMode} [options.measureMode=SuperMap.MeasureMode.DISTANCE] - 量算模式，包括距离量算模式和面积量算模式。
  */
@@ -73570,6 +73711,7 @@ class services_MeasureService_MeasureService extends ServiceBase_ServiceBase {
         var measureService = new MeasureService_MeasureService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             measureMode: type,
             eventListeners: {
@@ -73619,6 +73761,7 @@ external_mapboxgl_default.a.supermap.MeasureService = services_MeasureService_Me
  * @param {Object} options - 服务所需可选参数。 
  * @param {string} [options.proxy] - 服务代理地址。
  * @param {boolean} [options.withCredentials=false] - 请求是否携带 cookie。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务来源 iServer|iPortal|online。
  */
 class NetworkAnalystService_NetworkAnalystService extends ServiceBase_ServiceBase {
@@ -73638,6 +73781,7 @@ class NetworkAnalystService_NetworkAnalystService extends ServiceBase_ServiceBas
         var burstPipelineAnalystService = new BurstPipelineAnalystService_BurstPipelineAnalystService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -73659,6 +73803,7 @@ class NetworkAnalystService_NetworkAnalystService extends ServiceBase_ServiceBas
         var computeWeightMatrixService = new ComputeWeightMatrixService_ComputeWeightMatrixService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -73681,6 +73826,7 @@ class NetworkAnalystService_NetworkAnalystService extends ServiceBase_ServiceBas
         var findClosestFacilitiesService = new FindClosestFacilitiesService_FindClosestFacilitiesService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -73704,6 +73850,7 @@ class NetworkAnalystService_NetworkAnalystService extends ServiceBase_ServiceBas
         var facilityAnalystStreamService = new FacilityAnalystStreamService_FacilityAnalystStreamService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -73727,6 +73874,7 @@ class NetworkAnalystService_NetworkAnalystService extends ServiceBase_ServiceBas
         var findLocationService = new FindLocationService_FindLocationService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -73750,6 +73898,7 @@ class NetworkAnalystService_NetworkAnalystService extends ServiceBase_ServiceBas
         var findPathService = new FindPathService_FindPathService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -73773,6 +73922,7 @@ class NetworkAnalystService_NetworkAnalystService extends ServiceBase_ServiceBas
         var findTSPPathsService = new FindTSPPathsService_FindTSPPathsService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -73796,6 +73946,7 @@ class NetworkAnalystService_NetworkAnalystService extends ServiceBase_ServiceBas
         var findMTSPPathsService = new FindMTSPPathsService_FindMTSPPathsService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -73819,6 +73970,7 @@ class NetworkAnalystService_NetworkAnalystService extends ServiceBase_ServiceBas
         var findServiceAreasService = new FindServiceAreasService_FindServiceAreasService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -73841,6 +73993,7 @@ class NetworkAnalystService_NetworkAnalystService extends ServiceBase_ServiceBas
         var updateEdgeWeightService = new UpdateEdgeWeightService_UpdateEdgeWeightService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -73862,6 +74015,7 @@ class NetworkAnalystService_NetworkAnalystService extends ServiceBase_ServiceBas
         var updateTurnNodeWeightService = new UpdateTurnNodeWeightService_UpdateTurnNodeWeightService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -73976,6 +74130,7 @@ external_mapboxgl_default.a.supermap.NetworkAnalystService = NetworkAnalystServi
  * @param {Object} options - 服务所需可选参数。
  * @param {string} [options.proxy] - 服务代理地址。
  * @param {boolean} [options.withCredentials=false] - 请求是否携带 cookie。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务来源 iServer|iPortal|online。
  */
 class NetworkAnalyst3DService_NetworkAnalyst3DService extends ServiceBase_ServiceBase {
@@ -73996,6 +74151,7 @@ class NetworkAnalyst3DService_NetworkAnalyst3DService extends ServiceBase_Servic
         var facilityAnalystSinks3DService = new FacilityAnalystSinks3DService_FacilityAnalystSinks3DService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -74018,6 +74174,7 @@ class NetworkAnalyst3DService_NetworkAnalyst3DService extends ServiceBase_Servic
         var facilityAnalystSources3DService = new FacilityAnalystSources3DService_FacilityAnalystSources3DService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -74041,6 +74198,7 @@ class NetworkAnalyst3DService_NetworkAnalyst3DService extends ServiceBase_Servic
         var facilityAnalystTraceup3DService = new FacilityAnalystTraceup3DService_FacilityAnalystTraceup3DService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -74063,6 +74221,7 @@ class NetworkAnalyst3DService_NetworkAnalyst3DService extends ServiceBase_Servic
         var facilityAnalystTracedown3DService = new FacilityAnalystTracedown3DService_FacilityAnalystTracedown3DService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -74085,6 +74244,7 @@ class NetworkAnalyst3DService_NetworkAnalyst3DService extends ServiceBase_Servic
         var facilityAnalystUpstream3DService = new FacilityAnalystUpstream3DService_FacilityAnalystUpstream3DService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -74121,6 +74281,7 @@ external_mapboxgl_default.a.supermap.NetworkAnalyst3DService = NetworkAnalyst3DS
  * @param {Object} options - 交互服务时所需可选参数。
  * @param {string} [options.proxy] - 服务代理地址。
  * @param {boolean} [options.withCredentials=false] - 请求是否携带cookie。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务来源 iServer|iPortal|online。
  */
 class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
@@ -74150,6 +74311,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
         var kernelDensityJobsService = new KernelDensityJobsService_KernelDensityJobsService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -74174,6 +74336,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
         var kernelDensityJobsService = new KernelDensityJobsService_KernelDensityJobsService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -74200,6 +74363,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
         var kernelDensityJobsService = new KernelDensityJobsService_KernelDensityJobsService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             eventListeners: {
                 scope: me,
                 processCompleted: callback,
@@ -74235,6 +74399,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
         var summaryMeshJobsService = new SummaryMeshJobsService_SummaryMeshJobsService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -74259,6 +74424,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
         var summaryMeshJobsService = new SummaryMeshJobsService_SummaryMeshJobsService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -74285,6 +74451,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
         var summaryMeshJobsService = new SummaryMeshJobsService_SummaryMeshJobsService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             eventListeners: {
                 scope: me,
                 processCompleted: callback,
@@ -74321,6 +74488,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
             serverType: me.options.serverType,
+            crossOrigin: me.options.crossOrigin,
             eventListeners: {
                 scope: me,
                 processCompleted: callback,
@@ -74344,6 +74512,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
         var singleObjectQueryJobsService = new SingleObjectQueryJobsService_SingleObjectQueryJobsService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -74370,6 +74539,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
         var singleObjectQueryJobsService = new SingleObjectQueryJobsService_SingleObjectQueryJobsService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             eventListeners: {
                 scope: me,
                 processCompleted: callback,
@@ -74405,6 +74575,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
         var summaryRegionJobsService = new SummaryRegionJobsService_SummaryRegionJobsService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -74429,6 +74600,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
         var summaryRegionJobsService = new SummaryRegionJobsService_SummaryRegionJobsService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -74455,6 +74627,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
         var summaryRegionJobsService = new SummaryRegionJobsService_SummaryRegionJobsService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             eventListeners: {
                 scope: me,
                 processCompleted: callback,
@@ -74490,6 +74663,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
         var vectorClipJobsService = new VectorClipJobsService_VectorClipJobsService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -74515,6 +74689,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
             serverType: me.options.serverType,
+            crossOrigin: me.options.crossOrigin,
             eventListeners: {
                 scope: me,
                 processCompleted: callback,
@@ -74541,6 +74716,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
             serverType: me.options.serverType,
+            crossOrigin: me.options.crossOrigin,
             eventListeners: {
                 scope: me,
                 processCompleted: callback,
@@ -74577,6 +74753,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
             serverType: me.options.serverType,
+            crossOrigin: me.options.crossOrigin,
             eventListeners: {
                 scope: me,
                 processCompleted: callback,
@@ -74601,6 +74778,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
             serverType: me.options.serverType,
+            crossOrigin: me.options.crossOrigin,
             eventListeners: {
                 scope: me,
                 processCompleted: callback,
@@ -74627,6 +74805,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
             serverType: me.options.serverType,
+            crossOrigin: me.options.crossOrigin,
             eventListeners: {
                 scope: me,
                 processCompleted: callback,
@@ -74663,6 +74842,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
             serverType: me.options.serverType,
+            crossOrigin: me.options.crossOrigin,
             eventListeners: {
                 scope: me,
                 processCompleted: callback,
@@ -74687,6 +74867,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
             serverType: me.options.serverType,
+            crossOrigin: me.options.crossOrigin,
             eventListeners: {
                 scope: me,
                 processCompleted: callback,
@@ -74713,6 +74894,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
             serverType: me.options.serverType,
+            crossOrigin: me.options.crossOrigin,
             eventListeners: {
                 scope: me,
                 processCompleted: callback,
@@ -74749,6 +74931,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
             serverType: me.options.serverType,
+            crossOrigin: me.options.crossOrigin,
             eventListeners: {
                 scope: me,
                 processCompleted: callback,
@@ -74773,6 +74956,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
             serverType: me.options.serverType,
+            crossOrigin: me.options.crossOrigin,
             eventListeners: {
                 scope: me,
                 processCompleted: callback,
@@ -74799,6 +74983,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
             serverType: me.options.serverType,
+            crossOrigin: me.options.crossOrigin,
             eventListeners: {
                 scope: me,
                 processCompleted: callback,
@@ -74835,6 +75020,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
             serverType: me.options.serverType,
+            crossOrigin: me.options.crossOrigin,
             eventListeners: {
                 scope: me,
                 processCompleted: callback,
@@ -74859,6 +75045,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
             serverType: me.options.serverType,
+            crossOrigin: me.options.crossOrigin,
             eventListeners: {
                 scope: me,
                 processCompleted: callback,
@@ -74885,6 +75072,7 @@ class ProcessingService_ProcessingService extends ServiceBase_ServiceBase {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
             serverType: me.options.serverType,
+            crossOrigin: me.options.crossOrigin,
             eventListeners: {
                 scope: me,
                 processCompleted: callback,
@@ -74954,6 +75142,7 @@ external_mapboxgl_default.a.supermap.ProcessingService = ProcessingService_Proce
  * @param {Object} options - 服务交互时所需的可选参数。 
  * @param {string} [options.proxy] - 服务代理地址。
  * @param {boolean} [options.withCredentials=false] - 请求是否携带 cookie。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务来源 iServer|iPortal|online。
  * @example
  * new mapboxgl.supermap.QueryService(url)
@@ -74979,6 +75168,7 @@ class services_QueryService_QueryService extends ServiceBase_ServiceBase {
         var queryService = new QueryByBoundsService_QueryByBoundsService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75004,6 +75194,7 @@ class services_QueryService_QueryService extends ServiceBase_ServiceBase {
         var queryByDistanceService = new QueryByDistanceService_QueryByDistanceService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75028,6 +75219,7 @@ class services_QueryService_QueryService extends ServiceBase_ServiceBase {
         var queryBySQLService = new QueryBySQLService_QueryBySQLService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75052,6 +75244,7 @@ class services_QueryService_QueryService extends ServiceBase_ServiceBase {
         var queryByGeometryService = new QueryByGeometryService_QueryByGeometryService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75142,6 +75335,7 @@ external_mapboxgl_default.a.supermap.QueryService = services_QueryService_QueryS
  * @param {Object} options - 交互服务时所需可选参数。
  * @param {string} [options.proxy] - 服务代理地址。
  * @param {boolean} [options.withCredentials=false] - 请求是否携带 cookie。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务来源 iServer|iPortal|online。
  */
 class SpatialAnalystService_SpatialAnalystService extends ServiceBase_ServiceBase {
@@ -75162,6 +75356,7 @@ class SpatialAnalystService_SpatialAnalystService extends ServiceBase_ServiceBas
         var areaSolarRadiationService = new AreaSolarRadiationService_AreaSolarRadiationService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75185,6 +75380,7 @@ class SpatialAnalystService_SpatialAnalystService extends ServiceBase_ServiceBas
         var bufferAnalystService = new BufferAnalystService_BufferAnalystService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75208,6 +75404,7 @@ class SpatialAnalystService_SpatialAnalystService extends ServiceBase_ServiceBas
         var densityAnalystService = new DensityAnalystService_DensityAnalystService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75231,6 +75428,7 @@ class SpatialAnalystService_SpatialAnalystService extends ServiceBase_ServiceBas
         var generateSpatialDataService = new GenerateSpatialDataService_GenerateSpatialDataService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75254,6 +75452,7 @@ class SpatialAnalystService_SpatialAnalystService extends ServiceBase_ServiceBas
         var geoRelationAnalystService = new GeoRelationAnalystService_GeoRelationAnalystService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75277,6 +75476,7 @@ class SpatialAnalystService_SpatialAnalystService extends ServiceBase_ServiceBas
         var interpolationAnalystService = new InterpolationAnalystService_InterpolationAnalystService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75300,6 +75500,7 @@ class SpatialAnalystService_SpatialAnalystService extends ServiceBase_ServiceBas
         var mathExpressionAnalysisService = new MathExpressionAnalysisService_MathExpressionAnalysisService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75323,6 +75524,7 @@ class SpatialAnalystService_SpatialAnalystService extends ServiceBase_ServiceBas
         var overlayAnalystService = new OverlayAnalystService_OverlayAnalystService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75346,6 +75548,7 @@ class SpatialAnalystService_SpatialAnalystService extends ServiceBase_ServiceBas
         var routeCalculateMeasureService = new RouteCalculateMeasureService_RouteCalculateMeasureService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75369,6 +75572,7 @@ class SpatialAnalystService_SpatialAnalystService extends ServiceBase_ServiceBas
         var routeLocatorService = new RouteLocatorService_RouteLocatorService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75392,6 +75596,7 @@ class SpatialAnalystService_SpatialAnalystService extends ServiceBase_ServiceBas
         var surfaceAnalystService = new SurfaceAnalystService_SurfaceAnalystService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75415,6 +75620,7 @@ class SpatialAnalystService_SpatialAnalystService extends ServiceBase_ServiceBas
         var terrainCurvatureCalculationService = new TerrainCurvatureCalculationService_TerrainCurvatureCalculationService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75438,6 +75644,7 @@ class SpatialAnalystService_SpatialAnalystService extends ServiceBase_ServiceBas
         var thiessenAnalystService = new ThiessenAnalystService_ThiessenAnalystService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75528,7 +75735,9 @@ class SpatialAnalystService_SpatialAnalystService extends ServiceBase_ServiceBas
         if (params.extractParameter && params.extractParameter.clipRegion) {
             params.extractParameter.clipRegion = core_Util_Util.toSuperMapGeometry(params.extractParameter.clipRegion);
         }
-
+        if (params.clipParam && params.clipParam.clipRegion) {
+            params.clipParam.clipRegion = core_Util_Util.toSuperMapGeometry(params.clipParam.clipRegion);
+        }
         //sourceRoute 路由对象。用于里程分析，该对象可以是用户自己生 成或在数据源中查询得到的符合标准的路由对象；geojson格式
         if (params.sourceRoute) {
             if (params.sourceRoute) {
@@ -75624,6 +75833,7 @@ external_mapboxgl_default.a.supermap.SpatialAnalystService = SpatialAnalystServi
  * @param {Object} options - 交互服务时所需可选参数。
  * @param {string} [options.proxy] - 服务代理地址。
  * @param {boolean} [options.withCredentials=false] - 请求是否携带 cookie。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务来源 iServer|iPortal|online。
  */
 class services_ThemeService_ThemeService extends ServiceBase_ServiceBase {
@@ -75643,6 +75853,7 @@ class services_ThemeService_ThemeService extends ServiceBase_ServiceBase {
         var themeService = new ThemeService_ThemeService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75679,6 +75890,7 @@ external_mapboxgl_default.a.supermap.ThemeService = services_ThemeService_ThemeS
  * @param {Object} option - 参数。
  * @param {string} [options.proxy] - 服务代理地址。
  * @param {boolean} [options.withCredentials=false] - 请求是否携带 cookie。
+ * @param {boolean} [options.crossOrigin] - 是否允许跨域请求。
  * @param {SuperMap.ServerType} [options.serverType=SuperMap.ServerType.ISERVER] - 服务来源 iServer|iPortal|online。
  */
 class TrafficTransferAnalystService_TrafficTransferAnalystService extends ServiceBase_ServiceBase {
@@ -75698,6 +75910,7 @@ class TrafficTransferAnalystService_TrafficTransferAnalystService extends Servic
         var stopQueryService = new StopQueryService_StopQueryService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75719,6 +75932,7 @@ class TrafficTransferAnalystService_TrafficTransferAnalystService extends Servic
         var transferPathService = new TransferPathService_TransferPathService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75740,6 +75954,7 @@ class TrafficTransferAnalystService_TrafficTransferAnalystService extends Servic
         var transferSolutionService = new TransferSolutionService_TransferSolutionService(me.url, {
             proxy: me.options.proxy,
             withCredentials: me.options.withCredentials,
+            crossOrigin: me.options.crossOrigin,
             serverType: me.options.serverType,
             eventListeners: {
                 scope: me,
@@ -75819,19 +76034,52 @@ var external_function_try_return_jsonsql_catch_e_return_default = /*#__PURE__*/_
 
 external_mapboxgl_default.a.supermap = external_mapboxgl_default.a.supermap || {};
 
-const WebMap_MB_SCALEDENOMINATOR_3857 = ['559082264.0287178', '279541132.0143589', '139770566.0071794', '69885283.00358972',
-    '34942641.50179486', '17471320.75089743', '8735660.375448715', '4367830.1877224357', '2183915.093862179', '1091957.546931089',
-    '545978.7734655447', '272989.7734655447', '272989.3867327723', '136494.6933663862', '68247.34668319309', '34123.67334159654',
-    '17061.83667079827', '8530.918335399136', '4265.459167699568', '2132.729583849784'];
+const WebMap_MB_SCALEDENOMINATOR_3857 = [
+	'559082264.0287178',
+	'279541132.0143589',
+	'139770566.0071794',
+	'69885283.00358972',
+	'34942641.50179486',
+	'17471320.75089743',
+	'8735660.375448715',
+	'4367830.1877224357',
+	'2183915.093862179',
+	'1091957.546931089',
+	'545978.7734655447',
+	'272989.7734655447',
+	'272989.3867327723',
+	'136494.6933663862',
+	'68247.34668319309',
+	'34123.67334159654',
+	'17061.83667079827',
+	'8530.918335399136',
+	'4265.459167699568',
+	'2132.729583849784'
+];
 const WebMap_MB_SCALEDENOMINATOR_4326 = [
-    '5.590822640287176E8', '2.795411320143588E8', '1.397705660071794E8', '6.98852830035897E7', '3.494264150179485E7',
-    '1.7471320750897426E7', '8735660.375448713', '4367830.187724357', '2183915.0938621783', '1091957.5469310891',
-    '545978.7734655446', '272989.3867327723', '136494.69336638614', '68247.34668319307', '34123.673341596535',
-    '17061.836670798268', '8530.918335399134']
+	'5.590822640287176E8',
+	'2.795411320143588E8',
+	'1.397705660071794E8',
+	'6.98852830035897E7',
+	'3.494264150179485E7',
+	'1.7471320750897426E7',
+	'8735660.375448713',
+	'4367830.187724357',
+	'2183915.0938621783',
+	'1091957.5469310891',
+	'545978.7734655446',
+	'272989.3867327723',
+	'136494.69336638614',
+	'68247.34668319307',
+	'34123.673341596535',
+	'17061.836670798268',
+	'8530.918335399134'
+];
 const WebMap_DEFAULT_WELLKNOWNSCALESET = ['GoogleCRS84Quad', 'GoogleMapsCompatible'];
 
 /**
  * @class mapboxgl.supermap.WebMap
+ * @version 9.1.2
  * @category  iPortal/Online
  * @classdesc 对接 iPortal/Online 地图类。目前支持地图坐标系包括：'EPSG:3857'，'EPSG:4326'，'EPSG:4490'，'EPSG:4214'，'EPSG:4610'。
  * <div style="padding: 20px;border: 1px solid #eee;border-left-width: 5px;border-radius: 3px;border-left-color: #ce4844;">
@@ -75855,1762 +76103,1959 @@ const WebMap_DEFAULT_WELLKNOWNSCALESET = ['GoogleCRS84Quad', 'GoogleMapsCompatib
  * @extends {mapboxgl.Evented}
  */
 class WebMap_WebMap extends external_mapboxgl_default.a.Evented {
-
-    constructor(id, options) {
-        super();
-        this.mapId = id;
-        options = options || {};
-        this.server = options.server || 'http://www.supermapol.com';
-        this.credentialKey = options.credentialKey;
-        this.credentialValue = options.credentialValue;
-        this.withCredentials = options.withCredentials || false;
-        this.target = options.target || "map";
-        this._createWebMap();
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._createWebMap
-     * @description 登陆窗口后添加地图图层。
-     */
-    _createWebMap() {
-        let urlArr = this.server.split('');
-        if (urlArr[urlArr.length - 1] !== '/') {
-            this.server += '/';
-        }
-        let mapUrl = this.server + 'web/maps/' + this.mapId + '/map';
-        if (this.credentialValue && this.credentialKey) {
-            mapUrl += ('?' + this.credentialKey + '=' + this.credentialValue);
-        }
-        let filter = 'getUrlResource.json?url=';
-        if (this.excludePortalProxyUrl && this.server.indexOf(filter) > -1) {
-            //大屏需求,或者有加上代理的
-            let urlArray = this.server.split(filter);
-            if (urlArray.length > 1) {
-                mapUrl = urlArray[0] + filter + this.server + 'web/maps/' + this.mapId + '/map.json';
-            }
-        }
-        this._getMapInfo(mapUrl);
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._createMap
-     * @description 创建地图。
-     */
-    _createMap(mapInfo) {
-        // 获取字体样式
-        let fonts = [];
-        let layers = mapInfo.layers;
-        // 获取 label 图层字体类型
-        if (layers && layers.length > 0) {
-            layers.forEach((layer) => {
-                layer.labelStyle && fonts.push(layer.labelStyle.fontFamily);
-            }, this)
-        }
-        fonts.push("'supermapol-icons'")
-        let fontFamilys = fonts.join(',')
-
-        // zoom center
-        let oldcenter = mapInfo.center, zoom = mapInfo.level || 0, center;
-        zoom = zoom === 0 ? 0 : zoom - 1
-        center = oldcenter ? this._unproject([oldcenter.x, oldcenter.y]) : new external_mapboxgl_default.a.LngLat(0, 0);
-        // 初始化 map
-        this.map = new external_mapboxgl_default.a.Map({
-            container: this.target,
-            center: center,
-            zoom: zoom,
-            style: {
-                'version': 8,
-                'sources': {},
-                // "glyphs": 'http://iclsvr.supermap.io/iserver/services/map-beijing/rest/maps/beijingMap/tileFeature/sdffonts/{fontstack}/{range}.pbf',
-                'layers': []
-            },
-            crs: this.baseProjection,
-            localIdeographFontFamily: fontFamilys || ''
-        });
-        this.fire('mapinitialized');
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._getMapInfo
-     * @description 获取地图的 JSON 信息。
-     * @param {string} url - 请求地图的 url。
-     */
-    _getMapInfo(url) {
-        let mapUrl = url.indexOf('.json') === -1 ? `${url}.json` : url;
-        FetchRequest_FetchRequest.get(mapUrl, null, { withCredentials: this.withCredentials }).then(response => {
-            return response.json();
-        }).then(mapInfo => {
-            this.baseProjection = mapInfo.projection;
-
-            //存储地图的名称以及描述等信息，返回给用户
-            this.mapParams = {
-                title: mapInfo.title,
-                description: mapInfo.description
-            };
-            const projectionMap = { 'EPSG:4490': 'EPSG:4490', 'EPSG:4214': 'EPSG:4214', 'EPSG:4610': 'EPSG:4610', 'EPSG:3857': 'EPSG:3857', 'EPSG:4326': 'EPSG:4326' } // 坐标系异常处理 
-            if (this.baseProjection in projectionMap) {
-                this._createMap(mapInfo, this.mapSetting);
-                let layers = mapInfo.layers;
-                this.map.on('load', () => {
-                    this._addBaseMap(mapInfo);
-
-                    if (!layers || layers.length === 0) {
-                        this._sendMapToUser(0, 0);
-                    } else {
-                        this._addLayers(layers);
-                    }
-                })
-            } else {
-                throw Error(Lang_Lang.i18n('msg_crsunsupport'));
-            }
-
-        }).catch(error => {
-            /**
-             * @event mapboxgl.supermap.WebMap#getmapfailed
-             * @description 获取地图信息失败。
-             * @property {Object} error - 失败原因。
-             */
-            this.fire('getmapfailed', { 'error': error });
-        });
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._addBaseMap
-     * @description 添加底图。
-     * @param {Object} mapInfo - map 信息。
-     */
-    _addBaseMap(mapInfo) {
-        this._createBaseLayer(mapInfo)
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._createBaseLayer
-     * @description 创建底图。
-     * @param {Object} mapInfo - map 信息。
-     */
-    _createBaseLayer(mapInfo) {
-        let layerInfo = mapInfo.baseLayer || mapInfo;
-        let layerType = layerInfo.layerType; //底图和rest地图兼容
-        if (layerType.indexOf('TIANDITU_VEC') > -1 || layerType.indexOf('TIANDITU_IMG') > -1
-            || layerType.indexOf('TIANDITU_TER') > -1) {
-            layerType = layerType.substr(0, 12);
-        }
-        let mapUrls = {
-            CLOUD: 'http://t2.supermapcloud.com/FileService/image?map=quanguo&type=web&x={x}&y={y}&z={z}',
-            CLOUD_BLACK: 'http://t3.supermapcloud.com/MapService/getGdp?x={x}&y={y}&z={z}',
-            OSM: 'http://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            GOOGLE: 'http://www.google.cn/maps/vt/pb=!1m4!1m3!1i{z}!2i{x}!3i{y}!2m3!1e0!2sm!3i380072576!3m8!2szh-CN!3scn!5e1105!12m4!1e68!2m2!1sset!2sRoadmap!4e0!5m1!1e0',
-            GOOGLE_CN: 'https://mt{0-3}.google.cn/vt/lyrs=m&hl=zh-CN&gl=cn&x={x}&y={y}&z={z}',
-            JAPAN_STD: 'http://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png',
-            JAPAN_PALE: 'http://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png',
-            JAPAN_RELIEF: 'http://cyberjapandata.gsi.go.jp/xyz/relief/{z}/{x}/{y}.png',
-            JAPAN_ORT: 'http://cyberjapandata.gsi.go.jp/xyz/ort/{z}/{x}/{y}.jpg'
-        }, url;
-        switch (layerType) {
-            case "TIANDITU_VEC":
-            case "TIANDITU_IMG":
-            case "TIANDITU_TER":
-                this._createTiandituLayer(mapInfo);
-                break;
-            case 'BING':
-                this._createBingLayer(layerInfo.name);
-                break;
-            case "WMS":
-                this._createWMSLayer(layerInfo);
-                break;
-            case "WMTS":
-                this._createWMTSLayer(layerInfo);
-                break;
-            case 'TILE':
-            case 'SUPERMAP_REST':
-                this._createDynamicTiledLayer(layerInfo);
-                break;
-            case 'CLOUD':
-            case 'CLOUD_BLACK':
-            case 'OSM':
-            case 'JAPAN_ORT':
-            case 'JAPAN_RELIEF':
-            case 'JAPAN_PALE':
-            case 'JAPAN_STD':
-            case 'GOOGLE_CN':
-            case 'GOOGLE':
-                url = mapUrls[layerType];
-                this._createXYZLayer(layerInfo, url);
-                break;
-            default:
-                break;
-        }
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._createTiandituLayer
-     * @description 创建天地图底图。
-     * @param {Object} mapInfo - map 信息。
-     */
-    _createTiandituLayer(mapInfo) {
-        let tiandituUrls = this._getTiandituUrl(mapInfo);
-        let layerType = mapInfo.baseLayer.layerType;
-        let isLabel = Boolean(mapInfo.baseLayer.labelLayerVisible);
-        let labelUrl = tiandituUrls['labelUrl'];
-        let tiandituUrl = tiandituUrls['tiandituUrl'];
-        this._addBaselayer(tiandituUrl, 'tianditu-layers-' + layerType)
-        isLabel && this._addBaselayer([labelUrl], 'tianditu-label-layers-' + layerType)
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._createWMTSLayer
-     * @description 创建 WMTS 底图。
-     * @param {Object} mapInfo - map 信息。
-     */
-    _createWMTSLayer(layerInfo) {
-        let wmtsUrl = this._getWMTSUrl(layerInfo);
-        this._filterWMTSIsMatched(layerInfo, (isMatched, matchMaxZoom) => {
-            isMatched && this._addBaselayer([wmtsUrl], 'wmts-layers' + layerInfo.name, 0, matchMaxZoom)
-        })
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._filterWMTSIsMatched
-     * @description 过滤能够跟mapboxgl匹配的wmts服务。
-     * @param {Object} mapInfo - map 信息。
-     * @callback matchedCallback
-     */
-    _filterWMTSIsMatched(mapInfo, matchedCallback) {
-        let isMatched = false,
-            matchMaxZoom = 22,
-            url = mapInfo.url;
-        let options = {
-            withCredentials: false,
-            withoutFormatSuffix: true
-        };
-
-        FetchRequest_FetchRequest.get(url, null, options).then((response) => {
-            return response.text();
-        }).then((capabilitiesText) => {
-            let converts = external_function_try_return_convert_catch_e_return_default.a ? external_function_try_return_convert_catch_e_return_default.a : window.convert;
-            let tileMatrixSet = JSON.parse(converts.xml2json(capabilitiesText, { compact: true, spaces: 4 })).Capabilities.Contents.TileMatrixSet;
-            for (let i = 0; i < tileMatrixSet.length; i++) {
-                if (tileMatrixSet[i]['ows:Identifier'] && tileMatrixSet[i]['ows:Identifier']['_text'] === mapInfo.tileMatrixSet) {
-                    if (WebMap_DEFAULT_WELLKNOWNSCALESET.includes(tileMatrixSet[i]['WellKnownScaleSet']['_text'])) {
-                        isMatched = true;
-                    } else if (tileMatrixSet[i]['WellKnownScaleSet'] && tileMatrixSet[i]['WellKnownScaleSet']['_text'] === 'Custom') {
-                        let matchedScaleDenominator = [];
-                        //坐标系判断
-                        let defaultCRSScaleDenominators = this.map.crs === 'EPSG:3857' ? WebMap_MB_SCALEDENOMINATOR_3857 : WebMap_MB_SCALEDENOMINATOR_4326;
-
-                        for (let j = 0, len = defaultCRSScaleDenominators.length; j < len; j++) {
-                            if (!tileMatrixSet[i].TileMatrix[j]) {
-                                break;
-                            }
-                            if (defaultCRSScaleDenominators[j] !== tileMatrixSet[i].TileMatrix[j]['ScaleDenominator']['_text']) {
-                                break;
-                            }
-                            matchedScaleDenominator.push(defaultCRSScaleDenominators[j]);
-                        }
-                        matchMaxZoom = matchedScaleDenominator.length - 1;
-                        if (matchedScaleDenominator.length !== 0) {
-                            isMatched = true;
-                        } else {
-                            throw Error(Lang_Lang.i18n('msg_tilematrixsetunsupport'))
-
-                        }
-                    } else {
-                        throw Error(Lang_Lang.i18n('msg_tilematrixsetunsupport'))
-
-                    }
-                }
-            }
-            matchedCallback(isMatched, matchMaxZoom);
-        }).catch((error) => {
-            /**
-             * @event mapboxgl.supermap.WebMap#getwmtsfailed
-             * @description 获取 WMTS 图层信息失败。
-             * @property {Object} error - 失败原因。
-             * @property {mapboxgl.Map} map - MapBoxGL Map 对象。
-             */
-            this.fire('getwmtsfailed', { 'error': error, 'map': this.map });
-        });
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._createBingLayer
-     * @description 创建 Bing 图层。
-     */
-    _createBingLayer(layerName) {
-        let bingUrl = 'http://dynamic.t0.tiles.ditu.live.com/comp/ch/{quadkey}?it=G,TW,L,LA&mkt=zh-cn&og=109&cstl=w4c&ur=CN&n=z';
-        this.addLayer([bingUrl], 'bing-layers-' + layerName)
-    }
-
-    /**
-    * @private
-    * @function mapboxgl.supermap.WebMap.prototype._createXYZLayer
-    * @description 创建 XYZ 底图。
-    * @param {String} url - url 地址。
-    */
-    _createXYZLayer(layerInfo, url) {
-        let urlArr = []
-        if (layerInfo.layerType === 'OSM') {
-            let res = url.match(/\w\-\w/g)[0];
-            let start = res[0];
-            let end = res[2];
-            let alphabet = ""
-            for (let i = 97; i < 123; i++) {
-                alphabet += String.fromCharCode(i);
-            }
-            let alphabetArr = alphabet.split("");
-
-            let startIndex = alphabetArr.indexOf(start);
-            let endIndex = alphabetArr.indexOf(end);
-
-            let res3 = alphabetArr.slice(startIndex, endIndex + 1);
-
-            for (let i = 0; i < res3.length; i++) {
-                let replaceRes = url.replace(/{\w\-\w}/g, res3[i]);
-                urlArr.push(replaceRes);
-            }
-
-        } else if (layerInfo.layerType === 'GOOGLE_CN') {
-            let res = url.match(/\d\-\d/g)[0];
-            let start = res[0];
-            let end = res[2];
-
-            for (let i = start; i <= end; i++) {
-                let replaceRes = url.replace(/{\d\-\d}/g, i);
-                urlArr.push(replaceRes);
-            }
-        } else {
-            urlArr = [url];
-        }
-        this._addBaselayer(urlArr, 'XYZ-layers-' + layerInfo.name);
-    }
-
-    /**
-    * @private
-    * @function mapboxgl.supermap.WebMap.prototype._createDynamicTiledLayer
-    * @description 创建 iserver 底图。
-    * @param {Object} layerInfo - 图层信息。
-    */
-    _createDynamicTiledLayer(layerInfo) {
-        let url = layerInfo.url + '/zxyTileImage.png?z={z}&x={x}&y={y}';
-        this._addBaselayer([url], 'tile-layers-' + layerInfo.name);
-    }
-
-    /**
-    * @private
-    * @function mapboxgl.supermap.WebMap.prototype._createWMSLayer
-    * @description 创建 WMS 图层。
-    * @param {Object} mapInfo - map 信息。
-    */
-    _createWMSLayer(layerInfo) {
-        let WMSUrl = this._getWMSUrl(layerInfo);
-        this._addBaselayer([WMSUrl], 'WMS-layers-' + layerInfo.name);
-    }
-
-    /**
-    * @private
-    * @function mapboxgl.supermap.WebMap.prototype._createVectorLayer
-    * @description 创建 Vector 图层。
-    * @param {Object} layerInfo - map 信息。
-    * @param {Array} features - 属性 信息。
-    */
-    _createVectorLayer(layerInfo, features) {
-        let style = layerInfo.style;
-        let type = layerInfo.featureType;
-        let layerID = layerInfo.layerID;
-        let visible = layerInfo.visible;
-        let layerStyle = {};
-        layerStyle.style = this._transformStyleToMapBoxGl(style, type)
-        layerStyle.layout = { 'visibility': visible }
-        let source = {
-            'type': 'geojson',
-            'data': {
-                "type": "FeatureCollection",
-                "features": features
-            }
-        };
-        this._addOverlayToMap(type, source, layerID, layerStyle)
-        // 如果面有边框
-        type === 'POLYGON' && style.strokeColor && this._addStrokeLineForPoly(style, source, layerID + '-strokeLine', visible);
-    }
-
-    /**
-     * @function mapboxgl.supermap.WebMap.prototype._getTiandituUrl
-     * @private
-     * @description 创建天地图url;
-     * @param {Object} mapInfo - map 信息。
-     */
-    _getTiandituUrl(mapInfo) {
-        let re = /t0/gi;
-        let tiandituUrls = {};
-        let layerType = mapInfo.baseLayer.layerType.split('_')[1].toLowerCase();
-        let isLabel = Boolean(mapInfo.baseLayer.labelLayerVisible);
-        // let isLabel = true;
-        let url = "http://t0.tianditu.com/{layer}_{proj}/wmts?";
-        let labelUrl = url;
-        let layerLabelMap = {
-            "vec": "cva",
-            "ter": "cta",
-            "img": "cia"
-        }
-        let tilematrixSet = this.baseProjection === "EPSG:4326" ? "c" : "w";
-        let options = {
-            service: 'WMTS',
-            request: 'GetTile',
-            style: "default",
-            version: '1.0.0',
-            layer: layerType,
-            tilematrixSet: tilematrixSet,
-            format: "tiles",
-            width: 256,
-            height: 256
-        }
-
-        url += this._getParamString(options, url) + '&tilematrix={z}&tilerow={y}&tilecol={x}';
-        let tiandituUrl = url.replace("{layer}", layerType).replace("{proj}", tilematrixSet);
-        let tiandituUrlArr = [];
-        for (let i = 0; i < 8; i++) {
-            tiandituUrlArr.push(tiandituUrl.replace(re, `t${i}`));
-        }
-        tiandituUrls['tiandituUrl'] = tiandituUrlArr;
-
-        // 如果有 label 图层
-        if (isLabel) {
-            let labelLayer = layerLabelMap[layerType];
-            options.layer = labelLayer;
-            labelUrl += this._getParamString(options, labelUrl) + '&tilematrix={z}&tilerow={y}&tilecol={x}';
-            labelUrl = labelUrl.replace("{layer}", labelLayer).replace("{proj}", tilematrixSet);
-            let labelUrlArr = [];
-            for (let i = 0; i < 8; i++) {
-                labelUrlArr.push(labelUrl.replace(re, `t${i}`));
-            }
-            tiandituUrls['labelUrl'] = labelUrlArr;
-        }
-
-        return tiandituUrls;
-    }
-
-    /**
-     * @function mapboxgl.supermap.WebMap.prototype._getWMSUrl
-     * @private
-     * @description 创建 WMS url;
-     * @param {Object} mapInfo - map 信息。
-     */
-    _getWMSUrl(mapInfo) {
-        let url = mapInfo.url;
-        url = url.split('?')[0];
-        let strArr = url.split('/');
-        let options = {
-            service: 'WMS',
-            request: 'GetMap',
-            layers: strArr[strArr.length - 1],
-            styles: "",
-            format: "image/png",
-            transparent: 'true',
-            version: '1.1.1',
-            width: 256,
-            height: 256,
-            srs: this.baseProjection
-        }
-        let bbox = this.baseProjection === "EPSG:4326" ? '{bbox-epsg-4326}' : '{bbox-epsg-3857}';
-        url += this._getParamString(options, url) + `&bbox=${bbox}`;
-        return url;
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._addLayers
-     * @description 添加叠加图层。
-     * @param {Object} mapInfo - 图层信息。
-     */
-    _addLayers(layers) {
-        //存储地图上所有的图层对象
-        this.layers = layers;
-
-        let features, layerAdded = 0, len = layers.length;
-        layers.forEach((layer, index) => {
-            if ((layer.dataSource && layer.dataSource.serverId) || layer.layerType === "MARKER") {
-                // 获取 serverID
-                let serverId = layer.dataSource ? layer.dataSource.serverId : layer.serverId;
-                let url = `${this.server}web/datas/${serverId}/content.json?pageSize=9999999&currentPage=1`;
-                // 获取图层数据
-                serverId && FetchRequest_FetchRequest.get(url, null, { withCredentials: this.withCredentials }).then(response => {
-                    return response.json()
-                }).then(data => {
-                    if (data.succeed === false) {
-                        //请求失败
-                        layerAdded++;
-                        this._sendMapToUser(layerAdded, len);
-                        /**
-                        * @event mapboxgl.supermap.WebMap#getlayersfailed
-                        * @description 获取图层信息失败。
-                        * @property {Object} error - 失败原因。
-                        * @property {mapboxgl.Map} map - MapBoxGL Map 对象。
-                        */
-                        this.fire('getlayersfailed', { 'error': data.error, 'map': this.map });
-                        return;
-                    }
-                    if (data.type) {
-                        if (data.type === "JSON" || data.type === "GEOJSON") {
-                            data.content = JSON.parse(data.content.trim());
-                            features = this._formatGeoJSON(data.content, layer);
-                        } else if (data.type === 'EXCEL' || data.type === 'CSV') {
-                            features = this._excelData2Feature(data.content, layer);
-                        }
-                        this._addLayer(layer, features, index);
-                        layerAdded++;
-                        this._sendMapToUser(layerAdded, len);
-                    }
-                }).catch((error) => {
-                    layerAdded++;
-                    this._sendMapToUser(layerAdded, len);
-                    this.fire('getlayersfailed', { 'error': error, 'map': this.map });
-                })
-            } else if (layer.layerType === 'SUPERMAP_REST' || layer.layerType === "TILE" || layer.layerType === "WMS" || layer.layerType === "WMTS") {
-                this._createBaseLayer(layer);
-                layerAdded++;
-                this._sendMapToUser(layerAdded, len);
-            } else if (layer.dataSource && layer.dataSource.type === "REST_DATA") {
-                let dataSource = layer.dataSource;
-                //从restData获取数据
-                this._getFeatureBySQL(dataSource.url, [dataSource.dataSourseName || layer.name], (result) => {
-                    features = this._parseGeoJsonData2Feature({
-                        allDatas: { features: result.result.features.features },
-                        fileCode: layer.projection,
-                        featureProjection: this.baseProjection
-                    });
-
-                    this._addLayer(layer, features, index);
-                    layerAdded++;
-                    this._sendMapToUser(layerAdded, len);
-                }, (err) => {
-                    layerAdded++;
-                    this._sendMapToUser(layerAdded, len);
-                    /**
-                    * @event mapboxgl.supermap.WebMap#getfeaturesfailed
-                    * @description 获取图层要素失败。
-                    * @property {Object} error - 失败原因。
-                    */
-                    this.fire('getfeaturesfailed', { 'error': err });
-                });
-            } else if (layer.dataSource && layer.dataSource.type === "REST_MAP" && layer.dataSource.url) {
-                this._queryFeatureBySQL(layer.dataSource.url, layer.dataSource.layerName, 'smid=1', null, null, (result) => {
-                    let recordsets = result && result.result.recordsets;
-                    let recordset = recordsets && recordsets[0];
-                    let attributes = recordset.fields;
-                    if (recordset && attributes) {
-                        let fileterAttrs = [];
-                        for (let i in attributes) {
-                            let value = attributes[i];
-                            if (value.indexOf('Sm') !== 0 || value === "SmID") {
-                                fileterAttrs.push(value);
-                            }
-                        }
-                        this._getFeatures(fileterAttrs, layer, (features) => {
-                            this._addLayer(layer, features, index);
-                            layerAdded++;
-                            this._sendMapToUser(layerAdded, len);
-                        }, err => {
-                            layerAdded++;
-                            this.fire('getfeaturesfailed', { 'error': err, 'map': this.map })
-                        });
-                    }
-                }, (err) => {
-                    this.fire('getlayersfailed', { 'error': err, 'map': this.map });
-                })
-            }
-        }, this);
-    }
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._getFeatures
-     * @description 将单个图层添加到地图上。
-     * @param layerInfo  某个图层的图层信息
-     * @param {Array.<GeoJSON>} features - feature。
-     */
-    _getFeatures(fields, layerInfo, resolve, reject) {
-        let source = layerInfo.dataSource;
-        //示例数据
-        let fileCode = layerInfo.projection;
-        this._queryFeatureBySQL(source.url, source.layerName, null, fields, null, (result) => {
-            let recordsets = result.result.recordsets[0];
-            let features = recordsets.features.features;
-
-            let featuresObj = this._parseGeoJsonData2Feature({
-                allDatas: { features },
-                fileCode: fileCode,
-                featureProjection: this.baseProjection
-            }, 'JSON');
-            resolve(featuresObj);
-        }, (err) => {
-            reject(err);
-        });
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._addLayer
-     * @description 将单个图层添加到地图上。
-     * @param layerInfo  某个图层的图层信息
-     * @param {Array.<GeoJSON>} features - feature。
-     */
-    _addLayer(layerInfo, features, index) {
-        let layerType = layerInfo.layerType;
-        layerInfo.layerID = layerType + '-' + layerInfo.name + '-' + index;
-        layerInfo.visible = layerInfo.visible ? 'visible' : 'none';
-        // mbgl 目前不能处理 geojson 复杂面情况
-        // mbgl isssue https://github.com/mapbox/mapbox-gl-js/issues/7023
-        if (features[0] && features[0].geometry.type === 'Polygon') {
-            features = this._handleMultyPolygon(features);
-        }
-
-        if (layerInfo.style && layerInfo.filterCondition) {
-            //将 feature 根据过滤条件进行过滤, 分段专题图和单值专题图因为要计算 styleGroup 所以暂时不过滤
-            if (layerType !== "RANGE" && layerType !== "UNIQUE") {
-                features = this._getFiterFeatures(layerInfo.filterCondition, features);
-            }
-        }
-
-        if (layerType === "VECTOR") {
-            if (layerInfo.featureType === "POINT") {
-                if (layerInfo.style.type === 'SYMBOL_POINT') {
-                    this._createSymbolLayer(layerInfo, features);
-                } else {
-                    this._createGraphicLayer(layerInfo, features);
-                }
-            } else {
-                //线和面
-                this._createVectorLayer(layerInfo, features)
-            }
-        } else if (layerType === "UNIQUE") {
-            this._createUniqueLayer(layerInfo, features);
-        } else if (layerType === "RANGE") {
-            this._createRangeLayer(layerInfo, features);
-        } else if (layerType === "HEAT") {
-            this._createHeatLayer(layerInfo, features);
-        } else if (layerType === "MARKER") {
-            this._createMarkerLayer(layerInfo, features)
-        }
-        if (layerInfo.labelStyle && layerInfo.labelStyle.labelField) {
-            // 存在标签专题图
-            this._addLabelLayer(layerInfo, features);
-        }
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._addLabelLayer
-     * @description 添加标签图层。
-     * @param layerInfo  某个图层的图层信息。
-     * @param {Array.<GeoJSON>} features - feature。
-     */
-    _addLabelLayer(layerInfo, features) {
-        let labelStyle = layerInfo.labelStyle;
-        
-        this.map.addLayer({
-            "id": layerInfo.layerID + 'label',
-            "type": "symbol",
-            "source": {
-                "type": "geojson",
-                "data": {
-                    "type": "FeatureCollection",
-                    "features": features
-                }
-            },
-            "paint": {
-                'text-color': labelStyle.fill
-            },
-            "layout": {
-                "text-field": `{${labelStyle.labelField}}`,
-                'text-size': parseFloat(labelStyle.fontSize) || 12,
-                'text-offset': labelStyle.offsetX ? [labelStyle.offsetX / 10 || 0, labelStyle.offsetY / 10 || 0] : [0,-1.5],
-                'text-font': ["DIN Offc Pro Italic", "Arial Unicode MS Regular"],
-                'visibility': layerInfo.visible
-            }
-        });
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._createSymbolLayer
-     * @description 添加 symbol 图层。
-     * @param layerInfo  某个图层的图层信息。
-     * @param {Array.<GeoJSON>} features - feature。
-     */
-    _createSymbolLayer(layerInfo, features) {
-        //用来请求symbol_point字体文件
-        let target = document.getElementById(`${this.target}`);
-        target.classList.add('supermapol-icons-map');
-
-        let style = layerInfo.style;
-        let unicode = layerInfo.style.unicode;
-        let text = String.fromCharCode(parseInt(unicode.replace(/^&#x/, ''), 16));
-        let layerID = layerInfo.layerID;
-        this.map.addSource(layerID + '-source', {
-            "type": "geojson",
-            "data": {
-                "type": "FeatureCollection",
-                "features": []
-            }
-        });
-        this.map.addLayer({
-            "id": layerID,
-            "type": "symbol",
-            "source": layerID + '-source',
-            "paint": {
-                "text-color": style.fillColor
-            },
-            "layout": {
-                "text-field": text,
-                'text-font': ["DIN Offc Pro Italic", "Arial Unicode MS Regular"],
-                'visibility': layerInfo.visible
-            }
-        });
-        this.map.getSource(layerID + '-source').setData({
-            "type": "FeatureCollection",
-            "features": features
-        });
-
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._createGraphicLayer
-     * @description 创建 Graphic 图层。
-     * @param {Object} layerInfo - map 信息。
-     * @param {Array} features - 属性 信息。
-    */
-    _createGraphicLayer(layerInfo, features) {
-        let style = layerInfo.style;
-        let layerStyle = {};
-        let layerID = layerInfo.layerID;
-        let source = {
-            "type": "geojson",
-            "data": {
-                "type": "FeatureCollection",
-                "features": features
-            }
-        }
-
-        if (style.type === "IMAGE_POINT") {
-            let imageInfo = style.imageInfo;
-            let imgDom = imageInfo.img;
-            if (!imgDom || !imgDom.src) {
-                //要组装成完整的url
-                imageInfo.url = this.server + imageInfo.url;
-            }
-            this.map.loadImage(imageInfo.url || imgDom.src, (error, image) => {
-                if (error) { console.log(error) }
-                let iconSize = Number.parseFloat((style.radius / image.height).toFixed(2)) * 2;
-                this.map.addImage('imageIcon', image);
-                this.map.addLayer({
-                    "id": layerID,
-                    "type": "symbol",
-                    "source": source,
-                    "layout": {
-                        "icon-image": "imageIcon",
-                        'icon-size': iconSize,
-                        'visibility': layerInfo.visible
-                    }
-                });
-            });
-        } else if (style.type === "SVG_POINT") {
-            let svg_url = style.url;
-            if (!this.svgDiv) {
-                this.svgDiv = document.createElement('div');
-                document.body.appendChild(this.svgDiv);
-            }
-            this._getCanvasFromSVG(svg_url, this.svgDiv, (canvas) => {
-                let imgUrl = canvas.toDataURL("img/png");
-                imgUrl && this.map.loadImage(imgUrl, (error, image) => {
-                    if (error) { console.log(error) }
-                    let iconSize = Number.parseFloat((style.radius / canvas.width).toFixed(2));
-                    this.map.addImage('imageIcon', image);
-                    this.map.addLayer({
-                        "id": layerID,
-                        "type": "symbol",
-                        "source": source,
-                        "layout": {
-                            "icon-image": 'imageIcon',
-                            'icon-size': iconSize,
-                            'visibility': layerInfo.visible
-                        }
-                    });
-                }, this);
-            });
-        } else {
-            layerStyle.style = this._transformStyleToMapBoxGl(style, layerInfo.featureType);
-            layerStyle.layout = { 'visibility': layerInfo.visible };
-            this._addOverlayToMap("POINT", source, layerID, layerStyle)
-        }
-    }
-
-    /**
-    * @private
-    * @function mapboxgl.supermap.WebMap.prototype._createUniqueLayer
-    * @description 创建单值图层。
-    * @param layerInfo  某个图层的图层信息
-    * @param features   图层上的 feature
-    */
-    _createUniqueLayer(layerInfo, features) {
-        let styleGroup = this._getUniqueStyleGroup(layerInfo, features);
-        features = this._getFiterFeatures(layerInfo.filterCondition, features);
-
-        let style = layerInfo.style;
-        let layerStyle = {};
-        let themeField = layerInfo.themeSetting.themeField;
-        let type = layerInfo.featureType;
-        let expression = ["match", ["get", "index"]];
-        let layerID = layerInfo.layerID;
-        features.forEach((row) => {
-            styleGroup.forEach((item) => {
-                if (item.value === row.properties[themeField]) {
-                    expression.push(row.properties['index'], item.color)
-                }
-            })
-        })
-        expression.push('#ffffff');
-        layerStyle.style = this._transformStyleToMapBoxGl(style, type, expression);
-        let visible = layerInfo.visible;
-        layerStyle.layout = { 'visibility': visible }
-        let source = {
-            "type": "geojson",
-            "data": {
-                "type": "FeatureCollection",
-                "features": features
-            }
-        }
-        this._addOverlayToMap(type, source, layerID, layerStyle)
-        type === 'POLYGON' && style.strokeColor && this._addStrokeLineForPoly(style, source, layerID + '-strokeLine', visible);
-    }
-
-    /**
-    * @private
-    * @function mapboxgl.supermap.WebMap.prototype._getUniqueStyleGroup
-    * @description 获取单值的目标字段与颜色的对应数组。
-    * @param layerInfo  某个图层的图层信息
-    * @param features   图层上的 feature
-    */
-    _getUniqueStyleGroup(parameters, features) {
-        // 找出所有的单值
-        let featureType = parameters.featureType, style = parameters.style, themeSetting = parameters.themeSetting;
-        let fieldName = themeSetting.themeField,
-            colors = themeSetting.colors;
-
-        let names = [], customSettings = themeSetting.customSettings;
-        for (let i in features) {
-            let properties = features[i].properties;
-            let name = properties[fieldName];
-            let isSaved = false;
-            for (let j in names) {
-                if (names[j] === name) {
-                    isSaved = true;
-                    break;
-                }
-            }
-            if (!isSaved) {
-                names.push(name);
-            }
-        }
-
-        //获取一定量的颜色
-        let curentColors = colors || this.defaultParameters.colors;
-        curentColors = ColorsPickerUtil_ColorsPickerUtil.getGradientColors(curentColors, names.length);
-
-        //生成styleGroup
-        let styleGroup = [];
-        names.forEach((name, index) => {
-            let color = curentColors[index];
-            if (name in customSettings) {
-                color = customSettings[name];
-            }
-            if (featureType === "LINE") {
-                style.strokeColor = color;
-            } else {
-                style.fillColor = color;
-            }
-            styleGroup.push({ color: color, value: name });
-        }, this);
-
-        return styleGroup;
-    }
-
-    /**
-    * @private
-    * @function mapboxgl.supermap.WebMap.prototype._getWMTSUrl
-    * @description 根据传入的配置信息拼接wmts url。
-    * @param options 配置对象
-    */
-    _getWMTSUrl(options) {
-        let obj = {
-            service: 'WMTS',
-            request: 'GetTile',
-            version: '1.0.0',
-            style: 'default',
-            layer: options.layer,
-            tilematrixSet: options.tileMatrixSet,
-            format: 'image/png'
-        }
-        let url = options.url;
-
-        url += this._getParamString(obj, url) + '&tilematrix={z}&tilerow={y}&tilecol={x}';
-
-        return url;
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._createMarkerLayer
-     * @description 添加标记图层。
-     * @param {Array.<GeoJSON>} features - feature。
-     */
-    _createMarkerLayer(layerInfo, features) {
-        features && features.forEach((feature) => {
-            let geomType = feature.geometry.type.toUpperCase();
-            let defaultStyle = feature.dv_v5_markerStyle;
-            if (geomType === 'POINT' && defaultStyle.text) {
-                //说明是文字的feature类型
-                geomType = "TEXT";
-            }
-            let featureInfo = this.setFeatureInfo(feature);
-            feature.properties['useStyle'] = defaultStyle;
-            feature.properties['featureInfo'] = featureInfo;
-            if (geomType === 'POINT' && defaultStyle.src &&
-                (defaultStyle.src.indexOf('http://') === -1 && defaultStyle.src.indexOf('https://') === -1)) {
-                //说明地址不完整
-                defaultStyle.src = this.server + defaultStyle.src;
-            }
-
-            let source = {
-                "type": "geojson",
-                "data": feature
-            };
-            let index = feature.properties.index;
-            let layerID = geomType + '-' + index;
-            // image-marker
-            geomType === 'POINT' && defaultStyle.src && defaultStyle.src.indexOf('svg') <= -1 && this.map.loadImage(defaultStyle.src, (error, image) => {
-                if (error) { console.log(error) }
-                this.map.addImage(index + '', image);
-                this.map.addLayer({
-                    "id": layerID,
-                    "type": "symbol",
-                    "source": source,
-                    "layout": {
-                        "icon-image": index + '',
-                        "icon-size": defaultStyle.scale,
-                        'visibility': layerInfo.visible
-                    }
-                });
-            }, this);
-
-            // svg-marker
-            if (geomType === 'POINT' && defaultStyle.src && defaultStyle.src.indexOf('svg') > -1) {
-                if (!this.svgDiv) {
-                    this.svgDiv = document.createElement('div');
-                    document.body.appendChild(this.svgDiv);
-                }
-                this._getCanvasFromSVG(defaultStyle.src, this.svgDiv, (canvas) => {
-                    let imgUrl = canvas.toDataURL("img/png");
-                    imgUrl && this.map.loadImage(imgUrl, (error, image) => {
-                        if (error) { console.log(error) }
-                        this.map.addImage(index + '', image);
-                        this.map.addLayer({
-                            "id": layerID,
-                            "type": "symbol",
-                            "source": source,
-                            "layout": {
-                                "icon-image": index + '',
-                                "icon-size": defaultStyle.scale,
-                                'visibility': layerInfo.visible
-                            }
-                        });
-                    }, this);
-                });
-            }
-            // point-line-polygon-marker
-            if (!defaultStyle.src) {
-                let layeStyle = { 'layout': {} };
-                if (geomType === 'LINESTRING' && defaultStyle.lineCap) {
-                    geomType = 'LINE';
-                    layeStyle.layout = { 'line-cap': defaultStyle.lineCap };
-                }
-                let visible = layerInfo.visible;
-                layeStyle.layout.visibility = visible;
-                // get style
-                layeStyle.style = this._transformStyleToMapBoxGl(defaultStyle, geomType);
-                this._addOverlayToMap(geomType, source, layerID, layeStyle);
-                // 若面有边框
-                geomType === 'POLYGON' && defaultStyle.strokeColor && this._addStrokeLineForPoly(defaultStyle, source, layerID + '-strokeLine', visible);
-            }
-        }, this)
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype.setFeatureInfo
-     * @description 设置 feature 信息。
-     * @param {Array.<GeoJSON>} features - feature。
-     */
-    setFeatureInfo(feature) {
-        let featureInfo;
-        let info = feature.dv_v5_markerInfo;
-        if (info && info.dataViz_title) {
-            //有featureInfo信息就不需要再添加
-            featureInfo = info;
-        } else {
-            // featureInfo = this.getDefaultAttribute();
-            return info;
-        }
-        let properties = feature.properties;
-        for (let key in featureInfo) {
-            if (properties[key]) {
-                featureInfo[key] = properties[key];
-                delete properties[key];
-            }
-        }
-        return featureInfo;
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._createHeatLayer
-     * @description 添加热力图。
-     * @param {Array.<GeoJSON>} features - feature。
-     */
-    _createHeatLayer(layerInfo, features) {
-        let style = layerInfo.themeSetting;
-        let layerOption = {};
-        layerOption.gradient = style.colors.slice();
-        layerOption.radius = parseInt(style.radius);
-        //自定义颜色
-        let customSettings = style.customSettings;
-        for (let i in customSettings) {
-            layerOption.gradient[i] = customSettings[i];
-        }
-        // 权重字段恢复
-        if (style.weight) {
-            this._changeWeight(features, style.weight);
-        }
-
-        let color = ["interpolate", ["linear"], ["heatmap-density"]]
-        let length = layerOption.gradient.length
-        let step = (1 / length).toFixed(2);
-        layerOption.gradient.forEach((item, index) => {
-            color.push(index * step);
-            if (index === 0) {
-                item = core_Util_Util.hexToRgba(item, 0);
-            }
-            color.push(item);
-        })
-
-        let paint = {
-            "heatmap-color": color,
-            "heatmap-radius": style.radius + 15,
-            'heatmap-intensity': { "base": 1, "stops": [[0, 0.8], [22, 1]] }
-        }
-        if (features[0].weight && features.length >= 4) {
-            let weight = [];
-            features.forEach(item => {
-                weight.push(item.weight);
-            })
-            let max = ArrayStatistic.getMax(weight);
-            let min = ArrayStatistic.getMin(weight);
-            paint["heatmap-weight"] = ["interpolate", ["linear"], ["get", 'weight'], min, 0, max, 1];
-        }
-
-        this.map.addLayer({
-            'id': layerInfo.layerID,
-            "type": "heatmap",
-            "source": {
-                "type": "geojson",
-                "data": {
-                    "type": "FeatureCollection",
-                    "features": features
-                }
-            },
-            "paint": paint
-        });
-    }
-
-    /**
-      * @private
-      * @function mapboxgl.supermap.WebMap.prototype._changeWeight
-      * @description 改变当前权重字段
-      * @param {Array.<GeoJSON>} features - feature。
-      * @param {String} weightFeild - 权重字段
-      */
-    _changeWeight(features, weightFeild) {
-        this.fieldMaxValue = {};
-        this._getMaxValue(features, weightFeild);
-        let maxValue = this.fieldMaxValue[weightFeild];
-        features.forEach((feature) => {
-            let attributes = feature.properties;
-            let value = attributes[weightFeild];
-            feature['weight'] = value / maxValue;
-        })
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._getMaxValue
-     * @description 获取当前字段对应的最大值，用于计算权重。
-     * @param {Array.<GeoJSON>} features - feature。
-     * @param {String} weightFeild - 权重字段
-     */
-    _getMaxValue(features, weightField) {
-        let values = [], attributes;
-        let field = weightField;
-        if (this.fieldMaxValue[field]) { return }
-        features.forEach((feature) => {
-            //收集当前权重字段对应的所有值
-            attributes = feature.properties;
-            attributes && parseFloat(attributes[field]) && values.push(parseFloat(attributes[field]));
-        });
-        this.fieldMaxValue[field] = ArrayStatistic.getArrayStatistic(values, 'Maximum');
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._createRangeLayer
-     * @description 添加分段专题图。
-     * @param {Array.<GeoJSON>} features - feature。
-     */
-    _createRangeLayer(layerInfo, features) {
-        let fieldName = layerInfo.themeSetting.themeField;
-        let style = layerInfo.style;
-        let featureType = layerInfo.featureType;
-        let styleGroups = this._getRangeStyleGroup(layerInfo, features);
-        features = this._getFiterFeatures(layerInfo.filterCondition, features);
-
-        let source = {
-            "type": "geojson",
-            "data": {
-                "type": "FeatureCollection",
-                "features": features
-            }
-        };
-
-        // 获取 expression
-        let expression = ["match", ["get", 'index']];
-        features.forEach((row) => {
-            let tartget = parseFloat(row.properties[fieldName]);
-            for (let i = 0; i < styleGroups.length; i++) {
-                if (styleGroups[i].start <= tartget && tartget < styleGroups[i].end) {
-                    expression.push(row.properties['index'], styleGroups[i].color);
-                    // return;
-                }
-            }
-            !tartget && expression.push(row.properties['index'], 'rgba(0, 0, 0, 0)');
-        }, this);
-        expression.push('rgba(0, 0, 0, 0)');
-
-        // 获取样式
-        let layerStyle = { 'layout': {} };
-        if (featureType === 'LINE' && style.lineCap) {
-            layerStyle.layout = { 'line-cap': style.lineCap };
-        }
-        let visible = layerInfo.visible;
-        layerStyle.layout.visibility = visible;
-        layerStyle.style = this._transformStyleToMapBoxGl(style, featureType, expression)
-        // 添加图层
-        let layerID = layerInfo.layerID;
-        this._addOverlayToMap(featureType, source, layerID, layerStyle)
-        // 如果面有边框
-        featureType === 'POLYGON' && style.strokeColor && this._addStrokeLineForPoly(style, source, layerID + '-strokeline', visible);
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._getFiterFeatures
-     * @description 通过过滤条件查询满足的 feature。
-     * @param {String} filterCondition - 过滤条件。
-     * @param {array} allFeatures - 图层上的 feature 集合
-     */
-    _getFiterFeatures(filterCondition, allFeatures) {
-        if (!filterCondition) {
-            return allFeatures;
-        }
-        let jsonsqls = external_function_try_return_jsonsql_catch_e_return_default.a ? external_function_try_return_jsonsql_catch_e_return_default.a : window.jsonsql
-        let condition = this._replaceFilterCharacter(filterCondition);
-        let sql = "select * from json where (" + condition + ")";
-        let filterFeatures = [];
-        for (let i = 0; i < allFeatures.length; i++) {
-            let feature = allFeatures[i];
-            let filterResult = false;
-            try {
-                filterResult = jsonsqls.query(sql, {
-                    properties: feature.properties
-                });
-            } catch (err) {
-                //必须把要过滤得内容封装成一个对象,主要是处理jsonsql(line : 62)中由于with语句遍历对象造成的问题
-                continue;
-            }
-            if (filterResult && filterResult.length > 0) {
-                //afterFilterFeatureIdx.push(i);
-                filterFeatures.push(feature);
-            }
-        }
-        return filterFeatures;
-    }
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._replaceFilterCharacter
-     * @description 获取过滤字符串。
-     * @param {String} filterString - 过滤条件。
-     */
-    _replaceFilterCharacter(filterString) {
-        filterString = filterString.replace(/=/g, '==').replace(/AND|and/g, '&&').replace(/or|OR/g, '||').replace(/<==/g, '<=').replace(/>==/g, '>=');
-        return filterString;
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._getRangeStyleGroup
-     * @description 获取分段样式。
-     * @param {Array.<GeoJSON>} features - feature。
-     */
-    _getRangeStyleGroup(layerInfo, features) {
-        // 找出分段值
-        let featureType = layerInfo.featureType;
-        let style = layerInfo.style;
-        let values = [], attributes;
-
-        let themeSetting = layerInfo.themeSetting;
-        let customSettings = themeSetting.customSettings;
-        let fieldName = themeSetting.themeField;
-        let segmentCount = themeSetting.segmentCount;
-
-        features.forEach((feature) => {
-            attributes = feature.properties || feature.get("Properties");
-            if (attributes) {
-                //过滤掉非数值的数据
-                attributes[fieldName] && core_Util_Util.isNumber(attributes[fieldName]) && values.push(parseFloat(attributes[fieldName]));
-            } else if (feature.get(fieldName) && core_Util_Util.isNumber(feature.get(fieldName))) {
-                feature.get(fieldName) && values.push(parseFloat(feature.get(fieldName)));
-            }
-        }, this);
-
-        let segements = ArrayStatistic.getArraySegments(values, themeSetting.segmentMethod, segmentCount);
-        if (segements) {
-            let itemNum = segmentCount;
-            if (attributes && segements[0] === segements[attributes.length - 1]) {
-                itemNum = 1;
-                segements.length = 2;
-            }
-
-            //保留两位有效数
-            for (let key in segements) {
-                let value = segements[key];
-                value = key == 0 ? Math.floor(value * 100) / 100 : Math.ceil(value * 100) / 100 + 0.1;// 加0.1 解决最大值没有样式问题
-                segements[key] = Number(value.toFixed(2));
-            }
-
-            //获取一定量的颜色
-            let curentColors = themeSetting.colors;
-            // curentColors = ColorsPickerUtil.getGradientColors(curentColors, itemNum, 'RANGE');
-
-            for (let index = 0; index < itemNum; index++) {
-                if (index in customSettings) {
-                    if (customSettings[index]["segment"]["start"]) {
-                        segements[index] = customSettings[index]["segment"]["start"];
-                    }
-                    if (customSettings[index]["segment"]["end"]) {
-                        segements[index + 1] = customSettings[index]["segment"]["end"];
-                    }
-                }
-            }
-            //生成styleGroup
-            let styleGroups = [];
-            for (let i = 0; i < itemNum; i++) {
-                let color = curentColors[i];
-                if (i in customSettings) {
-                    if (customSettings[i].color) {
-                        color = customSettings[i].color;
-                    }
-                }
-                if (featureType === "LINE") {
-                    style.strokeColor = color;
-                } else {
-                    style.fillColor = color;
-                }
-
-                let start = segements[i];
-                let end = segements[i + 1];
-                let styleObj = JSON.parse(JSON.stringify(style));
-                styleGroups.push({ style: styleObj, color: color, start: start, end: end });
-            }
-            return styleGroups;
-        }
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._formatGeoJSON
-     * @description 格式 GeoJSON。
-     * @param {GeoJSON} data - GeoJSON 数据。
-     */
-    _formatGeoJSON(data) {
-        let features = data.features;
-        features.forEach((row, index) => {
-            row.properties['index'] = index;
-            // TODO 待优化 坐标转换
-            // if (fileCode !== 'EPSG:4326') {
-            //     if(row.geometry.coordinates[0] instanceof Array){
-            //         row.geometry.coordinates.forEach((coords, index) => {
-            //             let lnglat = this._unproject(coords);
-            //             row.geometry.coordinates[index] = [lnglat.lng, lnglat.lat];
-            //         }, this)
-            //         return;
-            //     }
-            //     let lnglat = this._unproject(row.geometry.coordinates);
-            //     row.geometry.coordinates = [lnglat.lng, lnglat.lat];
-            // }
-        })
-        return features;
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._excelData2Feature将 
-     * @description csv 和 xls 文件内容转换成 geojson
-     * @param content  文件内容
-     * @param layerInfo  图层信息
-     * @returns {Array}  feature的数组集合
-     */
-    _excelData2Feature(dataContent) {
-        let fieldCaptions = dataContent.colTitles;
-        // let fileCode = layerInfo.projection;
-        //位置属性处理
-        let xfieldIndex = -1,
-            yfieldIndex = -1;
-        for (let i = 0, len = fieldCaptions.length; i < len; i++) {
-            if (this._isXField(fieldCaptions[i])) {
-                xfieldIndex = i;
-            }
-            if (this._isYField(fieldCaptions[i])) {
-                yfieldIndex = i;
-            }
-        }
-
-        // feature 构建后期支持坐标系 4326/3857
-        let features = [];
-
-        for (let i = 0, len = dataContent.rows.length; i < len; i++) {
-            let row = dataContent.rows[i];
-
-            let x = Number(row[xfieldIndex]),
-                y = Number(row[yfieldIndex]);
-            // let coordinates = [x, y];
-            // TODO 待优化 坐标转换
-            // if (fileCode !== 'EPSG:4326') {
-            //     if(row.geometry.coordinates[0] instanceof Array){
-            //         row.geometry.coordinates.forEach((coords, index) => {
-            //             let lnglat = this._unproject(coords);
-            //             row.geometry.coordinates[index] = [lnglat.lng, lnglat.lat];
-            //         }, this)
-            //         return;
-            //     }
-            //     let lnglat = this._unproject(row.geometry.coordinates);
-            //     row.geometry.coordinates = [lnglat.lng, lnglat.lat];
-            // }
-
-            //属性信息
-            let attributes = {};
-            for (let index in dataContent.colTitles) {
-                let key = dataContent.colTitles[index];
-                attributes[key] = dataContent.rows[i][index];
-            }
-            attributes['index'] = i + '';
-            //目前csv 只支持处理点，所以先生成点类型的 geojson
-            let feature = {
-                "type": "Feature",
-                "geometry": {
-                    "type": "Point",
-                    "coordinates": [x, y]
-                },
-                "properties": attributes
-            };
-            features.push(feature);
-        }
-        return features;
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._sendMapToUser
-     * @description 返回最终的 map 对象给用户，供他们操作使用。
-     * @param count
-     * @param layersLen
-     */
-    _sendMapToUser(count, layersLen) {
-        if (count === layersLen) {
-            /**
-            * @event mapboxgl.supermap.WebMap#addlayerssucceeded
-            * @description 添加图层成功。
-            * @property {mapboxgl.Map} map - MapBoxGL Map 对象。
-            * @property {Object} mapparams - 地图信息。
-            * @property {string} mapParams.title - 地图标题。
-            * @property {string} mapParams.description - 地图描述。
-            * @property {Array.<Object>} layers - 地图上所有的图层对象
-            */
-            this.fire('addlayerssucceeded', { 'map': this.map, 'mapparams': this.mapParams, 'layers': this.layers })
-        }
-    }
-
-    /**
-     * @function mapboxgl.supermap.WebMap.prototype._unproject
-     * @private
-     * @description 墨卡托转经纬度。
-     * @param {} point - 待转换的点。
-     */
-    _unproject(point) {
-        var d = 180 / Math.PI,
-            r = 6378137,
-            ts = Math.exp(-point[1] / r),
-            phi = Math.PI / 2 - 2 * Math.atan(ts);
-        for (var i = 0, dphi = 0.1, con; i < 15 && Math.abs(dphi) > 1e-7; i++) {
-            con = 1;
-            dphi = Math.PI / 2 - 2 * Math.atan(ts * con) - phi;
-            phi += dphi;
-        }
-        return new external_mapboxgl_default.a.LngLat(point[0] * d / r, phi * d);
-    }
-
-    /**
-     * @function mapboxgl.supermap.WebMap.prototype._getParamString
-     * @private
-     * @param {Object} obj - 待添加的参数。
-     * @param {string} existingUrl - 待添加参数的 url。
-     * @param {Boolean} [uppercase] - 参数是否转换为大写。
-     */
-    _getParamString(obj, existingUrl, uppercase) {
-        var params = [];
-        for (var i in obj) {
-            params.push((uppercase ? i.toUpperCase() : i) + '=' + (obj[i]));
-        }
-        return ((!existingUrl || existingUrl.indexOf('?') === -1) ? '?' : '&') + params.join('&');
-    }
-
-    /**
-     * @private
-     * @description 判断是否地理X坐标
-     * @param data
-     */
-    _isXField(data) {
-        var lowerdata = data.toLowerCase();
-        return (lowerdata === "x" || lowerdata === "smx" ||
-            lowerdata === "jd" || lowerdata === "经度" || lowerdata === "东经" || lowerdata === "longitude" ||
-            lowerdata === "lot" || lowerdata === "lon" || lowerdata === "lng");
-    }
-
-    /**
-     * @private
-     * @description 判断是否地理Y坐标
-     * @param data
-     */
-    _isYField(data) {
-        var lowerdata = data.toLowerCase();
-        return (lowerdata === "y" || lowerdata === "smy" ||
-            lowerdata === "wd" || lowerdata === "纬度" || lowerdata === "北纬" ||
-            lowerdata === "latitude" || lowerdata === "lat");
-    }
-
-    /**
-    * @private
-    * @function mapboxgl.supermap.WebMap.prototype._transformStyleToMapBoxGl
-    * @description 根据图层类型将 layerInfo 中的 style 属性格式转换为 mapboxgl 中的 style 格式。
-    * @param {Object} style - layerInfo中的style属性
-    * @param {String} type - 图层类型
-    * @param {Array} [expression] - 存储颜色值得表达式 
-    */
-    _transformStyleToMapBoxGl(style, type, expression) {
-        let transTable = {};
-        if ((style.type === 'POINT' || style.type === 'BASIC_POINT' || type === 'POINT') && type !== 'LINE') {
-            transTable = {
-                "fillColor": "circle-color",
-                "strokeWidth": "circle-stroke-width",
-                "fillOpacity": "circle-opacity",
-                "radius": "circle-radius",
-                "strokeColor": "circle-stroke-color",
-                "strokeOpacity": "circle-stroke-opacity"
-            }
-        } else if (type === 'LINE') {
-            transTable = {
-                "strokeWidth": "line-width",
-                "strokeColor": "line-color",
-                "strokeOpacity": "line-opacity"
-            }
-        } else if (type === 'POLYGON') {
-            transTable = {
-                "fillColor": "fill-color",
-                "fillOpacity": "fill-opacity",
-                "strokeColor": "fill-outline-color"
-            }
-        }
-
-        let newObj = {}
-        for (let item in style) {
-            if (transTable[item]) {
-                newObj[transTable[item]] = style[item];
-            }
-        }
-        if (expression) {
-            if (newObj["circle-color"]) {
-                newObj["circle-color"] = expression;
-            } else if (newObj['line-color']) {
-                newObj['line-color'] = expression;
-            } else {
-                newObj['fill-color'] = expression
-            }
-        }
-        if (style.lineDash && style.lineDash !== 'solid' && type === 'LINE') {
-            newObj['line-dasharray'] = this._dashStyle(style);
-        }
-        return newObj;
-    }
-
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype.._dashStyle
-     * @description 符号样式。
-     * @param {Object} style - 样式参数。
-     * @param {number} widthFactor - 宽度系数。
-     */
-    _dashStyle(style) {
-        if (!style) {
-            return [];
-        }
-        // var w = style.strokeWidth * widthFactor;
-        var w = 1;
-        var str = style.strokeDashstyle || style.lineDash;
-        switch (str) {
-            case 'solid':
-                return [];
-            case 'dot':
-                return [1, 4 * w];
-            case 'dash':
-                return [4 * w, 4 * w];
-            case 'dashdot':
-                return [4 * w, 4 * w, 1 * w, 4 * w];
-            case 'longdash':
-                return [8 * w, 4 * w];
-            case 'longdashdot':
-                return [8 * w, 4 * w, 1, 4 * w];
-            default:
-                if (!str) {
-                    return [];
-                }
-                if (Util_Util.isArray(str)) {
-                    return str;
-                }
-                str = BaseTypes_StringExt.trim(str).replace(/\s+/g, ",");
-                return str.replace(/\[|\]/gi, "").split(",");
-        }
-    }
-
-    /**
-     * @private
-     * @description 将SVG转换成Canvas
-     * @param svgUrl
-     * @param divDom
-     * @param callBack
-     */
-    _getCanvasFromSVG(svgUrl, divDom, callBack) {
-        //一个图层对应一个canvas
-        let canvas = document.createElement('canvas');
-        canvas.id = 'dataviz-canvas-' + core_Util_Util.newGuid(8);
-        canvas.style.display = "none";
-        divDom.appendChild(canvas);
-        let canvgs = window.canvg ? window.canvg : external_function_try_return_canvg_catch_e_return_default.a;
-        canvgs(canvas.id, svgUrl, {
-            ignoreMouse: true,
-            ignoreAnimation: true,
-            renderCallback: () => {
-                if (canvas.width > 300 || canvas.height > 300) {
-                    return;
-                }
-                callBack(canvas);
-            },
-            forceRedraw: () => {
-                return false
-            }
-        });
-    }
-    /**
-    * @private
-    * @function mapboxgl.supermap.WebMap.prototype._addOverlayToMap
-    * @description 添加基础矢量图层到 MAP
-    * @param {Object} style - mabgl style 
-    * @param {String} type - 图层类型
-    */
-    _addOverlayToMap(type, source, layerID, layerStyle) {
-        let mbglTypeMap = {
-            "POINT": 'circle',
-            "LINE": "line",
-            "POLYGON": "fill"
-        }
-        type = mbglTypeMap[type];
-        if (type === 'circle' || type === 'line' || type === 'fill') {
-            this.map.addLayer({
-                "id": layerID,
-                "type": type,
-                "source": source,
-                "paint": layerStyle.style,
-                'layout': layerStyle.layout || {}
-            });
-        }
-    }
-
-    _addBaselayer(url, layerID, minzoom = 0, maxzoom = 22) {
-        this.map.addLayer({
-            'id': layerID,
-            "type": "raster",
-            "source": {
-                "type": "raster",
-                "tiles": url,
-                "tileSize": 256
-            },
-            "minzoom": minzoom,
-            "maxzoom": maxzoom
-        })
-    }
-    /**
-    * @private
-    * @function mapboxgl.supermap.WebMap.prototype._addStrokeLineForPoly
-    * @description 添加面的边框。
-    * @param {Object} style - mabgl style 
-    */
-    _addStrokeLineForPoly(style, source, layerID, visible) {
-        let lineStyle = {};
-        lineStyle.style = this._transformStyleToMapBoxGl(style, 'LINE');
-        lineStyle.layout = { 'visibility': visible }
-        this._addOverlayToMap('LINE', source, layerID, lineStyle)
-    }
-    /**
-     * @private
-     * @function mapboxgl.supermap.WebMap.prototype._parseGeoJsonData2Feature
-     * @description 将从restData地址上获取的json转换成feature（从iserver中获取的json转换成feature）
-     * @param {object} metaData - json内容
-     * @returns {Array}  ol.feature的数组集合
-     */
-    _parseGeoJsonData2Feature(metaData) {
-        let allFeatures = metaData.allDatas.features,
-            features = [];
-        for (let i = 0, len = allFeatures.length; i < len; i++) {
-            // TODO 坐标转换
-            let feature = allFeatures[i];
-            let coordinate = feature.geometry.coordinates;
-            if (allFeatures[i].geometry.type === 'Point') {
-                // 标注图层 还没有属性值时候不加
-                if (allFeatures[i].properties) {
-                    allFeatures[i].properties.lon = coordinate[0];
-                    allFeatures[i].properties.lat = coordinate[1];
-                }
-            }
-            features.push(feature);
-        }
-        return features;
-    }
-
-    /**
-    * @private
-    * @function mapboxgl.supermap.WebMap.prototype._getFeatureBySQL
-    * @description 通过 sql 方式查询数据。
-    */
-    _getFeatureBySQL(url, datasetNames, processCompleted, processFaild) {
-        let getFeatureParam, getFeatureBySQLService, getFeatureBySQLParams;
-        getFeatureParam = new FilterParameter_FilterParameter({
-            name: datasetNames.join().replace(":", "@"),
-            attributeFilter: 'SMID > 0'
-        });
-        getFeatureBySQLParams = new GetFeaturesBySQLParameters_GetFeaturesBySQLParameters({
-            queryParameter: getFeatureParam,
-            datasetNames: datasetNames,
-            fromIndex: 0,
-            toIndex: 100000,
-            returnContent: true
-        });
-        let options = {
-            eventListeners: {
-                processCompleted: getFeaturesEventArgs => {
-                    processCompleted && processCompleted(getFeaturesEventArgs);
-                },
-                processFailed: e => {
-                    processFaild && processFaild(e);
-                }
-            }
-        };
-        getFeatureBySQLService = new GetFeaturesBySQLService_GetFeaturesBySQLService(url, options);
-        getFeatureBySQLService.processAsync(getFeatureBySQLParams);
-    }
-
-    /**
-    * @private
-    * @function mapboxgl.supermap.WebMap.prototype._queryFeatureBySQL
-    * @description 通过 sql 方式查询数据。
-    */
-    _queryFeatureBySQL(url, layerName, attributeFilter, fields, epsgCode, processCompleted, processFaild, startRecord, recordLength, onlyAttribute) {
-        var queryParam, queryBySQLParams, queryBySQLService;
-        queryParam = new FilterParameter_FilterParameter({
-            name: layerName,
-            attributeFilter: attributeFilter
-        });
-        if (fields) {
-            queryParam.fields = fields;
-        }
-        var params = {
-            queryParams: [queryParam]
-        };
-        if (onlyAttribute) {
-            params.queryOption = REST_QueryOption.ATTRIBUTE;
-        }
-        startRecord && (params.startRecord = startRecord);
-        recordLength && (params.expectCount = recordLength);
-        if (epsgCode) {
-            params.prjCoordSys = {
-                epsgCode: epsgCode
-            }
-        }
-        queryBySQLParams = new QueryBySQLParameters_QueryBySQLParameters(params);
-        queryBySQLService = new external_mapboxgl_default.a.supermap.QueryService(url);
-        queryBySQLService.queryBySQL(queryBySQLParams, data => {
-            data.type === 'processCompleted' ? processCompleted(data) : processFaild(data)
-        });
-    }
-
-    /**
-    * @private
-    * @function mapboxgl.supermap.WebMap.prototype._handleMultyPolygon
-    * @description 处理复杂面情况
-    */
-    _handleMultyPolygon(features) {
-        features.forEach(feature => {
-            if (feature.geometry.type !== 'Polygon') {
-                return;
-            }
-            let coords = feature.geometry.coordinates;
-            if (coords.length > 1) {
-                let coordinates = [];
-                coords.forEach(coord => {
-                    coordinates.push([coord])
-                });
-                feature.geometry.coordinates = coordinates;
-                feature.geometry.type = "MultiPolygon";
-            }
-        });
-        return features;
-    }
+	/**
+	 * @constructs
+	 * @version 9.1.2
+	 */
+	constructor(id, options) {
+		super();
+		this.mapId = id;
+		options = options || {};
+		this.server = options.server || 'http://www.supermapol.com';
+		this.credentialKey = options.credentialKey;
+		this.credentialValue = options.credentialValue;
+		this.withCredentials = options.withCredentials || false;
+		this.target = options.target || 'map';
+		this._createWebMap();
+	}
+	/**
+	 * @function mapboxgl.supermap.WebMap.prototype.resize
+	 * @description map resize。
+   * @version 9.1.2
+	 */
+	resize() {
+		this.map.resize();
+  }
+  
+	/**
+	 * @function mapboxgl.supermap.WebMap.prototype.setMapId
+	 * @param {string} mapId - webMap 地图 ID。
+	 * @description 设置 WebMap ID。
+   * @version 9.1.2
+	 */
+	setMapId(mapId) {
+		this.mapId = mapId;
+		this._createWebMap();
+  }
+  
+  /**
+	 * @function mapboxgl.supermap.WebMap.prototype.setWebMapOptions
+	 * @param {Object} webMapOptions - webMap 参数。
+	 * @description 设置 webMap 参数。
+   * @version 9.1.2
+	 */
+	setWebMapOptions(webMapOptions) {
+		this.server = webMapOptions.server;
+		this._createWebMap();
+	}
+
+  /**
+	 * @function mapboxgl.supermap.WebMap.prototype.setMapOptions
+	 * @param {Object} mapOptions - map 参数。
+	 * @description 设置 map 参数。
+   * @version 9.1.2
+	 */
+	setMapOptions(mapOptions) {
+		let { center, zoom, maxBounds, minZoom, maxZoom, isWorldCopy, bearing, pitch } = mapOptions;
+		center && center.length && this.map.setCenter(center);
+		zoom && this.map.setZoom(zoom);
+		maxBounds && this.map.setMaxBounds(maxBounds);
+		minZoom && this.map.setMinZoom(minZoom);
+		maxZoom && this.map.setMaxZoom(maxZoom);
+		isWorldCopy && this.map.setRenderWorldCopies(isWorldCopy);
+		bearing && this.map.setBearing(bearing);
+		pitch && this.map.setPitch(pitch);
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._createWebMap
+	 * @description 登陆窗口后添加地图图层。
+	 */
+	_createWebMap() {
+		let urlArr = this.server.split('');
+		if (urlArr[urlArr.length - 1] !== '/') {
+			this.server += '/';
+		}
+		let mapUrl = this.server + 'web/maps/' + this.mapId + '/map';
+		if (this.credentialValue && this.credentialKey) {
+			mapUrl += '?' + this.credentialKey + '=' + this.credentialValue;
+		}
+		let filter = 'getUrlResource.json?url=';
+		if (this.excludePortalProxyUrl && this.server.indexOf(filter) > -1) {
+			//大屏需求,或者有加上代理的
+			let urlArray = this.server.split(filter);
+			if (urlArray.length > 1) {
+				mapUrl = urlArray[0] + filter + this.server + 'web/maps/' + this.mapId + '/map.json';
+			}
+		}
+		this._getMapInfo(mapUrl);
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._createMap
+	 * @description 创建地图。
+	 */
+	_createMap(mapInfo) {
+		// 获取字体样式
+		let fonts = [];
+		let layers = mapInfo.layers;
+		// 获取 label 图层字体类型
+		if (layers && layers.length > 0) {
+			layers.forEach(layer => {
+				layer.labelStyle && fonts.push(layer.labelStyle.fontFamily);
+			}, this);
+		}
+		fonts.push("'supermapol-icons'");
+		let fontFamilys = fonts.join(',');
+
+		// zoom center
+		let oldcenter = mapInfo.center,
+			zoom = mapInfo.level || 0,
+			center;
+		zoom = zoom === 0 ? 0 : zoom - 1;
+		center = oldcenter ? this._unproject([oldcenter.x, oldcenter.y]) : new external_mapboxgl_default.a.LngLat(0, 0);
+		// 初始化 map
+		this.map = new external_mapboxgl_default.a.Map({
+			container: this.target,
+			center: center,
+			zoom: zoom,
+			style: {
+				version: 8,
+				sources: {},
+				// "glyphs": 'http://iclient.supermap.io/iserver/services/map-beijing/rest/maps/beijingMap/tileFeature/sdffonts/{fontstack}/{range}.pbf',
+				layers: []
+			},
+			crs: this.baseProjection,
+			localIdeographFontFamily: fontFamilys || ''
+		});
+		this.fire('mapinitialized');
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._getMapInfo
+	 * @description 获取地图的 JSON 信息。
+	 * @param {string} url - 请求地图的 url。
+	 */
+	_getMapInfo(url) {
+		let mapUrl = url.indexOf('.json') === -1 ? `${url}.json` : url;
+		FetchRequest_FetchRequest.get(mapUrl, null, { withCredentials: this.withCredentials })
+			.then(response => {
+				return response.json();
+			})
+			.then(mapInfo => {
+				this.baseProjection = mapInfo.projection;
+
+				//存储地图的名称以及描述等信息，返回给用户
+				this.mapParams = {
+					title: mapInfo.title,
+					description: mapInfo.description
+				};
+				const projectionMap = {
+					'EPSG:4490': 'EPSG:4490',
+					'EPSG:4214': 'EPSG:4214',
+					'EPSG:4610': 'EPSG:4610',
+					'EPSG:3857': 'EPSG:3857',
+					'EPSG:4326': 'EPSG:4326'
+				}; // 坐标系异常处理
+				if (this.baseProjection in projectionMap) {
+					this._createMap(mapInfo, this.mapSetting);
+					let layers = mapInfo.layers;
+					this.map.on('load', () => {
+						this._addBaseMap(mapInfo);
+
+						if (!layers || layers.length === 0) {
+							this._sendMapToUser(0, 0);
+						} else {
+							this._addLayers(layers);
+						}
+					});
+				} else {
+					throw Error(Lang_Lang.i18n('msg_crsunsupport'));
+				}
+			})
+			.catch(error => {
+				/**
+				 * @event mapboxgl.supermap.WebMap#getmapfailed
+				 * @description 获取地图信息失败。
+				 * @property {Object} error - 失败原因。
+				 */
+				this.fire('getmapfailed', { error: error });
+			});
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._addBaseMap
+	 * @description 添加底图。
+	 * @param {Object} mapInfo - map 信息。
+	 */
+	_addBaseMap(mapInfo) {
+		this._createBaseLayer(mapInfo);
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._createBaseLayer
+	 * @description 创建底图。
+	 * @param {Object} mapInfo - map 信息。
+	 */
+	_createBaseLayer(mapInfo) {
+		let layerInfo = mapInfo.baseLayer || mapInfo;
+		let layerType = layerInfo.layerType; //底图和rest地图兼容
+		if (
+			layerType.indexOf('TIANDITU_VEC') > -1 ||
+			layerType.indexOf('TIANDITU_IMG') > -1 ||
+			layerType.indexOf('TIANDITU_TER') > -1
+		) {
+			layerType = layerType.substr(0, 12);
+		}
+		let mapUrls = {
+				CLOUD: 'http://t2.supermapcloud.com/FileService/image?map=quanguo&type=web&x={x}&y={y}&z={z}',
+				CLOUD_BLACK: 'http://t3.supermapcloud.com/MapService/getGdp?x={x}&y={y}&z={z}',
+				OSM: 'http://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+				GOOGLE:
+					'http://www.google.cn/maps/vt/pb=!1m4!1m3!1i{z}!2i{x}!3i{y}!2m3!1e0!2sm!3i380072576!3m8!2szh-CN!3scn!5e1105!12m4!1e68!2m2!1sset!2sRoadmap!4e0!5m1!1e0',
+				GOOGLE_CN: 'https://mt{0-3}.google.cn/vt/lyrs=m&hl=zh-CN&gl=cn&x={x}&y={y}&z={z}',
+				JAPAN_STD: 'http://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png',
+				JAPAN_PALE: 'http://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png',
+				JAPAN_RELIEF: 'http://cyberjapandata.gsi.go.jp/xyz/relief/{z}/{x}/{y}.png',
+				JAPAN_ORT: 'http://cyberjapandata.gsi.go.jp/xyz/ort/{z}/{x}/{y}.jpg'
+			},
+			url;
+		switch (layerType) {
+			case 'TIANDITU_VEC':
+			case 'TIANDITU_IMG':
+			case 'TIANDITU_TER':
+				this._createTiandituLayer(mapInfo);
+				break;
+			case 'BING':
+				this._createBingLayer(layerInfo.name);
+				break;
+			case 'WMS':
+				this._createWMSLayer(layerInfo);
+				break;
+			case 'WMTS':
+				this._createWMTSLayer(layerInfo);
+				break;
+			case 'TILE':
+			case 'SUPERMAP_REST':
+				this._createDynamicTiledLayer(layerInfo);
+				break;
+			case 'CLOUD':
+			case 'CLOUD_BLACK':
+			case 'OSM':
+			case 'JAPAN_ORT':
+			case 'JAPAN_RELIEF':
+			case 'JAPAN_PALE':
+			case 'JAPAN_STD':
+			case 'GOOGLE_CN':
+			case 'GOOGLE':
+				url = mapUrls[layerType];
+				this._createXYZLayer(layerInfo, url);
+				break;
+			default:
+				break;
+		}
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._createTiandituLayer
+	 * @description 创建天地图底图。
+	 * @param {Object} mapInfo - map 信息。
+	 */
+	_createTiandituLayer(mapInfo) {
+		let tiandituUrls = this._getTiandituUrl(mapInfo);
+		let layerType = mapInfo.baseLayer.layerType;
+		let isLabel = Boolean(mapInfo.baseLayer.labelLayerVisible);
+		let labelUrl = tiandituUrls['labelUrl'];
+		let tiandituUrl = tiandituUrls['tiandituUrl'];
+		this._addBaselayer(tiandituUrl, 'tianditu-layers-' + layerType);
+		isLabel && this._addBaselayer([labelUrl], 'tianditu-label-layers-' + layerType);
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._createWMTSLayer
+	 * @description 创建 WMTS 底图。
+	 * @param {Object} mapInfo - map 信息。
+	 */
+	_createWMTSLayer(layerInfo) {
+		let wmtsUrl = this._getWMTSUrl(layerInfo);
+		this._filterWMTSIsMatched(layerInfo, (isMatched, matchMaxZoom) => {
+			isMatched && this._addBaselayer([wmtsUrl], 'wmts-layers' + layerInfo.name, 0, matchMaxZoom);
+		});
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._filterWMTSIsMatched
+	 * @description 过滤能够跟mapboxgl匹配的wmts服务。
+	 * @param {Object} mapInfo - map 信息。
+	 * @callback matchedCallback
+	 */
+	_filterWMTSIsMatched(mapInfo, matchedCallback) {
+		let isMatched = false,
+			matchMaxZoom = 22,
+			url = mapInfo.url;
+		let options = {
+			withCredentials: false,
+			withoutFormatSuffix: true
+		};
+
+		FetchRequest_FetchRequest.get(url, null, options)
+			.then(response => {
+				return response.text();
+			})
+			.then(capabilitiesText => {
+				let converts = external_function_try_return_convert_catch_e_return_default.a ? external_function_try_return_convert_catch_e_return_default.a : window.convert;
+				let tileMatrixSet = JSON.parse(converts.xml2json(capabilitiesText, { compact: true, spaces: 4 }))
+					.Capabilities.Contents.TileMatrixSet;
+				for (let i = 0; i < tileMatrixSet.length; i++) {
+					if (
+						tileMatrixSet[i]['ows:Identifier'] &&
+						tileMatrixSet[i]['ows:Identifier']['_text'] === mapInfo.tileMatrixSet
+					) {
+						if (WebMap_DEFAULT_WELLKNOWNSCALESET.includes(tileMatrixSet[i]['WellKnownScaleSet']['_text'])) {
+							isMatched = true;
+						} else if (
+							tileMatrixSet[i]['WellKnownScaleSet'] &&
+							tileMatrixSet[i]['WellKnownScaleSet']['_text'] === 'Custom'
+						) {
+							let matchedScaleDenominator = [];
+							//坐标系判断
+							let defaultCRSScaleDenominators =
+								this.map.crs === 'EPSG:3857' ? WebMap_MB_SCALEDENOMINATOR_3857 : WebMap_MB_SCALEDENOMINATOR_4326;
+
+							for (let j = 0, len = defaultCRSScaleDenominators.length; j < len; j++) {
+								if (!tileMatrixSet[i].TileMatrix[j]) {
+									break;
+								}
+								if (
+									defaultCRSScaleDenominators[j] !==
+									tileMatrixSet[i].TileMatrix[j]['ScaleDenominator']['_text']
+								) {
+									break;
+								}
+								matchedScaleDenominator.push(defaultCRSScaleDenominators[j]);
+							}
+							matchMaxZoom = matchedScaleDenominator.length - 1;
+							if (matchedScaleDenominator.length !== 0) {
+								isMatched = true;
+							} else {
+								throw Error(Lang_Lang.i18n('msg_tilematrixsetunsupport'));
+							}
+						} else {
+							throw Error(Lang_Lang.i18n('msg_tilematrixsetunsupport'));
+						}
+					}
+				}
+				matchedCallback(isMatched, matchMaxZoom);
+			})
+			.catch(error => {
+				/**
+				 * @event mapboxgl.supermap.WebMap#getwmtsfailed
+				 * @description 获取 WMTS 图层信息失败。
+				 * @property {Object} error - 失败原因。
+				 * @property {mapboxgl.Map} map - MapBoxGL Map 对象。
+				 */
+				this.fire('getwmtsfailed', { error: error, map: this.map });
+			});
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._createBingLayer
+	 * @description 创建 Bing 图层。
+	 */
+	_createBingLayer(layerName) {
+		let bingUrl =
+			'http://dynamic.t0.tiles.ditu.live.com/comp/ch/{quadkey}?it=G,TW,L,LA&mkt=zh-cn&og=109&cstl=w4c&ur=CN&n=z';
+		this.addLayer([bingUrl], 'bing-layers-' + layerName);
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._createXYZLayer
+	 * @description 创建 XYZ 底图。
+	 * @param {String} url - url 地址。
+	 */
+	_createXYZLayer(layerInfo, url) {
+		let urlArr = [];
+		if (layerInfo.layerType === 'OSM') {
+			let res = url.match(/\w\-\w/g)[0];
+			let start = res[0];
+			let end = res[2];
+			let alphabet = '';
+			for (let i = 97; i < 123; i++) {
+				alphabet += String.fromCharCode(i);
+			}
+			let alphabetArr = alphabet.split('');
+
+			let startIndex = alphabetArr.indexOf(start);
+			let endIndex = alphabetArr.indexOf(end);
+
+			let res3 = alphabetArr.slice(startIndex, endIndex + 1);
+
+			for (let i = 0; i < res3.length; i++) {
+				let replaceRes = url.replace(/{\w\-\w}/g, res3[i]);
+				urlArr.push(replaceRes);
+			}
+		} else if (layerInfo.layerType === 'GOOGLE_CN') {
+			let res = url.match(/\d\-\d/g)[0];
+			let start = res[0];
+			let end = res[2];
+
+			for (let i = start; i <= end; i++) {
+				let replaceRes = url.replace(/{\d\-\d}/g, i);
+				urlArr.push(replaceRes);
+			}
+		} else {
+			urlArr = [url];
+		}
+		this._addBaselayer(urlArr, 'XYZ-layers-' + layerInfo.name);
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._createDynamicTiledLayer
+	 * @description 创建 iserver 底图。
+	 * @param {Object} layerInfo - 图层信息。
+	 */
+	_createDynamicTiledLayer(layerInfo) {
+		let url = layerInfo.url + '/zxyTileImage.png?z={z}&x={x}&y={y}';
+		this._addBaselayer([url], 'tile-layers-' + layerInfo.name);
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._createWMSLayer
+	 * @description 创建 WMS 图层。
+	 * @param {Object} mapInfo - map 信息。
+	 */
+	_createWMSLayer(layerInfo) {
+		let WMSUrl = this._getWMSUrl(layerInfo);
+		this._addBaselayer([WMSUrl], 'WMS-layers-' + layerInfo.name);
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._createVectorLayer
+	 * @description 创建 Vector 图层。
+	 * @param {Object} layerInfo - map 信息。
+	 * @param {Array} features - 属性 信息。
+	 */
+	_createVectorLayer(layerInfo, features) {
+		let style = layerInfo.style;
+		let type = layerInfo.featureType;
+		let layerID = layerInfo.layerID;
+		let visible = layerInfo.visible;
+		let layerStyle = {};
+		layerStyle.style = this._transformStyleToMapBoxGl(style, type);
+		layerStyle.layout = { visibility: visible };
+		let source = {
+			type: 'geojson',
+			data: {
+				type: 'FeatureCollection',
+				features: features
+			}
+		};
+		this._addOverlayToMap(type, source, layerID, layerStyle);
+		// 如果面有边框
+		type === 'POLYGON' &&
+			style.strokeColor &&
+			this._addStrokeLineForPoly(style, source, layerID + '-strokeLine', visible);
+	}
+
+	/**
+	 * @function mapboxgl.supermap.WebMap.prototype._getTiandituUrl
+	 * @private
+	 * @description 创建天地图url;
+	 * @param {Object} mapInfo - map 信息。
+	 */
+	_getTiandituUrl(mapInfo) {
+		let re = /t0/gi;
+		let tiandituUrls = {};
+		let layerType = mapInfo.baseLayer.layerType.split('_')[1].toLowerCase();
+		let isLabel = Boolean(mapInfo.baseLayer.labelLayerVisible);
+		// let isLabel = true;
+		let url = 'http://t0.tianditu.com/{layer}_{proj}/wmts?';
+		let labelUrl = url;
+		let layerLabelMap = {
+			vec: 'cva',
+			ter: 'cta',
+			img: 'cia'
+		};
+		let tilematrixSet = this.baseProjection === 'EPSG:4326' ? 'c' : 'w';
+		let options = {
+			service: 'WMTS',
+			request: 'GetTile',
+			style: 'default',
+			version: '1.0.0',
+			layer: layerType,
+			tilematrixSet: tilematrixSet,
+			format: 'tiles',
+			width: 256,
+			height: 256
+		};
+
+		url += this._getParamString(options, url) + '&tilematrix={z}&tilerow={y}&tilecol={x}';
+		let tiandituUrl = url.replace('{layer}', layerType).replace('{proj}', tilematrixSet);
+		let tiandituUrlArr = [];
+		for (let i = 0; i < 8; i++) {
+			tiandituUrlArr.push(tiandituUrl.replace(re, `t${i}`));
+		}
+		tiandituUrls['tiandituUrl'] = tiandituUrlArr;
+
+		// 如果有 label 图层
+		if (isLabel) {
+			let labelLayer = layerLabelMap[layerType];
+			options.layer = labelLayer;
+			labelUrl += this._getParamString(options, labelUrl) + '&tilematrix={z}&tilerow={y}&tilecol={x}';
+			labelUrl = labelUrl.replace('{layer}', labelLayer).replace('{proj}', tilematrixSet);
+			let labelUrlArr = [];
+			for (let i = 0; i < 8; i++) {
+				labelUrlArr.push(labelUrl.replace(re, `t${i}`));
+			}
+			tiandituUrls['labelUrl'] = labelUrlArr;
+		}
+
+		return tiandituUrls;
+	}
+
+	/**
+	 * @function mapboxgl.supermap.WebMap.prototype._getWMSUrl
+	 * @private
+	 * @description 创建 WMS url;
+	 * @param {Object} mapInfo - map 信息。
+	 */
+	_getWMSUrl(mapInfo) {
+		let url = mapInfo.url;
+		url = url.split('?')[0];
+		let strArr = url.split('/');
+		let options = {
+			service: 'WMS',
+			request: 'GetMap',
+			layers: strArr[strArr.length - 1],
+			styles: '',
+			format: 'image/png',
+			transparent: 'true',
+			version: '1.1.1',
+			width: 256,
+			height: 256,
+			srs: this.baseProjection
+		};
+		let bbox = this.baseProjection === 'EPSG:4326' ? '{bbox-epsg-4326}' : '{bbox-epsg-3857}';
+		url += this._getParamString(options, url) + `&bbox=${bbox}`;
+		return url;
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._addLayers
+	 * @description 添加叠加图层。
+	 * @param {Object} mapInfo - 图层信息。
+	 */
+	_addLayers(layers) {
+		//存储地图上所有的图层对象
+		this.layers = layers;
+
+		let features,
+			layerAdded = 0,
+			len = layers.length;
+		layers.forEach((layer, index) => {
+			if ((layer.dataSource && layer.dataSource.serverId) || layer.layerType === 'MARKER') {
+				// 获取 serverID
+				let serverId = layer.dataSource ? layer.dataSource.serverId : layer.serverId;
+				let url = `${this.server}web/datas/${serverId}/content.json?pageSize=9999999&currentPage=1`;
+				// 获取图层数据
+				serverId &&
+					FetchRequest_FetchRequest.get(url, null, { withCredentials: this.withCredentials })
+						.then(response => {
+							return response.json();
+						})
+						.then(data => {
+							if (data.succeed === false) {
+								//请求失败
+								layerAdded++;
+								this._sendMapToUser(layerAdded, len);
+								/**
+								 * @event mapboxgl.supermap.WebMap#getlayersfailed
+								 * @description 获取图层信息失败。
+								 * @property {Object} error - 失败原因。
+								 * @property {mapboxgl.Map} map - MapBoxGL Map 对象。
+								 */
+								this.fire('getlayersfailed', { error: data.error, map: this.map });
+								return;
+							}
+							if (data.type) {
+								if (data.type === 'JSON' || data.type === 'GEOJSON') {
+									data.content = JSON.parse(data.content.trim());
+									features = this._formatGeoJSON(data.content, layer);
+								} else if (data.type === 'EXCEL' || data.type === 'CSV') {
+									features = this._excelData2Feature(data.content, layer);
+								}
+								this._addLayer(layer, features, index);
+								layerAdded++;
+								this._sendMapToUser(layerAdded, len);
+							}
+						})
+						.catch(error => {
+							layerAdded++;
+							this._sendMapToUser(layerAdded, len);
+							this.fire('getlayersfailed', { error: error, map: this.map });
+						});
+			} else if (
+				layer.layerType === 'SUPERMAP_REST' ||
+				layer.layerType === 'TILE' ||
+				layer.layerType === 'WMS' ||
+				layer.layerType === 'WMTS'
+			) {
+				this._createBaseLayer(layer);
+				layerAdded++;
+				this._sendMapToUser(layerAdded, len);
+			} else if (layer.dataSource && layer.dataSource.type === 'REST_DATA') {
+				let dataSource = layer.dataSource;
+				//从restData获取数据
+				this._getFeatureBySQL(
+					dataSource.url,
+					[dataSource.dataSourseName || layer.name],
+					result => {
+						features = this._parseGeoJsonData2Feature({
+							allDatas: { features: result.result.features.features },
+							fileCode: layer.projection,
+							featureProjection: this.baseProjection
+						});
+
+						this._addLayer(layer, features, index);
+						layerAdded++;
+						this._sendMapToUser(layerAdded, len);
+					},
+					err => {
+						layerAdded++;
+						this._sendMapToUser(layerAdded, len);
+						/**
+						 * @event mapboxgl.supermap.WebMap#getfeaturesfailed
+						 * @description 获取图层要素失败。
+						 * @property {Object} error - 失败原因。
+						 */
+						this.fire('getfeaturesfailed', { error: err });
+					}
+				);
+			} else if (layer.dataSource && layer.dataSource.type === 'REST_MAP' && layer.dataSource.url) {
+				this._queryFeatureBySQL(
+					layer.dataSource.url,
+					layer.dataSource.layerName,
+					'smid=1',
+					null,
+					null,
+					result => {
+						let recordsets = result && result.result.recordsets;
+						let recordset = recordsets && recordsets[0];
+						let attributes = recordset.fields;
+						if (recordset && attributes) {
+							let fileterAttrs = [];
+							for (let i in attributes) {
+								let value = attributes[i];
+								if (value.indexOf('Sm') !== 0 || value === 'SmID') {
+									fileterAttrs.push(value);
+								}
+							}
+							this._getFeatures(
+								fileterAttrs,
+								layer,
+								features => {
+									this._addLayer(layer, features, index);
+									layerAdded++;
+									this._sendMapToUser(layerAdded, len);
+								},
+								err => {
+									layerAdded++;
+									this.fire('getfeaturesfailed', { error: err, map: this.map });
+								}
+							);
+						}
+					},
+					err => {
+						this.fire('getlayersfailed', { error: err, map: this.map });
+					}
+				);
+			}
+		}, this);
+	}
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._getFeatures
+	 * @description 将单个图层添加到地图上。
+	 * @param layerInfo  某个图层的图层信息
+	 * @param {Array.<GeoJSON>} features - feature。
+	 */
+	_getFeatures(fields, layerInfo, resolve, reject) {
+		let source = layerInfo.dataSource;
+		//示例数据
+		let fileCode = layerInfo.projection;
+		this._queryFeatureBySQL(
+			source.url,
+			source.layerName,
+			null,
+			fields,
+			null,
+			result => {
+				let recordsets = result.result.recordsets[0];
+				let features = recordsets.features.features;
+
+				let featuresObj = this._parseGeoJsonData2Feature(
+					{
+						allDatas: { features },
+						fileCode: fileCode,
+						featureProjection: this.baseProjection
+					},
+					'JSON'
+				);
+				resolve(featuresObj);
+			},
+			err => {
+				reject(err);
+			}
+		);
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._addLayer
+	 * @description 将单个图层添加到地图上。
+	 * @param layerInfo  某个图层的图层信息
+	 * @param {Array.<GeoJSON>} features - feature。
+	 */
+	_addLayer(layerInfo, features, index) {
+		let layerType = layerInfo.layerType;
+		layerInfo.layerID = layerType + '-' + layerInfo.name + '-' + index;
+		layerInfo.visible = layerInfo.visible ? 'visible' : 'none';
+		// mbgl 目前不能处理 geojson 复杂面情况
+		// mbgl isssue https://github.com/mapbox/mapbox-gl-js/issues/7023
+		if (features[0] && features[0].geometry.type === 'Polygon') {
+			features = this._handleMultyPolygon(features);
+		}
+
+		if (layerInfo.style && layerInfo.filterCondition) {
+			//将 feature 根据过滤条件进行过滤, 分段专题图和单值专题图因为要计算 styleGroup 所以暂时不过滤
+			if (layerType !== 'RANGE' && layerType !== 'UNIQUE') {
+				features = this._getFiterFeatures(layerInfo.filterCondition, features);
+			}
+		}
+
+		if (layerType === 'VECTOR') {
+			if (layerInfo.featureType === 'POINT') {
+				if (layerInfo.style.type === 'SYMBOL_POINT') {
+					this._createSymbolLayer(layerInfo, features);
+				} else {
+					this._createGraphicLayer(layerInfo, features);
+				}
+			} else {
+				//线和面
+				this._createVectorLayer(layerInfo, features);
+			}
+		} else if (layerType === 'UNIQUE') {
+			this._createUniqueLayer(layerInfo, features);
+		} else if (layerType === 'RANGE') {
+			this._createRangeLayer(layerInfo, features);
+		} else if (layerType === 'HEAT') {
+			this._createHeatLayer(layerInfo, features);
+		} else if (layerType === 'MARKER') {
+			this._createMarkerLayer(layerInfo, features);
+		}
+		if (layerInfo.labelStyle && layerInfo.labelStyle.labelField) {
+			// 存在标签专题图
+			this._addLabelLayer(layerInfo, features);
+		}
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._addLabelLayer
+	 * @description 添加标签图层。
+	 * @param layerInfo  某个图层的图层信息。
+	 * @param {Array.<GeoJSON>} features - feature。
+	 */
+	_addLabelLayer(layerInfo, features) {
+		let labelStyle = layerInfo.labelStyle;
+
+		this.map.addLayer({
+			id: layerInfo.layerID + 'label',
+			type: 'symbol',
+			source: {
+				type: 'geojson',
+				data: {
+					type: 'FeatureCollection',
+					features: features
+				}
+			},
+			paint: {
+				'text-color': labelStyle.fill
+			},
+			layout: {
+				'text-field': `{${labelStyle.labelField}}`,
+				'text-size': parseFloat(labelStyle.fontSize) || 12,
+				'text-offset': labelStyle.offsetX
+					? [labelStyle.offsetX / 10 || 0, labelStyle.offsetY / 10 || 0]
+					: [0, -1.5],
+				'text-font': ['DIN Offc Pro Italic', 'Arial Unicode MS Regular'],
+				visibility: layerInfo.visible
+			}
+		});
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._createSymbolLayer
+	 * @description 添加 symbol 图层。
+	 * @param layerInfo  某个图层的图层信息。
+	 * @param {Array.<GeoJSON>} features - feature。
+	 */
+	_createSymbolLayer(layerInfo, features) {
+		//用来请求symbol_point字体文件
+		let target = document.getElementById(`${this.target}`);
+		target.classList.add('supermapol-icons-map');
+
+		let style = layerInfo.style;
+		let unicode = layerInfo.style.unicode;
+		let text = String.fromCharCode(parseInt(unicode.replace(/^&#x/, ''), 16));
+		let layerID = layerInfo.layerID;
+		this.map.addSource(layerID + '-source', {
+			type: 'geojson',
+			data: {
+				type: 'FeatureCollection',
+				features: []
+			}
+		});
+		this.map.addLayer({
+			id: layerID,
+			type: 'symbol',
+			source: layerID + '-source',
+			paint: {
+				'text-color': style.fillColor
+			},
+			layout: {
+				'text-field': text,
+				'text-font': ['DIN Offc Pro Italic', 'Arial Unicode MS Regular'],
+				visibility: layerInfo.visible
+			}
+		});
+		this.map.getSource(layerID + '-source').setData({
+			type: 'FeatureCollection',
+			features: features
+		});
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._createGraphicLayer
+	 * @description 创建 Graphic 图层。
+	 * @param {Object} layerInfo - map 信息。
+	 * @param {Array} features - 属性 信息。
+	 */
+	_createGraphicLayer(layerInfo, features) {
+		let style = layerInfo.style;
+		let layerStyle = {};
+		let layerID = layerInfo.layerID;
+		let source = {
+			type: 'geojson',
+			data: {
+				type: 'FeatureCollection',
+				features: features
+			}
+		};
+
+		if (style.type === 'IMAGE_POINT') {
+			let imageInfo = style.imageInfo;
+			let imgDom = imageInfo.img;
+			if (!imgDom || !imgDom.src) {
+				//要组装成完整的url
+				imageInfo.url = this.server + imageInfo.url;
+			}
+			this.map.loadImage(imageInfo.url || imgDom.src, (error, image) => {
+				if (error) {
+					console.log(error);
+				}
+				let iconSize = Number.parseFloat((style.radius / image.height).toFixed(2)) * 2;
+				this.map.addImage('imageIcon', image);
+				this.map.addLayer({
+					id: layerID,
+					type: 'symbol',
+					source: source,
+					layout: {
+						'icon-image': 'imageIcon',
+						'icon-size': iconSize,
+						visibility: layerInfo.visible
+					}
+				});
+			});
+		} else if (style.type === 'SVG_POINT') {
+			let svg_url = style.url;
+			if (!this.svgDiv) {
+				this.svgDiv = document.createElement('div');
+				document.body.appendChild(this.svgDiv);
+			}
+			this._getCanvasFromSVG(svg_url, this.svgDiv, canvas => {
+				let imgUrl = canvas.toDataURL('img/png');
+				imgUrl &&
+					this.map.loadImage(
+						imgUrl,
+						(error, image) => {
+							if (error) {
+								console.log(error);
+							}
+							let iconSize = Number.parseFloat((style.radius / canvas.width).toFixed(2));
+							this.map.addImage('imageIcon', image);
+							this.map.addLayer({
+								id: layerID,
+								type: 'symbol',
+								source: source,
+								layout: {
+									'icon-image': 'imageIcon',
+									'icon-size': iconSize,
+									visibility: layerInfo.visible
+								}
+							});
+						},
+						this
+					);
+			});
+		} else {
+			layerStyle.style = this._transformStyleToMapBoxGl(style, layerInfo.featureType);
+			layerStyle.layout = { visibility: layerInfo.visible };
+			this._addOverlayToMap('POINT', source, layerID, layerStyle);
+		}
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._createUniqueLayer
+	 * @description 创建单值图层。
+	 * @param layerInfo  某个图层的图层信息
+	 * @param features   图层上的 feature
+	 */
+	_createUniqueLayer(layerInfo, features) {
+		let styleGroup = this._getUniqueStyleGroup(layerInfo, features);
+		features = this._getFiterFeatures(layerInfo.filterCondition, features);
+
+		let style = layerInfo.style;
+		let layerStyle = {};
+		let themeField = layerInfo.themeSetting.themeField;
+		let type = layerInfo.featureType;
+		let expression = ['match', ['get', 'index']];
+		let layerID = layerInfo.layerID;
+		features.forEach(row => {
+			styleGroup.forEach(item => {
+				if (item.value === row.properties[themeField]) {
+					expression.push(row.properties['index'], item.color);
+				}
+			});
+		});
+		expression.push('#ffffff');
+		layerStyle.style = this._transformStyleToMapBoxGl(style, type, expression);
+		let visible = layerInfo.visible;
+		layerStyle.layout = { visibility: visible };
+		let source = {
+			type: 'geojson',
+			data: {
+				type: 'FeatureCollection',
+				features: features
+			}
+		};
+		this._addOverlayToMap(type, source, layerID, layerStyle);
+		type === 'POLYGON' &&
+			style.strokeColor &&
+			this._addStrokeLineForPoly(style, source, layerID + '-strokeLine', visible);
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._getUniqueStyleGroup
+	 * @description 获取单值的目标字段与颜色的对应数组。
+	 * @param layerInfo  某个图层的图层信息
+	 * @param features   图层上的 feature
+	 */
+	_getUniqueStyleGroup(parameters, features) {
+		// 找出所有的单值
+		let featureType = parameters.featureType,
+			style = parameters.style,
+			themeSetting = parameters.themeSetting;
+		let fieldName = themeSetting.themeField,
+			colors = themeSetting.colors;
+
+		let names = [],
+			customSettings = themeSetting.customSettings;
+		for (let i in features) {
+			let properties = features[i].properties;
+			let name = properties[fieldName];
+			let isSaved = false;
+			for (let j in names) {
+				if (names[j] === name) {
+					isSaved = true;
+					break;
+				}
+			}
+			if (!isSaved) {
+				names.push(name);
+			}
+		}
+
+		//获取一定量的颜色
+		let curentColors = colors || this.defaultParameters.colors;
+		curentColors = ColorsPickerUtil_ColorsPickerUtil.getGradientColors(curentColors, names.length);
+
+		//生成styleGroup
+		let styleGroup = [];
+		names.forEach((name, index) => {
+			let color = curentColors[index];
+			if (name in customSettings) {
+				color = customSettings[name];
+			}
+			if (featureType === 'LINE') {
+				style.strokeColor = color;
+			} else {
+				style.fillColor = color;
+			}
+			styleGroup.push({ color: color, value: name });
+		}, this);
+
+		return styleGroup;
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._getWMTSUrl
+	 * @description 根据传入的配置信息拼接wmts url。
+	 * @param options 配置对象
+	 */
+	_getWMTSUrl(options) {
+		let obj = {
+			service: 'WMTS',
+			request: 'GetTile',
+			version: '1.0.0',
+			style: 'default',
+			layer: options.layer,
+			tilematrixSet: options.tileMatrixSet,
+			format: 'image/png'
+		};
+		let url = options.url;
+
+		url += this._getParamString(obj, url) + '&tilematrix={z}&tilerow={y}&tilecol={x}';
+
+		return url;
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._createMarkerLayer
+	 * @description 添加标记图层。
+	 * @param {Array.<GeoJSON>} features - feature。
+	 */
+	_createMarkerLayer(layerInfo, features) {
+		features &&
+			features.forEach(feature => {
+				let geomType = feature.geometry.type.toUpperCase();
+				let defaultStyle = feature.dv_v5_markerStyle;
+				if (geomType === 'POINT' && defaultStyle.text) {
+					//说明是文字的feature类型
+					geomType = 'TEXT';
+				}
+				let featureInfo = this.setFeatureInfo(feature);
+				feature.properties['useStyle'] = defaultStyle;
+				feature.properties['featureInfo'] = featureInfo;
+				if (
+					geomType === 'POINT' &&
+					defaultStyle.src &&
+					(defaultStyle.src.indexOf('http://') === -1 && defaultStyle.src.indexOf('https://') === -1)
+				) {
+					//说明地址不完整
+					defaultStyle.src = this.server + defaultStyle.src;
+				}
+
+				let source = {
+					type: 'geojson',
+					data: feature
+				};
+				let index = feature.properties.index;
+				let layerID = geomType + '-' + index;
+				// image-marker
+				geomType === 'POINT' &&
+					defaultStyle.src &&
+					defaultStyle.src.indexOf('svg') <= -1 &&
+					this.map.loadImage(
+						defaultStyle.src,
+						(error, image) => {
+							if (error) {
+								console.log(error);
+							}
+							this.map.addImage(index + '', image);
+							this.map.addLayer({
+								id: layerID,
+								type: 'symbol',
+								source: source,
+								layout: {
+									'icon-image': index + '',
+									'icon-size': defaultStyle.scale,
+									visibility: layerInfo.visible
+								}
+							});
+						},
+						this
+					);
+
+				// svg-marker
+				if (geomType === 'POINT' && defaultStyle.src && defaultStyle.src.indexOf('svg') > -1) {
+					if (!this.svgDiv) {
+						this.svgDiv = document.createElement('div');
+						document.body.appendChild(this.svgDiv);
+					}
+					this._getCanvasFromSVG(defaultStyle.src, this.svgDiv, canvas => {
+						let imgUrl = canvas.toDataURL('img/png');
+						imgUrl &&
+							this.map.loadImage(
+								imgUrl,
+								(error, image) => {
+									if (error) {
+										console.log(error);
+									}
+									this.map.addImage(index + '', image);
+									this.map.addLayer({
+										id: layerID,
+										type: 'symbol',
+										source: source,
+										layout: {
+											'icon-image': index + '',
+											'icon-size': defaultStyle.scale,
+											visibility: layerInfo.visible
+										}
+									});
+								},
+								this
+							);
+					});
+				}
+				// point-line-polygon-marker
+				if (!defaultStyle.src) {
+					let layeStyle = { layout: {} };
+					if (geomType === 'LINESTRING' && defaultStyle.lineCap) {
+						geomType = 'LINE';
+						layeStyle.layout = { 'line-cap': defaultStyle.lineCap };
+					}
+					let visible = layerInfo.visible;
+					layeStyle.layout.visibility = visible;
+					// get style
+					layeStyle.style = this._transformStyleToMapBoxGl(defaultStyle, geomType);
+					this._addOverlayToMap(geomType, source, layerID, layeStyle);
+					// 若面有边框
+					geomType === 'POLYGON' &&
+						defaultStyle.strokeColor &&
+						this._addStrokeLineForPoly(defaultStyle, source, layerID + '-strokeLine', visible);
+				}
+			}, this);
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype.setFeatureInfo
+	 * @description 设置 feature 信息。
+	 * @param {Array.<GeoJSON>} features - feature。
+	 */
+	setFeatureInfo(feature) {
+		let featureInfo;
+		let info = feature.dv_v5_markerInfo;
+		if (info && info.dataViz_title) {
+			//有featureInfo信息就不需要再添加
+			featureInfo = info;
+		} else {
+			// featureInfo = this.getDefaultAttribute();
+			return info;
+		}
+		let properties = feature.properties;
+		for (let key in featureInfo) {
+			if (properties[key]) {
+				featureInfo[key] = properties[key];
+				delete properties[key];
+			}
+		}
+		return featureInfo;
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._createHeatLayer
+	 * @description 添加热力图。
+	 * @param {Array.<GeoJSON>} features - feature。
+	 */
+	_createHeatLayer(layerInfo, features) {
+		let style = layerInfo.themeSetting;
+		let layerOption = {};
+		layerOption.gradient = style.colors.slice();
+		layerOption.radius = parseInt(style.radius);
+		//自定义颜色
+		let customSettings = style.customSettings;
+		for (let i in customSettings) {
+			layerOption.gradient[i] = customSettings[i];
+		}
+		// 权重字段恢复
+		if (style.weight) {
+			this._changeWeight(features, style.weight);
+		}
+
+		let color = ['interpolate', ['linear'], ['heatmap-density']];
+		let length = layerOption.gradient.length;
+		let step = (1 / length).toFixed(2);
+		layerOption.gradient.forEach((item, index) => {
+			color.push(index * step);
+			if (index === 0) {
+				item = core_Util_Util.hexToRgba(item, 0);
+			}
+			color.push(item);
+		});
+
+		let paint = {
+			'heatmap-color': color,
+			'heatmap-radius': style.radius + 15,
+			'heatmap-intensity': { base: 1, stops: [[0, 0.8], [22, 1]] }
+		};
+		if (features[0].weight && features.length >= 4) {
+			let weight = [];
+			features.forEach(item => {
+				weight.push(item.weight);
+			});
+			let max = ArrayStatistic_ArrayStatistic.getMax(weight);
+			let min = ArrayStatistic_ArrayStatistic.getMin(weight);
+			paint['heatmap-weight'] = ['interpolate', ['linear'], ['get', 'weight'], min, 0, max, 1];
+		}
+
+		this.map.addLayer({
+			id: layerInfo.layerID,
+			type: 'heatmap',
+			source: {
+				type: 'geojson',
+				data: {
+					type: 'FeatureCollection',
+					features: features
+				}
+			},
+			paint: paint
+		});
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._changeWeight
+	 * @description 改变当前权重字段
+	 * @param {Array.<GeoJSON>} features - feature。
+	 * @param {String} weightFeild - 权重字段
+	 */
+	_changeWeight(features, weightFeild) {
+		this.fieldMaxValue = {};
+		this._getMaxValue(features, weightFeild);
+		let maxValue = this.fieldMaxValue[weightFeild];
+		features.forEach(feature => {
+			let attributes = feature.properties;
+			let value = attributes[weightFeild];
+			feature['weight'] = value / maxValue;
+		});
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._getMaxValue
+	 * @description 获取当前字段对应的最大值，用于计算权重。
+	 * @param {Array.<GeoJSON>} features - feature。
+	 * @param {String} weightFeild - 权重字段
+	 */
+	_getMaxValue(features, weightField) {
+		let values = [],
+			attributes;
+		let field = weightField;
+		if (this.fieldMaxValue[field]) {
+			return;
+		}
+		features.forEach(feature => {
+			//收集当前权重字段对应的所有值
+			attributes = feature.properties;
+			attributes && parseFloat(attributes[field]) && values.push(parseFloat(attributes[field]));
+		});
+		this.fieldMaxValue[field] = ArrayStatistic_ArrayStatistic.getArrayStatistic(values, 'Maximum');
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._createRangeLayer
+	 * @description 添加分段专题图。
+	 * @param {Array.<GeoJSON>} features - feature。
+	 */
+	_createRangeLayer(layerInfo, features) {
+		let fieldName = layerInfo.themeSetting.themeField;
+		let style = layerInfo.style;
+		let featureType = layerInfo.featureType;
+		let styleGroups = this._getRangeStyleGroup(layerInfo, features);
+		features = this._getFiterFeatures(layerInfo.filterCondition, features);
+
+		let source = {
+			type: 'geojson',
+			data: {
+				type: 'FeatureCollection',
+				features: features
+			}
+		};
+
+		// 获取 expression
+		let expression = ['match', ['get', 'index']];
+		features.forEach(row => {
+			let tartget = parseFloat(row.properties[fieldName]);
+			for (let i = 0; i < styleGroups.length; i++) {
+				if (styleGroups[i].start <= tartget && tartget < styleGroups[i].end) {
+					expression.push(row.properties['index'], styleGroups[i].color);
+					// return;
+				}
+			}
+			!tartget && expression.push(row.properties['index'], 'rgba(0, 0, 0, 0)');
+		}, this);
+		expression.push('rgba(0, 0, 0, 0)');
+
+		// 获取样式
+		let layerStyle = { layout: {} };
+		if (featureType === 'LINE' && style.lineCap) {
+			layerStyle.layout = { 'line-cap': style.lineCap };
+		}
+		let visible = layerInfo.visible;
+		layerStyle.layout.visibility = visible;
+		layerStyle.style = this._transformStyleToMapBoxGl(style, featureType, expression);
+		// 添加图层
+		let layerID = layerInfo.layerID;
+		this._addOverlayToMap(featureType, source, layerID, layerStyle);
+		// 如果面有边框
+		featureType === 'POLYGON' &&
+			style.strokeColor &&
+			this._addStrokeLineForPoly(style, source, layerID + '-strokeline', visible);
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._getFiterFeatures
+	 * @description 通过过滤条件查询满足的 feature。
+	 * @param {String} filterCondition - 过滤条件。
+	 * @param {array} allFeatures - 图层上的 feature 集合
+	 */
+	_getFiterFeatures(filterCondition, allFeatures) {
+		if (!filterCondition) {
+			return allFeatures;
+		}
+		let jsonsqls = external_function_try_return_jsonsql_catch_e_return_default.a ? external_function_try_return_jsonsql_catch_e_return_default.a : window.jsonsql;
+		let condition = this._replaceFilterCharacter(filterCondition);
+		let sql = 'select * from json where (' + condition + ')';
+		let filterFeatures = [];
+		for (let i = 0; i < allFeatures.length; i++) {
+			let feature = allFeatures[i];
+			let filterResult = false;
+			try {
+				filterResult = jsonsqls.query(sql, {
+					properties: feature.properties
+				});
+			} catch (err) {
+				//必须把要过滤得内容封装成一个对象,主要是处理jsonsql(line : 62)中由于with语句遍历对象造成的问题
+				continue;
+			}
+			if (filterResult && filterResult.length > 0) {
+				//afterFilterFeatureIdx.push(i);
+				filterFeatures.push(feature);
+			}
+		}
+		return filterFeatures;
+	}
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._replaceFilterCharacter
+	 * @description 获取过滤字符串。
+	 * @param {String} filterString - 过滤条件。
+	 */
+	_replaceFilterCharacter(filterString) {
+		filterString = filterString
+			.replace(/=/g, '==')
+			.replace(/AND|and/g, '&&')
+			.replace(/or|OR/g, '||')
+			.replace(/<==/g, '<=')
+			.replace(/>==/g, '>=');
+		return filterString;
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._getRangeStyleGroup
+	 * @description 获取分段样式。
+	 * @param {Array.<GeoJSON>} features - feature。
+	 */
+	_getRangeStyleGroup(layerInfo, features) {
+		// 找出分段值
+		let featureType = layerInfo.featureType;
+		let style = layerInfo.style;
+		let values = [],
+			attributes;
+
+		let themeSetting = layerInfo.themeSetting;
+		let customSettings = themeSetting.customSettings;
+		let fieldName = themeSetting.themeField;
+		let segmentCount = themeSetting.segmentCount;
+
+		features.forEach(feature => {
+			attributes = feature.properties || feature.get('Properties');
+			if (attributes) {
+				//过滤掉非数值的数据
+				attributes[fieldName] &&
+					core_Util_Util.isNumber(attributes[fieldName]) &&
+					values.push(parseFloat(attributes[fieldName]));
+			} else if (feature.get(fieldName) && core_Util_Util.isNumber(feature.get(fieldName))) {
+				feature.get(fieldName) && values.push(parseFloat(feature.get(fieldName)));
+			}
+		}, this);
+
+		let segements = ArrayStatistic_ArrayStatistic.getArraySegments(values, themeSetting.segmentMethod, segmentCount);
+		if (segements) {
+			let itemNum = segmentCount;
+			if (attributes && segements[0] === segements[attributes.length - 1]) {
+				itemNum = 1;
+				segements.length = 2;
+			}
+
+			//保留两位有效数
+			for (let key in segements) {
+				let value = segements[key];
+				value = key == 0 ? Math.floor(value * 100) / 100 : Math.ceil(value * 100) / 100 + 0.1; // 加0.1 解决最大值没有样式问题
+				segements[key] = Number(value.toFixed(2));
+			}
+
+			//获取一定量的颜色
+			let curentColors = themeSetting.colors;
+			// curentColors = ColorsPickerUtil.getGradientColors(curentColors, itemNum, 'RANGE');
+
+			for (let index = 0; index < itemNum; index++) {
+				if (index in customSettings) {
+					if (customSettings[index]['segment']['start']) {
+						segements[index] = customSettings[index]['segment']['start'];
+					}
+					if (customSettings[index]['segment']['end']) {
+						segements[index + 1] = customSettings[index]['segment']['end'];
+					}
+				}
+			}
+			//生成styleGroup
+			let styleGroups = [];
+			for (let i = 0; i < itemNum; i++) {
+				let color = curentColors[i];
+				if (i in customSettings) {
+					if (customSettings[i].color) {
+						color = customSettings[i].color;
+					}
+				}
+				if (featureType === 'LINE') {
+					style.strokeColor = color;
+				} else {
+					style.fillColor = color;
+				}
+
+				let start = segements[i];
+				let end = segements[i + 1];
+				let styleObj = JSON.parse(JSON.stringify(style));
+				styleGroups.push({ style: styleObj, color: color, start: start, end: end });
+			}
+			return styleGroups;
+		}
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._formatGeoJSON
+	 * @description 格式 GeoJSON。
+	 * @param {GeoJSON} data - GeoJSON 数据。
+	 */
+	_formatGeoJSON(data) {
+		let features = data.features;
+		features.forEach((row, index) => {
+			row.properties['index'] = index;
+			// TODO 待优化 坐标转换
+			// if (fileCode !== 'EPSG:4326') {
+			//     if(row.geometry.coordinates[0] instanceof Array){
+			//         row.geometry.coordinates.forEach((coords, index) => {
+			//             let lnglat = this._unproject(coords);
+			//             row.geometry.coordinates[index] = [lnglat.lng, lnglat.lat];
+			//         }, this)
+			//         return;
+			//     }
+			//     let lnglat = this._unproject(row.geometry.coordinates);
+			//     row.geometry.coordinates = [lnglat.lng, lnglat.lat];
+			// }
+		});
+		return features;
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._excelData2Feature将
+	 * @description csv 和 xls 文件内容转换成 geojson
+	 * @param content  文件内容
+	 * @param layerInfo  图层信息
+	 * @returns {Array}  feature的数组集合
+	 */
+	_excelData2Feature(dataContent) {
+		let fieldCaptions = dataContent.colTitles;
+		// let fileCode = layerInfo.projection;
+		//位置属性处理
+		let xfieldIndex = -1,
+			yfieldIndex = -1;
+		for (let i = 0, len = fieldCaptions.length; i < len; i++) {
+			if (this._isXField(fieldCaptions[i])) {
+				xfieldIndex = i;
+			}
+			if (this._isYField(fieldCaptions[i])) {
+				yfieldIndex = i;
+			}
+		}
+
+		// feature 构建后期支持坐标系 4326/3857
+		let features = [];
+
+		for (let i = 0, len = dataContent.rows.length; i < len; i++) {
+			let row = dataContent.rows[i];
+
+			let x = Number(row[xfieldIndex]),
+				y = Number(row[yfieldIndex]);
+			// let coordinates = [x, y];
+			// TODO 待优化 坐标转换
+			// if (fileCode !== 'EPSG:4326') {
+			//     if(row.geometry.coordinates[0] instanceof Array){
+			//         row.geometry.coordinates.forEach((coords, index) => {
+			//             let lnglat = this._unproject(coords);
+			//             row.geometry.coordinates[index] = [lnglat.lng, lnglat.lat];
+			//         }, this)
+			//         return;
+			//     }
+			//     let lnglat = this._unproject(row.geometry.coordinates);
+			//     row.geometry.coordinates = [lnglat.lng, lnglat.lat];
+			// }
+
+			//属性信息
+			let attributes = {};
+			for (let index in dataContent.colTitles) {
+				let key = dataContent.colTitles[index];
+				attributes[key] = dataContent.rows[i][index];
+			}
+			attributes['index'] = i + '';
+			//目前csv 只支持处理点，所以先生成点类型的 geojson
+			let feature = {
+				type: 'Feature',
+				geometry: {
+					type: 'Point',
+					coordinates: [x, y]
+				},
+				properties: attributes
+			};
+			features.push(feature);
+		}
+		return features;
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._sendMapToUser
+	 * @description 返回最终的 map 对象给用户，供他们操作使用。
+	 * @param count
+	 * @param layersLen
+	 */
+	_sendMapToUser(count, layersLen) {
+		if (count === layersLen) {
+			/**
+			 * @event mapboxgl.supermap.WebMap#addlayerssucceeded
+			 * @description 添加图层成功。
+			 * @property {mapboxgl.Map} map - MapBoxGL Map 对象。
+			 * @property {Object} mapparams - 地图信息。
+			 * @property {string} mapParams.title - 地图标题。
+			 * @property {string} mapParams.description - 地图描述。
+			 * @property {Array.<Object>} layers - 地图上所有的图层对象
+			 */
+			this.fire('addlayerssucceeded', { map: this.map, mapparams: this.mapParams, layers: this.layers });
+		}
+	}
+
+	/**
+	 * @function mapboxgl.supermap.WebMap.prototype._unproject
+	 * @private
+	 * @description 墨卡托转经纬度。
+	 * @param {} point - 待转换的点。
+	 */
+	_unproject(point) {
+		var d = 180 / Math.PI,
+			r = 6378137,
+			ts = Math.exp(-point[1] / r),
+			phi = Math.PI / 2 - 2 * Math.atan(ts);
+		for (var i = 0, dphi = 0.1, con; i < 15 && Math.abs(dphi) > 1e-7; i++) {
+			con = 1;
+			dphi = Math.PI / 2 - 2 * Math.atan(ts * con) - phi;
+			phi += dphi;
+		}
+		return new external_mapboxgl_default.a.LngLat((point[0] * d) / r, phi * d);
+	}
+
+	/**
+	 * @function mapboxgl.supermap.WebMap.prototype._getParamString
+	 * @private
+	 * @param {Object} obj - 待添加的参数。
+	 * @param {string} existingUrl - 待添加参数的 url。
+	 * @param {Boolean} [uppercase] - 参数是否转换为大写。
+	 */
+	_getParamString(obj, existingUrl, uppercase) {
+		var params = [];
+		for (var i in obj) {
+			params.push((uppercase ? i.toUpperCase() : i) + '=' + obj[i]);
+		}
+		return (!existingUrl || existingUrl.indexOf('?') === -1 ? '?' : '&') + params.join('&');
+	}
+
+	/**
+	 * @private
+	 * @description 判断是否地理X坐标
+	 * @param data
+	 */
+	_isXField(data) {
+		var lowerdata = data.toLowerCase();
+		return (
+			lowerdata === 'x' ||
+			lowerdata === 'smx' ||
+			lowerdata === 'jd' ||
+			lowerdata === '经度' ||
+			lowerdata === '东经' ||
+			lowerdata === 'longitude' ||
+			lowerdata === 'lot' ||
+			lowerdata === 'lon' ||
+			lowerdata === 'lng'
+		);
+	}
+
+	/**
+	 * @private
+	 * @description 判断是否地理Y坐标
+	 * @param data
+	 */
+	_isYField(data) {
+		var lowerdata = data.toLowerCase();
+		return (
+			lowerdata === 'y' ||
+			lowerdata === 'smy' ||
+			lowerdata === 'wd' ||
+			lowerdata === '纬度' ||
+			lowerdata === '北纬' ||
+			lowerdata === 'latitude' ||
+			lowerdata === 'lat'
+		);
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._transformStyleToMapBoxGl
+	 * @description 根据图层类型将 layerInfo 中的 style 属性格式转换为 mapboxgl 中的 style 格式。
+	 * @param {Object} style - layerInfo中的style属性
+	 * @param {String} type - 图层类型
+	 * @param {Array} [expression] - 存储颜色值得表达式
+	 */
+	_transformStyleToMapBoxGl(style, type, expression) {
+		let transTable = {};
+		if ((style.type === 'POINT' || style.type === 'BASIC_POINT' || type === 'POINT') && type !== 'LINE') {
+			transTable = {
+				fillColor: 'circle-color',
+				strokeWidth: 'circle-stroke-width',
+				fillOpacity: 'circle-opacity',
+				radius: 'circle-radius',
+				strokeColor: 'circle-stroke-color',
+				strokeOpacity: 'circle-stroke-opacity'
+			};
+		} else if (type === 'LINE') {
+			transTable = {
+				strokeWidth: 'line-width',
+				strokeColor: 'line-color',
+				strokeOpacity: 'line-opacity'
+			};
+		} else if (type === 'POLYGON') {
+			transTable = {
+				fillColor: 'fill-color',
+				fillOpacity: 'fill-opacity',
+				strokeColor: 'fill-outline-color'
+			};
+		}
+
+		let newObj = {};
+		for (let item in style) {
+			if (transTable[item]) {
+				newObj[transTable[item]] = style[item];
+			}
+		}
+		if (expression) {
+			if (newObj['circle-color']) {
+				newObj['circle-color'] = expression;
+			} else if (newObj['line-color']) {
+				newObj['line-color'] = expression;
+			} else {
+				newObj['fill-color'] = expression;
+			}
+		}
+		if (style.lineDash && style.lineDash !== 'solid' && type === 'LINE') {
+			newObj['line-dasharray'] = this._dashStyle(style);
+		}
+		return newObj;
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype.._dashStyle
+	 * @description 符号样式。
+	 * @param {Object} style - 样式参数。
+	 * @param {number} widthFactor - 宽度系数。
+	 */
+	_dashStyle(style) {
+		if (!style) {
+			return [];
+		}
+		// var w = style.strokeWidth * widthFactor;
+		var w = 1;
+		var str = style.strokeDashstyle || style.lineDash;
+		switch (str) {
+			case 'solid':
+				return [];
+			case 'dot':
+				return [1, 4 * w];
+			case 'dash':
+				return [4 * w, 4 * w];
+			case 'dashdot':
+				return [4 * w, 4 * w, 1 * w, 4 * w];
+			case 'longdash':
+				return [8 * w, 4 * w];
+			case 'longdashdot':
+				return [8 * w, 4 * w, 1, 4 * w];
+			default:
+				if (!str) {
+					return [];
+				}
+				if (Util_Util.isArray(str)) {
+					return str;
+				}
+				str = BaseTypes_StringExt.trim(str).replace(/\s+/g, ',');
+				return str.replace(/\[|\]/gi, '').split(',');
+		}
+	}
+
+	/**
+	 * @private
+	 * @description 将SVG转换成Canvas
+	 * @param svgUrl
+	 * @param divDom
+	 * @param callBack
+	 */
+	_getCanvasFromSVG(svgUrl, divDom, callBack) {
+		//一个图层对应一个canvas
+		let canvas = document.createElement('canvas');
+		canvas.id = 'dataviz-canvas-' + core_Util_Util.newGuid(8);
+		canvas.style.display = 'none';
+		divDom.appendChild(canvas);
+		let canvgs = window.canvg ? window.canvg : external_function_try_return_canvg_catch_e_return_default.a;
+		canvgs(canvas.id, svgUrl, {
+			ignoreMouse: true,
+			ignoreAnimation: true,
+			renderCallback: () => {
+				if (canvas.width > 300 || canvas.height > 300) {
+					return;
+				}
+				callBack(canvas);
+			},
+			forceRedraw: () => {
+				return false;
+			}
+		});
+	}
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._addOverlayToMap
+	 * @description 添加基础矢量图层到 MAP
+	 * @param {Object} style - mabgl style
+	 * @param {String} type - 图层类型
+	 */
+	_addOverlayToMap(type, source, layerID, layerStyle) {
+		let mbglTypeMap = {
+			POINT: 'circle',
+			LINE: 'line',
+			POLYGON: 'fill'
+		};
+		type = mbglTypeMap[type];
+		if (type === 'circle' || type === 'line' || type === 'fill') {
+			this.map.addLayer({
+				id: layerID,
+				type: type,
+				source: source,
+				paint: layerStyle.style,
+				layout: layerStyle.layout || {}
+			});
+		}
+	}
+
+	_addBaselayer(url, layerID, minzoom = 0, maxzoom = 22) {
+		this.map.addLayer({
+			id: layerID,
+			type: 'raster',
+			source: {
+				type: 'raster',
+				tiles: url,
+				tileSize: 256
+			},
+			minzoom: minzoom,
+			maxzoom: maxzoom
+		});
+	}
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._addStrokeLineForPoly
+	 * @description 添加面的边框。
+	 * @param {Object} style - mabgl style
+	 */
+	_addStrokeLineForPoly(style, source, layerID, visible) {
+		let lineStyle = {};
+		lineStyle.style = this._transformStyleToMapBoxGl(style, 'LINE');
+		lineStyle.layout = { visibility: visible };
+		this._addOverlayToMap('LINE', source, layerID, lineStyle);
+	}
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._parseGeoJsonData2Feature
+	 * @description 将从restData地址上获取的json转换成feature（从iserver中获取的json转换成feature）
+	 * @param {object} metaData - json内容
+	 * @returns {Array}  ol.feature的数组集合
+	 */
+	_parseGeoJsonData2Feature(metaData) {
+		let allFeatures = metaData.allDatas.features,
+			features = [];
+		for (let i = 0, len = allFeatures.length; i < len; i++) {
+			// TODO 坐标转换
+			let feature = allFeatures[i];
+			let coordinate = feature.geometry.coordinates;
+			if (allFeatures[i].geometry.type === 'Point') {
+				// 标注图层 还没有属性值时候不加
+				if (allFeatures[i].properties) {
+					allFeatures[i].properties.lon = coordinate[0];
+					allFeatures[i].properties.lat = coordinate[1];
+				}
+			}
+			features.properties['index'] = i + '';
+			features.push(feature);
+		}
+		return features;
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._getFeatureBySQL
+	 * @description 通过 sql 方式查询数据。
+	 */
+	_getFeatureBySQL(url, datasetNames, processCompleted, processFaild) {
+		let getFeatureParam, getFeatureBySQLService, getFeatureBySQLParams;
+		getFeatureParam = new FilterParameter_FilterParameter({
+			name: datasetNames.join().replace(':', '@'),
+			attributeFilter: 'SMID > 0'
+		});
+		getFeatureBySQLParams = new GetFeaturesBySQLParameters_GetFeaturesBySQLParameters({
+			queryParameter: getFeatureParam,
+			datasetNames: datasetNames,
+			fromIndex: 0,
+			toIndex: 100000,
+			returnContent: true
+		});
+		let options = {
+			eventListeners: {
+				processCompleted: getFeaturesEventArgs => {
+					processCompleted && processCompleted(getFeaturesEventArgs);
+				},
+				processFailed: e => {
+					processFaild && processFaild(e);
+				}
+			}
+		};
+		getFeatureBySQLService = new GetFeaturesBySQLService_GetFeaturesBySQLService(url, options);
+		getFeatureBySQLService.processAsync(getFeatureBySQLParams);
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._queryFeatureBySQL
+	 * @description 通过 sql 方式查询数据。
+	 */
+	_queryFeatureBySQL(
+		url,
+		layerName,
+		attributeFilter,
+		fields,
+		epsgCode,
+		processCompleted,
+		processFaild,
+		startRecord,
+		recordLength,
+		onlyAttribute
+	) {
+		var queryParam, queryBySQLParams, queryBySQLService;
+		queryParam = new FilterParameter_FilterParameter({
+			name: layerName,
+			attributeFilter: attributeFilter
+		});
+		if (fields) {
+			queryParam.fields = fields;
+		}
+		var params = {
+			queryParams: [queryParam]
+		};
+		if (onlyAttribute) {
+			params.queryOption = REST_QueryOption.ATTRIBUTE;
+		}
+		startRecord && (params.startRecord = startRecord);
+		recordLength && (params.expectCount = recordLength);
+		if (epsgCode) {
+			params.prjCoordSys = {
+				epsgCode: epsgCode
+			};
+		}
+		queryBySQLParams = new QueryBySQLParameters_QueryBySQLParameters(params);
+		queryBySQLService = new external_mapboxgl_default.a.supermap.QueryService(url);
+		queryBySQLService.queryBySQL(queryBySQLParams, data => {
+			data.type === 'processCompleted' ? processCompleted(data) : processFaild(data);
+		});
+	}
+
+	/**
+	 * @private
+	 * @function mapboxgl.supermap.WebMap.prototype._handleMultyPolygon
+	 * @description 处理复杂面情况
+	 */
+	_handleMultyPolygon(features) {
+		features.forEach(feature => {
+			if (feature.geometry.type !== 'Polygon') {
+				return;
+			}
+			let coords = feature.geometry.coordinates;
+			if (coords.length > 1) {
+				let coordinates = [];
+				coords.forEach(coord => {
+					coordinates.push([coord]);
+				});
+				feature.geometry.coordinates = coordinates;
+				feature.geometry.type = 'MultiPolygon';
+			}
+		});
+		return features;
+	}
 }
 
 external_mapboxgl_default.a.supermap.WebMap = WebMap_WebMap;
+
 // CONCATENATED MODULE: ./src/mapboxgl/mapping/index.js
 
 
@@ -77698,7 +78143,7 @@ external_mapboxgl_default.a.supermap.WebMap = WebMap_WebMap;
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "ElasticSearch", function() { return ElasticSearch_ElasticSearch; });
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "FetchRequest", function() { return FetchRequest_FetchRequest; });
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "ColorsPickerUtil", function() { return ColorsPickerUtil_ColorsPickerUtil; });
-/* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "ArrayStatistic", function() { return ArrayStatistic; });
+/* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "ArrayStatistic", function() { return ArrayStatistic_ArrayStatistic; });
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "AreaSolarRadiationParameters", function() { return AreaSolarRadiationParameters_AreaSolarRadiationParameters; });
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "AggregationParameter", function() { return AggregationParameter_AggregationParameter; });
 /* concated harmony reexport */__webpack_require__.d(__webpack_exports__, "AggQueryBuilderParameter", function() { return AggQueryBuilderParameter_AggQueryBuilderParameter; });

@@ -59,16 +59,16 @@
             inputScript("https://cdnjs.cloudflare.com/ajax/libs/Turf.js/5.1.6/turf.min.js");
         }
         if (inArray(includes, 'echarts')) {
-            inputScript("https://cdnjs.cloudflare.com/ajax/libs/echarts/4.1.0/echarts.min.js");
+          inputScript("https://cdn.jsdelivr.net/npm/echarts@4.1.0/dist/echarts.js");
         }
         if (inArray(includes, 'd3')) {
-            inputScript("http://iclient.supermap.io/web/libs/d3/5.5.0/d3.min.js");
+            inputScript("http://iclient.supermap.io/web/libs/d3/5.5.0/d3.js");
         }
         if (inArray(includes, 'd3-hexbin')) {
             inputScript("https://d3js.org/d3-hexbin.v0.2.min.js");
         }
         if (inArray(includes, 'd3Layer')) {
-            inputScript("http://iclient.supermap.io/libs/leaflet/plugins/leaflet.d3Layer/leaflet-d3Layer.min.js");
+            inputScript("http://iclient.supermap.io/libs/leaflet/plugins/leaflet.d3Layer/leaflet-d3Layer.js");
         }
         if (inArray(includes, 'elasticsearch')) {
             inputScript("https://cdnjs.cloudflare.com/ajax/libs/elasticsearch/15.0.0/elasticsearch.min.js");
@@ -90,11 +90,11 @@
             inputCSS("../../dist/leaflet/iclient9-leaflet.min.css");
         }
         if (inArray(includes, 'iclient9-plot-leaflet')) {
-            inputCSS("http://iclient.supermap.io/web/libs/plotting/leaflet/9.1.1/iclient9-plot-leaflet.css");
+            inputCSS("http://iclient.supermap.io/web/libs/plotting/leaflet/9.1.2/iclient9-plot-leaflet.css");
             if (supportES6()) {
-                inputScript("http://iclient.supermap.io/web/libs/plotting/leaflet/9.1.1/iclient9-plot-leaflet-es6.min.js");
+                inputScript("http://iclient.supermap.io/web/libs/plotting/leaflet/9.1.2/iclient9-plot-leaflet-es6.min.js");
             } else {
-                inputScript("http://iclient.supermap.io/web/libs/plotting/leaflet/9.1.1/iclient9-plot-leaflet.min.js");
+                inputScript("http://iclient.supermap.io/web/libs/plotting/leaflet/9.1.2/iclient9-plot-leaflet.min.js");
             }
         }
         if (inArray(includes, 'leaflet.heat')) {
